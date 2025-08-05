@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import BlogPost, Article
+from .models import BlogPost, Article, Testimony
 
 
 class BlogPostSerializer(serializers.ModelSerializer):
@@ -11,4 +11,9 @@ class BlogPostSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
+        fields = '__all__'
+
+class TestimonySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Testimony
         fields = '__all__'

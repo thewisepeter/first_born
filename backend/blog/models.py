@@ -30,3 +30,15 @@ class Article(models.Model):
 
     def __str__(self):
         return f"{self.title} on {self.page}"
+
+class Testimony(models.Model):
+    title = models.CharField(max_length=150)
+    snippet = models.TextField()
+    author = models.CharField(max_length=100, blank=True, null=True)
+    date_posted = models.DateTimeField(auto_now_add=True)
+    picture = models.ImageField(upload_to='blog_images/', default='blog_images/prophet_namara_logo.png')
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
