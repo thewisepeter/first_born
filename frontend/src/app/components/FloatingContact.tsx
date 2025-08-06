@@ -20,33 +20,33 @@ export function FloatingContact() {
   const [formData, setFormData] = useState<FormData>({
     email: '',
     phone: '',
-    message: ''
+    message: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: '' }));
+      setFormErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
   const validateForm = () => {
     const errors: Partial<FormData> = {};
-    
+
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = 'Please enter a valid email';
     }
-    
+
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
     } else if (!/^[\d\s\-\+\(\)]+$/.test(formData.phone)) {
       errors.phone = 'Please enter a valid phone number';
     }
-    
+
     if (!formData.message.trim()) {
       errors.message = 'Message is required';
     } else if (formData.message.trim().length < 10) {
@@ -59,25 +59,24 @@ export function FloatingContact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Reset form and show success
       setFormData({ email: '', phone: '', message: '' });
       setShowForm(false);
       setIsOpen(false);
-      
+
       // You could show a success toast here
       console.log('Form submitted successfully:', formData);
-      
     } catch (error) {
       console.error('Form submission error:', error);
     } finally {
@@ -114,7 +113,7 @@ export function FloatingContact() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <Phone className="h-5 w-5 text-purple-600 flex-shrink-0" />
@@ -123,7 +122,7 @@ export function FloatingContact() {
                     <p className="text-sm text-gray-600">Call us</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <Mail className="h-5 w-5 text-purple-600 flex-shrink-0" />
                   <div>
@@ -131,7 +130,7 @@ export function FloatingContact() {
                     <p className="text-sm text-gray-600">Email us</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <MapPin className="h-5 w-5 text-purple-600 flex-shrink-0" />
                   <div>
@@ -140,8 +139,8 @@ export function FloatingContact() {
                   </div>
                 </div>
               </div>
-              
-              <Button 
+
+              <Button
                 onClick={() => setShowForm(true)}
                 className="w-full mt-4 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200"
               >
@@ -169,7 +168,7 @@ export function FloatingContact() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -225,7 +224,7 @@ export function FloatingContact() {
                   )}
                 </div>
 
-                <Button 
+                <Button
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"

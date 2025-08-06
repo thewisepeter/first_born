@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface NavigationProps {
   currentPage: string;
@@ -18,11 +19,11 @@ interface NavigationProps {
 export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileMediaExpanded, setIsMobileMediaExpanded] = useState(false);
-  
+
   const navItems = ['Home', 'About', 'Videos'];
   const mediaItems = [
     { name: 'Blog', page: 'Blog' },
-    { name: 'Audio', page: 'Audio' }
+    { name: 'Audio', page: 'Audio' },
   ];
 
   const handleMobileNavClick = (page: string) => {
@@ -47,11 +48,15 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <button 
+              <button
                 onClick={() => handleMobileNavClick('Home')}
                 className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition-colors"
               >
-                Grace Church
+                <ImageWithFallback
+                  src="/prophet_namara_logo.png"
+                  alt="Prophet Namara Logo"
+                  className="h-20 w-auto"
+                />
               </button>
             </div>
 
@@ -70,15 +75,17 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                   {item}
                 </button>
               ))}
-              
+
               {/* Desktop Media Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                    ['Blog', 'Audio'].includes(currentPage)
-                      ? 'text-purple-600 bg-purple-50'
-                      : 'text-gray-600 hover:text-purple-600 hover:bg-gray-50'
-                  }`}>
+                  <button
+                    className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+                      ['Blog', 'Audio'].includes(currentPage)
+                        ? 'text-purple-600 bg-purple-50'
+                        : 'text-gray-600 hover:text-purple-600 hover:bg-gray-50'
+                    }`}
+                  >
                     Media
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
@@ -92,16 +99,12 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
 
             {/* Mobile menu button */}
             <div className="md:hidden">
-              <button 
+              <button
                 onClick={toggleMobileMenu}
                 className="p-2 rounded-md text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-colors"
                 aria-label="Toggle mobile menu"
               >
-                {isMobileMenuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
             </div>
           </div>
@@ -110,16 +113,18 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Mobile Menu Slide Panel */}
-      <div className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
-        isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}>
+      <div
+        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
         <div className="flex flex-col h-full">
           {/* Mobile Menu Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-[#F5F0E1]">
@@ -148,9 +153,7 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                   }`}
                 >
                   <span className="font-medium">{item}</span>
-                  {currentPage === item && (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  )}
+                  {currentPage === item && <div className="w-2 h-2 bg-white rounded-full"></div>}
                 </button>
               ))}
 
@@ -165,15 +168,19 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                   }`}
                 >
                   <span className="font-medium">Media</span>
-                  <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${
-                    isMobileMediaExpanded ? 'rotate-90' : ''
-                  }`} />
+                  <ChevronRight
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                      isMobileMediaExpanded ? 'rotate-90' : ''
+                    }`}
+                  />
                 </button>
 
                 {/* Media Submenu */}
-                <div className={`mt-2 ml-4 space-y-1 overflow-hidden transition-all duration-300 ${
-                  isMobileMediaExpanded ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
-                }`}>
+                <div
+                  className={`mt-2 ml-4 space-y-1 overflow-hidden transition-all duration-300 ${
+                    isMobileMediaExpanded ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
                   {mediaItems.map((item) => (
                     <button
                       key={item.page}

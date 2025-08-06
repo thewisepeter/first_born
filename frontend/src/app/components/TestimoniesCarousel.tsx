@@ -15,39 +15,47 @@ interface Testimony {
 const testimonies: Testimony[] = [
   {
     id: 1,
-    name: "Sarah Johnson",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b9c1d8f1?w=150&h=150&fit=crop&crop=face",
-    quote: "Grace Church has been a blessing in my life. The community here is so welcoming and supportive.",
-    role: "Member since 2019"
+    name: 'Sarah Johnson',
+    image:
+      'https://images.unsplash.com/photo-1494790108755-2616b9c1d8f1?w=150&h=150&fit=crop&crop=face',
+    quote:
+      'Grace Church has been a blessing in my life. The community here is so welcoming and supportive.',
+    role: 'Member since 2019',
   },
   {
     id: 2,
-    name: "Michael Chen",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    quote: "The teachings here have helped me grow spiritually and find purpose in my daily life.",
-    role: "Member since 2020"
+    name: 'Michael Chen',
+    image:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    quote: 'The teachings here have helped me grow spiritually and find purpose in my daily life.',
+    role: 'Member since 2020',
   },
   {
     id: 3,
-    name: "Emily Rodriguez",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    quote: "I found my calling through the youth ministry program. This church changed my life forever.",
-    role: "Youth Leader"
+    name: 'Emily Rodriguez',
+    image:
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    quote:
+      'I found my calling through the youth ministry program. This church changed my life forever.',
+    role: 'Youth Leader',
   },
   {
     id: 4,
-    name: "David Thompson",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+    name: 'David Thompson',
+    image:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
     quote: "The sense of community and fellowship here is incredible. We're truly one big family.",
-    role: "Member since 2018"
+    role: 'Member since 2018',
   },
   {
     id: 5,
-    name: "Lisa Park",
-    image: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face",
-    quote: "Grace Church provided support when I needed it most. The love here is genuine and transformative.",
-    role: "Member since 2021"
-  }
+    name: 'Lisa Park',
+    image:
+      'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face',
+    quote:
+      'Grace Church provided support when I needed it most. The love here is genuine and transformative.',
+    role: 'Member since 2021',
+  },
 ];
 
 export function TestimoniesCarousel() {
@@ -73,11 +81,11 @@ export function TestimoniesCarousel() {
   const maxIndex = Math.max(0, testimonies.length - itemsPerView);
 
   const nextTestimony = () => {
-    setCurrentIndex(prev => Math.min(prev + 1, maxIndex));
+    setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
   };
 
   const prevTestimony = () => {
-    setCurrentIndex(prev => Math.max(prev - 1, 0));
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
   };
 
   return (
@@ -86,14 +94,15 @@ export function TestimoniesCarousel() {
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Community Says</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Hear from members of our church family about their experiences and how Grace Church has impacted their lives.
+            Hear from members of our church family about their experiences and how Grace Church has
+            impacted their lives.
           </p>
         </div>
 
         <div className="relative">
           {/* Testimonies Container */}
           <div className="overflow-hidden">
-            <div 
+            <div
               className="flex transition-transform duration-300 ease-in-out"
               style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
             >
@@ -115,11 +124,11 @@ export function TestimoniesCarousel() {
                           <Quote className="h-4 w-4 text-white" />
                         </div>
                       </div>
-                      
+
                       <blockquote className="text-gray-700 mb-4 italic flex-grow">
                         "{testimony.quote}"
                       </blockquote>
-                      
+
                       <div className="mt-auto">
                         <div className="font-semibold text-gray-900">{testimony.name}</div>
                         <div className="text-sm text-purple-600">{testimony.role}</div>
@@ -140,7 +149,7 @@ export function TestimoniesCarousel() {
               <ChevronLeft className="h-6 w-6" />
             </button>
           )}
-          
+
           {currentIndex < maxIndex && (
             <button
               onClick={nextTestimony}

@@ -16,32 +16,33 @@ interface HeroSlide {
 const heroSlides: HeroSlide[] = [
   {
     id: 1,
-    title: "Welcome to Grace Church",
-    subtitle: "Pastor John Smith",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=face",
-    description: "Join us every Sunday as we worship together and grow in faith"
+    title: 'Welcome to Grace Church',
+    subtitle: 'Pastor John Smith',
+    image:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=face',
+    description: 'Join us every Sunday as we worship together and grow in faith',
   },
   {
     id: 2,
-    title: "Youth Conference 2024",
-    subtitle: "February 15-17",
-    image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop",
-    description: "Three days of worship, learning, and fellowship for young people"
+    title: 'Youth Conference 2024',
+    subtitle: 'February 15-17',
+    image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop',
+    description: 'Three days of worship, learning, and fellowship for young people',
   },
   {
     id: 3,
-    title: "Community Outreach",
-    subtitle: "Serving Our Neighborhood",
-    image: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&h=600&fit=crop",
-    description: "Making a difference in our community through love and service"
+    title: 'Community Outreach',
+    subtitle: 'Serving Our Neighborhood',
+    image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&h=600&fit=crop',
+    description: 'Making a difference in our community through love and service',
   },
   {
     id: 4,
-    title: "Easter Celebration",
-    subtitle: "March 31st",
-    image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800&h=600&fit=crop",
-    description: "Celebrate the resurrection with special services and activities"
-  }
+    title: 'Easter Celebration',
+    subtitle: 'March 31st',
+    image: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800&h=600&fit=crop',
+    description: 'Celebrate the resurrection with special services and activities',
+  },
 ];
 
 export function HeroCarousel() {
@@ -70,7 +71,11 @@ export function HeroCarousel() {
         <div
           key={slide.id}
           className={`absolute inset-0 transition-transform duration-500 ease-in-out ${
-            index === currentSlide ? 'translate-x-0' : index < currentSlide ? '-translate-x-full' : 'translate-x-full'
+            index === currentSlide
+              ? 'translate-x-0'
+              : index < currentSlide
+                ? '-translate-x-full'
+                : 'translate-x-full'
           }`}
         >
           <div className="relative h-full">
@@ -85,7 +90,7 @@ export function HeroCarousel() {
                 <h1 className="text-5xl md:text-6xl font-bold mb-4">{slide.title}</h1>
                 <h2 className="text-2xl md:text-3xl text-[#B28930] mb-6">{slide.subtitle}</h2>
                 <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">{slide.description}</p>
-                <Button 
+                <Button
                   size="lg"
                   className="bg-[#B28930] hover:bg-[#9A7328] text-white px-8 py-4 text-lg"
                 >

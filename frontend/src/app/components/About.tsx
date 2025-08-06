@@ -38,21 +38,24 @@ export function About() {
 
               <div className="prose prose-lg text-gray-700 space-y-4">
                 <p>
-                  Pastor John Smith has been serving God's people for over 25 years, bringing a heart of compassion 
-                  and a passion for biblical truth to every aspect of ministry. He founded Grace Church in 1998 
-                  with a vision to create a community where people could encounter God's love and grow in their faith.
-                </p>
-                
-                <p>
-                  With a Master of Divinity from Seminary University and a Doctor of Ministry focused on pastoral 
-                  leadership, Pastor John combines theological depth with practical wisdom. He is known for his 
-                  engaging preaching style that makes complex biblical concepts accessible to all.
+                  Pastor John Smith has been serving God's people for over 25 years, bringing a
+                  heart of compassion and a passion for biblical truth to every aspect of ministry.
+                  He founded Grace Church in 1998 with a vision to create a community where people
+                  could encounter God's love and grow in their faith.
                 </p>
 
                 <p>
-                  Beyond the pulpit, Pastor John is a devoted husband to Sarah and father to three children. 
-                  He enjoys reading, hiking, and spending quality time with the church family. His heart's desire 
-                  is to see every person discover their God-given purpose and live it out boldly.
+                  With a Master of Divinity from Seminary University and a Doctor of Ministry
+                  focused on pastoral leadership, Pastor John combines theological depth with
+                  practical wisdom. He is known for his engaging preaching style that makes complex
+                  biblical concepts accessible to all.
+                </p>
+
+                <p>
+                  Beyond the pulpit, Pastor John is a devoted husband to Sarah and father to three
+                  children. He enjoys reading, hiking, and spending quality time with the church
+                  family. His heart's desire is to see every person discover their God-given purpose
+                  and live it out boldly.
                 </p>
               </div>
 
@@ -77,7 +80,8 @@ export function About() {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Church & Ministry</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover more about Grace Church, our history, and the various ways we connect with our community.
+              Discover more about Grace Church, our history, and the various ways we connect with
+              our community.
             </p>
           </div>
 
@@ -92,16 +96,27 @@ export function About() {
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  Founded in 1998, Grace Church started with just 25 members in a small community center. 
-                  Today, we're a thriving congregation of over 1,200 members.
+                  Founded in 1998, Grace Church started with just 25 members in a small community
+                  center. Today, we're a thriving congregation of over 1,200 members.
                 </p>
                 <div className="space-y-2 text-sm text-gray-500">
-                  <p><strong>1998:</strong> Church Founded</p>
-                  <p><strong>2003:</strong> First Building</p>
-                  <p><strong>2010:</strong> Youth Center Added</p>
-                  <p><strong>2018:</strong> Community Outreach Hub</p>
+                  <p>
+                    <strong>1998:</strong> Church Founded
+                  </p>
+                  <p>
+                    <strong>2003:</strong> First Building
+                  </p>
+                  <p>
+                    <strong>2010:</strong> Youth Center Added
+                  </p>
+                  <p>
+                    <strong>2018:</strong> Community Outreach Hub
+                  </p>
                 </div>
-                <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white">
+                <Button
+                  variant="outline"
+                  className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
+                >
                   Learn More
                 </Button>
               </CardContent>
@@ -117,16 +132,27 @@ export function About() {
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  "Faith & Hope Radio" broadcasts every Sunday morning at 8:00 AM on KGOD 99.5 FM, 
+                  "Faith & Hope Radio" broadcasts every Sunday morning at 8:00 AM on KGOD 99.5 FM,
                   reaching thousands across our region.
                 </p>
                 <div className="space-y-2 text-sm text-gray-500">
-                  <p><strong>Station:</strong> KGOD 99.5 FM</p>
-                  <p><strong>Time:</strong> Sundays 8:00 AM</p>
-                  <p><strong>Reach:</strong> 50-mile radius</p>
-                  <p><strong>Listeners:</strong> 10,000+ weekly</p>
+                  <p>
+                    <strong>Station:</strong> KGOD 99.5 FM
+                  </p>
+                  <p>
+                    <strong>Time:</strong> Sundays 8:00 AM
+                  </p>
+                  <p>
+                    <strong>Reach:</strong> 50-mile radius
+                  </p>
+                  <p>
+                    <strong>Listeners:</strong> 10,000+ weekly
+                  </p>
                 </div>
-                <Button variant="outline" className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white">
+                <Button
+                  variant="outline"
+                  className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
+                >
                   Listen Online
                 </Button>
               </CardContent>
@@ -142,16 +168,27 @@ export function About() {
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  Watch our weekly sermons, special events, and inspiring testimonies on our YouTube channel 
-                  with over 5,000 subscribers.
+                  Watch our weekly sermons, special events, and inspiring testimonies on our YouTube
+                  channel with over 5,000 subscribers.
                 </p>
                 <div className="space-y-2 text-sm text-gray-500">
-                  <p><strong>Subscribers:</strong> 5,000+</p>
-                  <p><strong>Videos:</strong> 200+ sermons</p>
-                  <p><strong>Views:</strong> 100,000+ total</p>
-                  <p><strong>Upload:</strong> Every Sunday</p>
+                  <p>
+                    <strong>Subscribers:</strong> 5,000+
+                  </p>
+                  <p>
+                    <strong>Videos:</strong> 200+ sermons
+                  </p>
+                  <p>
+                    <strong>Views:</strong> 100,000+ total
+                  </p>
+                  <p>
+                    <strong>Upload:</strong> Every Sunday
+                  </p>
                 </div>
-                <Button variant="outline" className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white">
+                <Button
+                  variant="outline"
+                  className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                >
                   Visit Channel
                 </Button>
               </CardContent>
@@ -167,8 +204,8 @@ export function About() {
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  Stay connected with our church family through our active social media presence across 
-                  multiple platforms.
+                  Stay connected with our church family through our active social media presence
+                  across multiple platforms.
                 </p>
                 <div className="flex justify-center space-x-4 my-4">
                   <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
@@ -186,7 +223,10 @@ export function About() {
                   <p>Instagram: 1,500+ followers</p>
                   <p>Twitter: 800+ followers</p>
                 </div>
-                <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white">
+                <Button
+                  variant="outline"
+                  className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+                >
                   Follow Us
                 </Button>
               </CardContent>
@@ -203,12 +243,14 @@ export function About() {
             <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h3>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                To create a loving community where people can encounter Jesus Christ, grow in their faith, 
-                and discover their God-given purpose while serving others with compassion and grace.
+                To create a loving community where people can encounter Jesus Christ, grow in their
+                faith, and discover their God-given purpose while serving others with compassion and
+                grace.
               </p>
               <div className="border-l-4 border-[#B28930] pl-4">
                 <p className="text-[#B28930] font-semibold italic">
-                  "Go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit."
+                  "Go and make disciples of all nations, baptizing them in the name of the Father
+                  and of the Son and of the Holy Spirit."
                 </p>
                 <p className="text-sm text-gray-600 mt-2">— Matthew 28:19</p>
               </div>
@@ -218,12 +260,14 @@ export function About() {
             <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-3xl font-bold text-gray-900 mb-6">Our Vision</h3>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                To be a beacon of hope in our community, where every person feels valued, loved, and empowered 
-                to live out their faith boldly, transforming lives and communities for God's glory.
+                To be a beacon of hope in our community, where every person feels valued, loved, and
+                empowered to live out their faith boldly, transforming lives and communities for
+                God's glory.
               </p>
               <div className="border-l-4 border-purple-600 pl-4">
                 <p className="text-purple-600 font-semibold italic">
-                  "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, to give you hope and a future."
+                  "For I know the plans I have for you, declares the Lord, plans to prosper you and
+                  not to harm you, to give you hope and a future."
                 </p>
                 <p className="text-sm text-gray-600 mt-2">— Jeremiah 29:11</p>
               </div>

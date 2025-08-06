@@ -21,63 +21,69 @@ const videos: VideoData[] = [
   {
     id: '1',
     title: 'Finding Hope in Difficult Times',
-    description: 'Pastor John shares powerful insights on maintaining faith during life\'s challenges and discovering God\'s purpose in our struggles.',
+    description:
+      "Pastor John shares powerful insights on maintaining faith during life's challenges and discovering God's purpose in our struggles.",
     embedId: 'dQw4w9WgXcQ',
     date: 'January 28, 2024',
     category: 'Sunday Sermon',
     duration: '45:23',
-    views: '2.3K'
+    views: '2.3K',
   },
   {
     id: '2',
     title: 'The Power of Community',
-    description: 'A heartfelt message about the importance of fellowship and how our church family supports one another through life\'s journey.',
+    description:
+      "A heartfelt message about the importance of fellowship and how our church family supports one another through life's journey.",
     embedId: 'dQw4w9WgXcQ',
     date: 'January 21, 2024',
     category: 'Special Message',
     duration: '32:15',
-    views: '1.8K'
+    views: '1.8K',
   },
   {
     id: '3',
     title: 'Testimonies of Grace',
-    description: 'Members of our congregation share their personal stories of transformation and how God has worked in their lives.',
+    description:
+      'Members of our congregation share their personal stories of transformation and how God has worked in their lives.',
     embedId: 'dQw4w9WgXcQ',
     date: 'January 14, 2024',
     category: 'Testimonies',
     duration: '28:42',
-    views: '3.1K'
+    views: '3.1K',
   },
   {
     id: '4',
     title: 'Walking in Faith',
-    description: 'Discover what it means to truly walk by faith and not by sight in your daily Christian journey.',
+    description:
+      'Discover what it means to truly walk by faith and not by sight in your daily Christian journey.',
     embedId: 'dQw4w9WgXcQ',
     date: 'January 7, 2024',
     category: 'Sunday Sermon',
     duration: '41:18',
-    views: '2.7K'
+    views: '2.7K',
   },
   {
     id: '5',
-    title: 'God\'s Love Never Fails',
-    description: 'Experience the overwhelming love of God and how it transforms every aspect of our lives and relationships.',
+    title: "God's Love Never Fails",
+    description:
+      'Experience the overwhelming love of God and how it transforms every aspect of our lives and relationships.',
     embedId: 'dQw4w9WgXcQ',
     date: 'December 31, 2023',
     category: 'New Year Message',
     duration: '38:55',
-    views: '4.2K'
+    views: '4.2K',
   },
   {
     id: '6',
     title: 'Purpose in the Storm',
-    description: 'Understanding how God uses difficult seasons to shape our character and strengthen our faith.',
+    description:
+      'Understanding how God uses difficult seasons to shape our character and strengthen our faith.',
     embedId: 'dQw4w9WgXcQ',
     date: 'December 24, 2023',
     category: 'Christmas Message',
     duration: '35:30',
-    views: '5.1K'
-  }
+    views: '5.1K',
+  },
 ];
 
 export function Videos() {
@@ -86,7 +92,7 @@ export function Videos() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const videosPerPage = 3;
   const totalPages = Math.ceil(videos.length / videosPerPage);
-  
+
   const getCurrentVideos = () => {
     const startIndex = currentPage * videosPerPage;
     return videos.slice(startIndex, startIndex + videosPerPage);
@@ -125,30 +131,37 @@ export function Videos() {
               Sermons & Messages
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Watch our latest sermons, testimonies, and special messages that will inspire and strengthen your faith journey.
+              Watch our latest sermons, testimonies, and special messages that will inspire and
+              strengthen your faith journey.
             </p>
           </div>
 
           {/* Video Tiles Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {getCurrentVideos().map((video) => (
-              <Card key={video.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 shadow-lg overflow-hidden bg-white">
+              <Card
+                key={video.id}
+                className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 shadow-lg overflow-hidden bg-white"
+              >
                 {/* Video Thumbnail */}
-                <div className="relative aspect-video bg-gray-100 overflow-hidden cursor-pointer group/thumbnail" onClick={() => openVideoModal(video)}>
+                <div
+                  className="relative aspect-video bg-gray-100 overflow-hidden cursor-pointer group/thumbnail"
+                  onClick={() => openVideoModal(video)}
+                >
                   {/* Video Thumbnail Image */}
                   <img
                     className="w-full h-full object-cover"
                     src={`https://img.youtube.com/vi/${video.embedId}/maxresdefault.jpg`}
                     alt={video.title}
                   />
-                  
+
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover/thumbnail:opacity-100 transition-opacity duration-300">
                     <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50">
                       <Play className="h-8 w-8 text-white ml-1" fill="currentColor" />
                     </div>
                   </div>
-                  
+
                   {/* Video Duration Overlay */}
                   <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-sm">
                     {video.duration}
@@ -171,9 +184,7 @@ export function Videos() {
                   </h3>
 
                   {/* Description */}
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {video.description}
-                  </p>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{video.description}</p>
 
                   {/* Date */}
                   <p className="text-gray-400 text-xs mb-4">{video.date}</p>
@@ -181,16 +192,16 @@ export function Videos() {
                   {/* Action Buttons */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white text-xs"
                       >
                         <Heart className="h-3 w-3 mr-1" />
                         Like
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white text-xs"
                       >
@@ -198,7 +209,7 @@ export function Videos() {
                         Share
                       </Button>
                     </div>
-                    <Button 
+                    <Button
                       size="sm"
                       className="bg-[#B28930] hover:bg-[#9A7328] text-white text-xs"
                       onClick={() => openVideoModal(video)}
@@ -232,13 +243,13 @@ export function Videos() {
                 {Array.from({ length: totalPages }, (_, i) => (
                   <Button
                     key={i}
-                    variant={currentPage === i ? "default" : "outline"}
+                    variant={currentPage === i ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => goToPage(i)}
                     className={
                       currentPage === i
-                        ? "bg-[#B28930] hover:bg-[#9A7328] text-white"
-                        : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                        ? 'bg-[#B28930] hover:bg-[#9A7328] text-white'
+                        : 'border-gray-300 text-gray-600 hover:bg-gray-50'
                     }
                   >
                     {i + 1}
@@ -263,7 +274,8 @@ export function Videos() {
           {/* Page Info */}
           <div className="text-center mt-4">
             <p className="text-gray-500 text-sm">
-              Showing {currentPage * videosPerPage + 1} - {Math.min((currentPage + 1) * videosPerPage, videos.length)} of {videos.length} videos
+              Showing {currentPage * videosPerPage + 1} -{' '}
+              {Math.min((currentPage + 1) * videosPerPage, videos.length)} of {videos.length} videos
             </p>
           </div>
         </div>
@@ -283,28 +295,29 @@ export function Videos() {
               <div className="space-y-6">
                 <div className="prose prose-lg text-gray-700">
                   <p>
-                    Testimonies are powerful declarations of God's faithfulness and love in our lives. 
-                    When we share our stories of transformation, healing, and breakthrough, we not only 
-                    glorify God but also encourage others who may be facing similar challenges.
-                  </p>
-                  
-                  <p>
-                    Each testimony is a reminder that no situation is too difficult for God, and no 
-                    person is beyond His reach. Through sharing our experiences, we become living proof 
-                    of God's goodness and create a legacy of faith for future generations.
+                    Testimonies are powerful declarations of God's faithfulness and love in our
+                    lives. When we share our stories of transformation, healing, and breakthrough,
+                    we not only glorify God but also encourage others who may be facing similar
+                    challenges.
                   </p>
 
                   <p>
-                    At Grace Church, we believe that every story matters. Whether it's overcoming 
-                    addiction, finding purpose after loss, experiencing healing, or discovering God's 
-                    love for the first time, your testimony has the power to change lives.
+                    Each testimony is a reminder that no situation is too difficult for God, and no
+                    person is beyond His reach. Through sharing our experiences, we become living
+                    proof of God's goodness and create a legacy of faith for future generations.
+                  </p>
+
+                  <p>
+                    At Grace Church, we believe that every story matters. Whether it's overcoming
+                    addiction, finding purpose after loss, experiencing healing, or discovering
+                    God's love for the first time, your testimony has the power to change lives.
                   </p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#B28930]">
                   <blockquote className="text-lg italic text-gray-700 mb-4">
-                    "They triumphed over him by the blood of the Lamb and by the word of their testimony; 
-                    they did not love their lives so much as to shrink from death."
+                    "They triumphed over him by the blood of the Lamb and by the word of their
+                    testimony; they did not love their lives so much as to shrink from death."
                   </blockquote>
                   <cite className="text-[#B28930] font-semibold">— Revelation 12:11</cite>
                 </div>
@@ -321,8 +334,8 @@ export function Videos() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">
-                      Your story of God's faithfulness gives hope to those who are struggling 
-                      and shows them that breakthrough is possible.
+                      Your story of God's faithfulness gives hope to those who are struggling and
+                      shows them that breakthrough is possible.
                     </p>
                   </CardContent>
                 </Card>
@@ -336,8 +349,8 @@ export function Videos() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">
-                      Sharing testimonies creates deeper connections within our church family 
-                      and helps us support one another better.
+                      Sharing testimonies creates deeper connections within our church family and
+                      helps us support one another better.
                     </p>
                   </CardContent>
                 </Card>
@@ -351,8 +364,8 @@ export function Videos() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">
-                      Every testimony points back to God's goodness, love, and power, 
-                      bringing glory to His name and advancing His kingdom.
+                      Every testimony points back to God's goodness, love, and power, bringing glory
+                      to His name and advancing His kingdom.
                     </p>
                   </CardContent>
                 </Card>
@@ -375,7 +388,7 @@ export function Videos() {
               <X className="h-6 w-6" />
             </Button>
           </DialogHeader>
-          
+
           {selectedVideo && (
             <div className="w-full h-full flex flex-col">
               {/* Video Player */}
@@ -389,14 +402,12 @@ export function Videos() {
                   allowFullScreen
                 />
               </div>
-              
+
               {/* Video Info Panel */}
               <div className="bg-white p-6 max-h-48 overflow-y-auto">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                      {selectedVideo.title}
-                    </h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedVideo.title}</h2>
                     <div className="flex items-center text-gray-600 text-sm mb-3 flex-wrap gap-4">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
                         {selectedVideo.category}
@@ -407,23 +418,21 @@ export function Videos() {
                     </div>
                   </div>
                 </div>
-                
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  {selectedVideo.description}
-                </p>
-                
+
+                <p className="text-gray-700 leading-relaxed mb-4">{selectedVideo.description}</p>
+
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
                   >
                     <Heart className="h-4 w-4 mr-2" />
                     Like
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
                   >

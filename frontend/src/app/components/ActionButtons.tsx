@@ -24,41 +24,41 @@ export function ActionButtons() {
     lastName: '',
     email: '',
     phone: '',
-    message: ''
+    message: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<PartnerFormData>>({});
 
   const handleInputChange = (field: keyof PartnerFormData, value: string) => {
-    setPartnerFormData(prev => ({ ...prev, [field]: value }));
+    setPartnerFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: '' }));
+      setFormErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
   const validateForm = () => {
     const errors: Partial<PartnerFormData> = {};
-    
+
     if (!partnerFormData.firstName.trim()) {
       errors.firstName = 'First name is required';
     }
-    
+
     if (!partnerFormData.lastName.trim()) {
       errors.lastName = 'Last name is required';
     }
-    
+
     if (!partnerFormData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerFormData.email)) {
       errors.email = 'Please enter a valid email';
     }
-    
+
     if (!partnerFormData.phone.trim()) {
       errors.phone = 'Phone number is required';
     } else if (!/^[\d\s\-\+\(\)]+$/.test(partnerFormData.phone)) {
       errors.phone = 'Please enter a valid phone number';
     }
-    
+
     if (!partnerFormData.message.trim()) {
       errors.message = 'Message is required';
     } else if (partnerFormData.message.trim().length < 10) {
@@ -71,24 +71,23 @@ export function ActionButtons() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Reset form and close modal
       setPartnerFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
       setFormErrors({});
       setShowPartnerForm(false);
-      
+
       console.log('Partner form submitted successfully:', partnerFormData);
-      
     } catch (error) {
       console.error('Form submission error:', error);
     } finally {
@@ -107,12 +106,10 @@ export function ActionButtons() {
       <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
-              className="bg-[#B28930] hover:bg-[#9A7328] text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-            >
+            <Button className="bg-[#B28930] hover:bg-[#9A7328] text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
               Give
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setShowPartnerForm(true)}
               className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
@@ -136,11 +133,12 @@ export function ActionButtons() {
             </div>
             <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-4 rounded-lg">
               <p className="text-gray-700 text-sm leading-relaxed">
-                Join our church family as a partner! We'd love to learn more about you and how you'd like to get involved in our community and ministry.
+                Join our church family as a partner! We'd love to learn more about you and how you'd
+                like to get involved in our community and ministry.
               </p>
             </div>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -193,9 +191,7 @@ export function ActionButtons() {
                 className={`mt-1 ${formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 disabled={isSubmitting}
               />
-              {formErrors.email && (
-                <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>
-              )}
+              {formErrors.email && <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>}
             </div>
 
             <div>
@@ -211,9 +207,7 @@ export function ActionButtons() {
                 className={`mt-1 ${formErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 disabled={isSubmitting}
               />
-              {formErrors.phone && (
-                <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>
-              )}
+              {formErrors.phone && <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>}
             </div>
 
             <div>
@@ -235,7 +229,7 @@ export function ActionButtons() {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button 
+              <Button
                 type="button"
                 variant="outline"
                 onClick={handleCloseModal}
@@ -244,7 +238,7 @@ export function ActionButtons() {
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"

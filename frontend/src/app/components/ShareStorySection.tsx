@@ -24,41 +24,41 @@ export function ShareStorySection() {
     lastName: '',
     email: '',
     phone: '',
-    message: ''
+    message: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<TestimonyFormData>>({});
 
   const handleInputChange = (field: keyof TestimonyFormData, value: string) => {
-    setTestimonyFormData(prev => ({ ...prev, [field]: value }));
+    setTestimonyFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: '' }));
+      setFormErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
   const validateForm = () => {
     const errors: Partial<TestimonyFormData> = {};
-    
+
     if (!testimonyFormData.firstName.trim()) {
       errors.firstName = 'First name is required';
     }
-    
+
     if (!testimonyFormData.lastName.trim()) {
       errors.lastName = 'Last name is required';
     }
-    
+
     if (!testimonyFormData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testimonyFormData.email)) {
       errors.email = 'Please enter a valid email';
     }
-    
+
     if (!testimonyFormData.phone.trim()) {
       errors.phone = 'Phone number is required';
     } else if (!/^[\d\s\-\+\(\)]+$/.test(testimonyFormData.phone)) {
       errors.phone = 'Please enter a valid phone number';
     }
-    
+
     if (!testimonyFormData.message.trim()) {
       errors.message = 'Testimony is required';
     } else if (testimonyFormData.message.trim().length < 20) {
@@ -71,24 +71,23 @@ export function ShareStorySection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Reset form and close modal
       setTestimonyFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
       setFormErrors({});
       setShowTestimonyForm(false);
-      
+
       console.log('Testimony form submitted successfully:', testimonyFormData);
-      
     } catch (error) {
       console.error('Form submission error:', error);
     } finally {
@@ -109,11 +108,11 @@ export function ShareStorySection() {
           <div className="text-center p-8 bg-gradient-to-r from-purple-50 to-[#F5F0E1] rounded-2xl max-w-4xl mx-auto">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Share Your Story?</h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              We would love to hear how God has been working in your life. Your testimony could be 
+              We would love to hear how God has been working in your life. Your testimony could be
               the encouragement someone else needs to take their next step of faith.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
+              <Button
                 size="lg"
                 onClick={() => setShowTestimonyForm(true)}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-8"
@@ -121,7 +120,7 @@ export function ShareStorySection() {
                 <BookOpen className="h-4 w-4 mr-2" />
                 Share Your Testimony
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 size="lg"
                 className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white px-8"
@@ -146,11 +145,12 @@ export function ShareStorySection() {
             </div>
             <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-4 rounded-lg">
               <p className="text-gray-700 text-sm leading-relaxed">
-                Your story of faith, transformation, and God's goodness has the power to inspire others. Share how God has worked in your life!
+                Your story of faith, transformation, and God's goodness has the power to inspire
+                others. Share how God has worked in your life!
               </p>
             </div>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -203,9 +203,7 @@ export function ShareStorySection() {
                 className={`mt-1 ${formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 disabled={isSubmitting}
               />
-              {formErrors.email && (
-                <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>
-              )}
+              {formErrors.email && <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>}
             </div>
 
             <div>
@@ -221,9 +219,7 @@ export function ShareStorySection() {
                 className={`mt-1 ${formErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 disabled={isSubmitting}
               />
-              {formErrors.phone && (
-                <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>
-              )}
+              {formErrors.phone && <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>}
             </div>
 
             <div>
@@ -245,7 +241,7 @@ export function ShareStorySection() {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button 
+              <Button
                 type="button"
                 variant="outline"
                 onClick={handleCloseModal}
@@ -254,7 +250,7 @@ export function ShareStorySection() {
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
