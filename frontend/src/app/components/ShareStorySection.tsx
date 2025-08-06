@@ -1,34 +1,284 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Label } from './ui/label';
+import { X, Send, BookOpen, Phone } from 'lucide-react';
+
+interface TestimonyFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  message: string;
+}
 
 export function ShareStorySection() {
+  const [showTestimonyForm, setShowTestimonyForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [testimonyFormData, setTestimonyFormData] = useState<TestimonyFormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+  const [formErrors, setFormErrors] = useState<Partial<TestimonyFormData>>({});
+
+  const handleInputChange = (field: keyof TestimonyFormData, value: string) => {
+    setTestimonyFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field when user starts typing
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors: Partial<TestimonyFormData> = {};
+    
+    if (!testimonyFormData.firstName.trim()) {
+      errors.firstName = 'First name is required';
+    }
+    
+    if (!testimonyFormData.lastName.trim()) {
+      errors.lastName = 'Last name is required';
+    }
+    
+    if (!testimonyFormData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testimonyFormData.email)) {
+      errors.email = 'Please enter a valid email';
+    }
+    
+    if (!testimonyFormData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!/^[\d\s\-\+\(\)]+$/.test(testimonyFormData.phone)) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    
+    if (!testimonyFormData.message.trim()) {
+      errors.message = 'Testimony is required';
+    } else if (testimonyFormData.message.trim().length < 20) {
+      errors.message = 'Testimony must be at least 20 characters';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    // Simulate form submission
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Reset form and close modal
+      setTestimonyFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+      setFormErrors({});
+      setShowTestimonyForm(false);
+      
+      console.log('Testimony form submitted successfully:', testimonyFormData);
+      
+    } catch (error) {
+      console.error('Form submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowTestimonyForm(false);
+    setFormErrors({});
+    setTestimonyFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+  };
+
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center p-8 bg-gradient-to-r from-purple-50 to-[#F5F0E1] rounded-2xl max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Share Your Story?</h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            We would love to hear how God has been working in your life. Your testimony could be 
-            the encouragement someone else needs to take their next step of faith.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg"
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8"
-            >
-              Share Your Testimony
-            </Button>
-            <Button 
-              variant="outline"
-              size="lg"
-              className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white px-8"
-            >
-              Contact Pastor
-            </Button>
+    <>
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center p-8 bg-gradient-to-r from-purple-50 to-[#F5F0E1] rounded-2xl max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Ready to Share Your Story?</h3>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              We would love to hear how God has been working in your life. Your testimony could be 
+              the encouragement someone else needs to take their next step of faith.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg"
+                onClick={() => setShowTestimonyForm(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-8"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Share Your Testimony
+              </Button>
+              <Button 
+                variant="outline"
+                size="lg"
+                className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white px-8"
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                Contact Pastor
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Share Testimony Modal */}
+      <Dialog open={showTestimonyForm} onOpenChange={setShowTestimonyForm}>
+        <DialogContent className="max-w-lg w-[95%] max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center">
+                <BookOpen className="h-6 w-6 mr-2 text-purple-600" />
+                Share Your Testimony
+              </DialogTitle>
+            </div>
+            <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-4 rounded-lg">
+              <p className="text-gray-700 text-sm leading-relaxed">
+                Your story of faith, transformation, and God's goodness has the power to inspire others. Share how God has worked in your life!
+              </p>
+            </div>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                  First Name *
+                </Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  value={testimonyFormData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  placeholder="John"
+                  className={`mt-1 ${formErrors.firstName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  disabled={isSubmitting}
+                />
+                {formErrors.firstName && (
+                  <p className="mt-1 text-xs text-red-600">{formErrors.firstName}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                  Last Name *
+                </Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  value={testimonyFormData.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  placeholder="Smith"
+                  className={`mt-1 ${formErrors.lastName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  disabled={isSubmitting}
+                />
+                {formErrors.lastName && (
+                  <p className="mt-1 text-xs text-red-600">{formErrors.lastName}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                Email Address *
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={testimonyFormData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder="john.smith@example.com"
+                className={`mt-1 ${formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                disabled={isSubmitting}
+              />
+              {formErrors.email && (
+                <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                Phone Number *
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={testimonyFormData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                placeholder="(555) 123-4567"
+                className={`mt-1 ${formErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                disabled={isSubmitting}
+              />
+              {formErrors.phone && (
+                <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="message" className="text-sm font-medium text-gray-700">
+                Your Testimony *
+              </Label>
+              <Textarea
+                id="message"
+                value={testimonyFormData.message}
+                onChange={(e) => handleInputChange('message', e.target.value)}
+                placeholder="Share your story of faith, transformation, healing, or how God has worked in your life. Your testimony could be exactly what someone else needs to hear..."
+                rows={6}
+                className={`mt-1 resize-none ${formErrors.message ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                disabled={isSubmitting}
+              />
+              {formErrors.message && (
+                <p className="mt-1 text-xs text-red-600">{formErrors.message}</p>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={handleCloseModal}
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                    Sharing...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Share Testimony
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <p className="text-xs text-gray-500 text-center pt-2">
+              Your testimony will be reviewed before being shared publicly
+            </p>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
