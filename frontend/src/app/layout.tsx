@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/prophet_namara_logo.png" />
       </head>
       <body className="antialiased">
         {children}
