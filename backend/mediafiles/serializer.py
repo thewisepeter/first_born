@@ -7,6 +7,12 @@ class AudioSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class VideoSerializer(serializers.ModelSerializer):
+    date = serializers.SerializerMethodField()
+
     class Meta:
         model = Video
-        fields = '__all__'
+        fields = ['id', 'title', 'description', 'embed_id', 'source_url', 'duration', 'views', 'category', 'date']
+
+    def get_date(self, obj):
+        return obj.formatted_date()
+
