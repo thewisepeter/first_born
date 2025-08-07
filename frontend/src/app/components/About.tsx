@@ -105,13 +105,13 @@ export function About({ setCurrentPage }: AboutProps) {
                   Fellowship on February 17th, 2015. It was founded to usher God’s children into a
                   family where Jesus is recognized as the Firstborn.
                 </p>
-                <p className="text-gray-600">
+                {/* <p className="text-gray-600">
                   What sets this ministry apart is the unique grace not only to teach but also to
                   impart the tangible reality of God's supernatural realm. At Prophet Namara Ernest
                   Ministries, we are advancing toward a dimension where the Lord’s anointing and
                   prosperity are at their fullest—raising a people who walk boldly and consistently
                   in the supernatural.
-                </p>
+                </p> */}
               </CardContent>
             </Card>
 
