@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Play, Heart, Users, MessageSquare, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -10,88 +10,42 @@ interface VideoData {
   id: string;
   title: string;
   description: string;
-  embedId: string;
+  embed_id: string;
+  source_url: string;
   date: string;
   category: string;
   duration: string;
   views: string;
 }
 
-const videos: VideoData[] = [
-  {
-    id: '1',
-    title: 'Finding Hope in Difficult Times',
-    description:
-      "Pastor John shares powerful insights on maintaining faith during life's challenges and discovering God's purpose in our struggles.",
-    embedId: 'dQw4w9WgXcQ',
-    date: 'January 28, 2024',
-    category: 'Sunday Sermon',
-    duration: '45:23',
-    views: '2.3K',
-  },
-  {
-    id: '2',
-    title: 'The Power of Community',
-    description:
-      "A heartfelt message about the importance of fellowship and how our church family supports one another through life's journey.",
-    embedId: 'dQw4w9WgXcQ',
-    date: 'January 21, 2024',
-    category: 'Special Message',
-    duration: '32:15',
-    views: '1.8K',
-  },
-  {
-    id: '3',
-    title: 'Testimonies of Grace',
-    description:
-      'Members of our congregation share their personal stories of transformation and how God has worked in their lives.',
-    embedId: 'dQw4w9WgXcQ',
-    date: 'January 14, 2024',
-    category: 'Testimonies',
-    duration: '28:42',
-    views: '3.1K',
-  },
-  {
-    id: '4',
-    title: 'Walking in Faith',
-    description:
-      'Discover what it means to truly walk by faith and not by sight in your daily Christian journey.',
-    embedId: 'dQw4w9WgXcQ',
-    date: 'January 7, 2024',
-    category: 'Sunday Sermon',
-    duration: '41:18',
-    views: '2.7K',
-  },
-  {
-    id: '5',
-    title: "God's Love Never Fails",
-    description:
-      'Experience the overwhelming love of God and how it transforms every aspect of our lives and relationships.',
-    embedId: 'dQw4w9WgXcQ',
-    date: 'December 31, 2023',
-    category: 'New Year Message',
-    duration: '38:55',
-    views: '4.2K',
-  },
-  {
-    id: '6',
-    title: 'Purpose in the Storm',
-    description:
-      'Understanding how God uses difficult seasons to shape our character and strengthen our faith.',
-    embedId: 'dQw4w9WgXcQ',
-    date: 'December 24, 2023',
-    category: 'Christmas Message',
-    duration: '35:30',
-    views: '5.1K',
-  },
-];
-
 export function Videos() {
+  const [videos, setVideos] = useState<VideoData[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const videosPerPage = 3;
   const totalPages = Math.ceil(videos.length / videosPerPage);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/mediafiles/video/');
+        if (!response.ok) throw new Error('Failed to fetch videos');
+
+        const data = await response.json();
+        console.log(data);
+        setVideos(data); // Ensure this matches the shape of your API
+        setLoading(false);
+      } catch (err: any) {
+        setError(err.message || 'An error occurred');
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
 
   const getCurrentVideos = () => {
     const startIndex = currentPage * videosPerPage;
@@ -151,7 +105,7 @@ export function Videos() {
                   {/* Video Thumbnail Image */}
                   <img
                     className="w-full h-full object-cover"
-                    src={`https://img.youtube.com/vi/${video.embedId}/maxresdefault.jpg`}
+                    src={`https://img.youtube.com/vi/${video.embed_id}/maxresdefault.jpg`}
                     alt={video.title}
                   />
 
@@ -163,9 +117,6 @@ export function Videos() {
                   </div>
 
                   {/* Video Duration Overlay */}
-                  <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-sm">
-                    {video.duration}
-                  </div>
                 </div>
 
                 {/* Video Content */}
@@ -175,7 +126,7 @@ export function Videos() {
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
                       {video.category}
                     </span>
-                    <span className="text-gray-500 text-xs">{video.views} views</span>
+                    <span className="text-gray-500 text-xs">{video.date}</span>
                   </div>
 
                   {/* Title */}
@@ -186,29 +137,9 @@ export function Videos() {
                   {/* Description */}
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">{video.description}</p>
 
-                  {/* Date */}
-                  <p className="text-gray-400 text-xs mb-4">{video.date}</p>
-
                   {/* Action Buttons */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white text-xs"
-                      >
-                        <Heart className="h-3 w-3 mr-1" />
-                        Like
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white text-xs"
-                      >
-                        <MessageSquare className="h-3 w-3 mr-1" />
-                        Share
-                      </Button>
-                    </div>
+                    <div className="flex items-center space-x-2"></div>
                     <Button
                       size="sm"
                       className="bg-[#B28930] hover:bg-[#9A7328] text-white text-xs"
@@ -395,7 +326,7 @@ export function Videos() {
               <div className="flex-1 relative">
                 <iframe
                   className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${selectedVideo.embedId}?autoplay=1&rel=0&modestbranding=1`}
+                  src={selectedVideo.source_url}
                   title={selectedVideo.title}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
