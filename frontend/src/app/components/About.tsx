@@ -1,14 +1,28 @@
 'use client';
 
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Calendar, Users, Radio, Youtube, Facebook, Twitter, Instagram, Music } from 'lucide-react';
+import {
+  Calendar,
+  Users,
+  Radio,
+  Youtube,
+  Facebook,
+  Twitter,
+  Instagram,
+  Music,
+  Music2,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 
-export function About() {
+interface AboutProps {
+  setCurrentPage: (page: string) => void;
+}
+
+export function About({ setCurrentPage }: AboutProps) {
   return (
     <div className="min-h-screen bg-white">
-      {/* Pastor Hero Section */}
+      {/* Prophet Hero Section */}
       <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -16,8 +30,8 @@ export function About() {
             <div className="relative">
               <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                 <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=700&fit=crop&crop=face"
-                  alt="Pastor John Smith"
+                  src="/pn_abt.jpg"
+                  alt="Prophet Namara Ernest"
                   className="w-full h-[500px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -27,46 +41,37 @@ export function About() {
               <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-purple-600 rounded-full opacity-20" />
             </div>
 
-            {/* Pastor Bio */}
+            {/* Prophet Bio */}
             <div className="space-y-6">
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                  Meet Pastor John Smith
+                  Prophet Namara Ernest
                 </h1>
-                <h2 className="text-2xl text-[#B28930] mb-6">Senior Pastor & Founder</h2>
+                <h2 className="text-2xl text-[#B28930] mb-6">Founder</h2>
               </div>
 
               <div className="prose prose-lg text-gray-700 space-y-4">
                 <p>
-                  Pastor John Smith has been serving God's people for over 25 years, bringing a
-                  heart of compassion and a passion for biblical truth to every aspect of ministry.
-                  He founded Grace Church in 1998 with a vision to create a community where people
-                  could encounter God's love and grow in their faith.
+                  Prophet Namara Ernest is a prophet of God called to Preserve and Protect the
+                  people of the Lord. He operates after the order of Prophet Elijah. Prophet Namara
+                  began his walk with the Lord at the tender age of three, entering into a deep and
+                  intimate relationship with God. Years later, on December 20th, 1998, he publicly
+                  declared his commitment by giving his life to Christ.
                 </p>
 
                 <p>
-                  With a Master of Divinity from Seminary University and a Doctor of Ministry
-                  focused on pastoral leadership, Pastor John combines theological depth with
-                  practical wisdom. He is known for his engaging preaching style that makes complex
-                  biblical concepts accessible to all.
-                </p>
-
-                <p>
-                  Beyond the pulpit, Pastor John is a devoted husband to Sarah and father to three
-                  children. He enjoys reading, hiking, and spending quality time with the church
-                  family. His heart's desire is to see every person discover their God-given purpose
-                  and live it out boldly.
+                  His commission into ministry began in 2012 when the Lord spoke clearly to him
+                  about his calling. However, the specific details of his assignment remained
+                  unclear until June 24th, 2014, when his spiritual father, Prophet Elvis Mbonye,
+                  confirmed the exact nature of his mission. Later, on February 2nd, 2016, the Lord
+                  equipped him with divine weapons of power for the work ahead.
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-4 pt-4">
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4 text-purple-600" />
-                  <span>25+ Years in Ministry</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Users className="h-4 w-4 text-purple-600" />
-                  <span>Church Founder</span>
+                  <span>Founder First Born Ministries</span>
                 </div>
               </div>
             </div>
@@ -78,10 +83,10 @@ export function About() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Church & Ministry</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Fellowship & Ministry</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover more about Grace Church, our history, and the various ways we connect with
-              our community.
+              Discover more about Prophet Namara, Firstborn Ministries and how you can connect with
+              us.
             </p>
           </div>
 
@@ -92,33 +97,21 @@ export function About() {
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Calendar className="h-8 w-8 text-white" />
                 </div>
-                <CardTitle className="text-xl text-gray-900">Our History</CardTitle>
+                <CardTitle className="text-xl text-gray-900">First Born Ministries</CardTitle>
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  Founded in 1998, Grace Church started with just 25 members in a small community
-                  center. Today, we're a thriving congregation of over 1,200 members.
+                  Prophet Namara Ernest Ministries began as a fellowship in Kampala called Firstborn
+                  Fellowship on February 17th, 2015. It was founded to usher God’s children into a
+                  family where Jesus is recognized as the Firstborn.
                 </p>
-                <div className="space-y-2 text-sm text-gray-500">
-                  <p>
-                    <strong>1998:</strong> Church Founded
-                  </p>
-                  <p>
-                    <strong>2003:</strong> First Building
-                  </p>
-                  <p>
-                    <strong>2010:</strong> Youth Center Added
-                  </p>
-                  <p>
-                    <strong>2018:</strong> Community Outreach Hub
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
-                >
-                  Learn More
-                </Button>
+                <p className="text-gray-600">
+                  What sets this ministry apart is the unique grace not only to teach but also to
+                  impart the tangible reality of God's supernatural realm. At Prophet Namara Ernest
+                  Ministries, we are advancing toward a dimension where the Lord’s anointing and
+                  prosperity are at their fullest—raising a people who walk boldly and consistently
+                  in the supernatural.
+                </p>
               </CardContent>
             </Card>
 
@@ -128,31 +121,24 @@ export function About() {
                 <div className="w-16 h-16 bg-gradient-to-br from-[#B28930] to-[#9A7328] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Radio className="h-8 w-8 text-white" />
                 </div>
-                <CardTitle className="text-xl text-gray-900">Radio Ministry</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Spirit World</CardTitle>
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  "Faith & Hope Radio" broadcasts every Sunday morning at 8:00 AM on KGOD 99.5 FM,
-                  reaching thousands across our region.
+                  In 2016, Prophet Namara Ernest began broadcasting the Spirit World program on
+                  radio. It officially launched on Uganda’s 96.6 Spirit FM on December 9, 2019, and
+                  continues to impact lives today.
                 </p>
-                <div className="space-y-2 text-sm text-gray-500">
-                  <p>
-                    <strong>Station:</strong> KGOD 99.5 FM
-                  </p>
-                  <p>
-                    <strong>Time:</strong> Sundays 8:00 AM
-                  </p>
-                  <p>
-                    <strong>Reach:</strong> 50-mile radius
-                  </p>
-                  <p>
-                    <strong>Listeners:</strong> 10,000+ weekly
-                  </p>
-                </div>
+                <p className="text-gray-600">
+                  "Spirit World" broadcasts every <strong>Monday</strong> evening at{' '}
+                  <strong>10:00 PM</strong> on <strong>Spirit FM 96.6</strong>, in Kampala Uganda.
+                </p>
                 <Button
                   variant="outline"
-                  className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
+                  onClick={() => setCurrentPage('Audio')}
+                  className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white transition-all duration-200"
                 >
+                  <Music className="h-4 w-4 mr-2" />
                   Listen Online
                 </Button>
               </CardContent>
@@ -167,30 +153,25 @@ export function About() {
                 <CardTitle className="text-xl text-gray-900">YouTube Channel</CardTitle>
               </CardHeader>
               <CardContent className="text-center space-y-4">
-                <p className="text-gray-600">
-                  Watch our weekly sermons, special events, and inspiring testimonies on our YouTube
-                  channel with over 5,000 subscribers.
-                </p>
-                <div className="space-y-2 text-sm text-gray-500">
-                  <p>
-                    <strong>Subscribers:</strong> 5,000+
+                <p className="text-gray-600">Watch amazing prophetic fulfilments</p>
+
+                <div className="border-l-4 border-[#B28930] pl-4">
+                  <p className="text-[#B28930] font-semibold italic">
+                    "Believe in the Lord your God, so shall ye be established, believe his prophets,
+                    so shall ye prosper"
                   </p>
-                  <p>
-                    <strong>Videos:</strong> 200+ sermons
-                  </p>
-                  <p>
-                    <strong>Views:</strong> 100,000+ total
-                  </p>
-                  <p>
-                    <strong>Upload:</strong> Every Sunday
-                  </p>
+                  <p className="text-sm text-gray-600 mt-2">— 2 Chronicles 20:20</p>
                 </div>
-                <Button
-                  variant="outline"
-                  className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+
+                <a
+                  href="https://www.youtube.com/channel/UCjF4Z56eCPD-gnWO1TOmFMQ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition-all duration-200 flex items-center justify-center px-4 py-2 rounded-md"
                 >
+                  <Youtube className="h-4 w-4 mr-2" />
                   Visit Channel
-                </Button>
+                </a>
               </CardContent>
             </Card>
 
@@ -208,27 +189,46 @@ export function About() {
                   across multiple platforms.
                 </p>
                 <div className="flex justify-center space-x-4 my-4">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <a
+                    href="https://www.facebook.com/ProphetNamara"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition"
+                  >
                     <Facebook className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center">
+                  </a>
+
+                  <a
+                    href="https://x.com/ProphetNamara"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="X (Twitter)"
+                    className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-500 transition"
+                  >
                     <Twitter className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center">
+                  </a>
+
+                  <a
+                    href="https://www.instagram.com/prophetnamara/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition"
+                  >
                     <Instagram className="h-5 w-5 text-white" />
-                  </div>
+                  </a>
+
+                  <a
+                    href="https://vm.tiktok.com/ZMSRsYWM1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="TikTok"
+                    className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-neutral-800 transition"
+                  >
+                    <Music2 className="h-5 w-5 text-white" />
+                  </a>
                 </div>
-                <div className="space-y-1 text-sm text-gray-500">
-                  <p>Facebook: 3,000+ followers</p>
-                  <p>Instagram: 1,500+ followers</p>
-                  <p>Twitter: 800+ followers</p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
-                >
-                  Follow Us
-                </Button>
               </CardContent>
             </Card>
           </div>
@@ -241,35 +241,35 @@ export function About() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Mission */}
             <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-6">Prophetic Mandate</h3>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                To create a loving community where people can encounter Jesus Christ, grow in their
-                faith, and discover their God-given purpose while serving others with compassion and
-                grace.
+                A mandate can be simply defined as an official order or commission to do something.
+                The mandate upon Prophet Namara’s life is to Preserve and Protect that which has
+                been entrusted to him. His calling is in preserving and protecting those that the
+                Lord brings to him and the grace is abundant.
               </p>
-              <div className="border-l-4 border-[#B28930] pl-4">
-                <p className="text-[#B28930] font-semibold italic">
-                  "Go and make disciples of all nations, baptizing them in the name of the Father
-                  and of the Son and of the Holy Spirit."
-                </p>
-                <p className="text-sm text-gray-600 mt-2">— Matthew 28:19</p>
-              </div>
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                This grace is like salt that is used to preserve something and it will not go bad,
+                fade away or rot. We are rest assured that as long as our heart is with the man of
+                God, our destiny is preserved and protected.
+              </p>
             </div>
 
             {/* Vision */}
             <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">Our Vision</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-6">First Born</h3>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                To be a beacon of hope in our community, where every person feels valued, loved, and
-                empowered to live out their faith boldly, transforming lives and communities for
-                God's glory.
+                The Lord Jesus appeared to and instructed Prophet Namara Ernest to demonstrate ‘The
+                Assembly of the Firstborn’.
               </p>
-              <div className="border-l-4 border-purple-600 pl-4">
-                <p className="text-purple-600 font-semibold italic">
-                  "For I know the plans I have for you, declares the Lord, plans to prosper you and
-                  not to harm you, to give you hope and a future."
+              <div className="border-l-4 border-[#B28930] pl-4">
+                <p className="text-[#B28930] font-semibold italic">
+                  "But you have come to Mount Zion and to the city of the living God, the heavenly
+                  Jerusalem, to an innumerable company of angels, 23 to the general assembly and
+                  church of the <strong>firstborn</strong> who are registered in heaven, to God the
+                  Judge of all, to the spirits of just men made perfect"
                 </p>
-                <p className="text-sm text-gray-600 mt-2">— Jeremiah 29:11</p>
+                <p className="text-sm text-gray-600 mt-2">— Hebrews 12:22-23</p>
               </div>
             </div>
           </div>

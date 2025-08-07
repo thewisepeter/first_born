@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { ActionButtons } from './components/ActionButtons';
 import { HeroCarousel } from './components/HeroCarousel';
@@ -16,10 +16,19 @@ import { Facebook, Twitter, Instagram, Youtube, Music2 } from 'lucide-react';
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState('Home');
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    });
+  }, [currentPage]);
+
   const renderPage = () => {
     switch (currentPage) {
       case 'About':
-        return <About />;
+        return <About setCurrentPage={setCurrentPage} />;
       case 'Videos':
         return <Videos />;
       case 'Blog':
@@ -60,7 +69,6 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <h3 className="text-2xl font-bold text-[#B28930] mb-4">Follow Prophet Namara</h3>
-
               <div className="flex space-x-4">
                 <a
                   href="https://x.com/ProphetNamara"
