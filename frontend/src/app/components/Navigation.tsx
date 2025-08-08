@@ -27,8 +27,8 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
   ];
 
   const mediaItems = [
-    { name: 'Blog', page: 'Blog' },
-    { name: 'Audio', page: 'Audio' },
+    { name: "Prophet's Blog", page: 'Blog' },
+    { name: 'Spirit World', page: 'Audio' },
   ];
 
   const handleMobileNavClick = (page: string) => {
@@ -96,8 +96,12 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setCurrentPage('Blog')}>Blog</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setCurrentPage('Audio')}>Audio</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setCurrentPage('Blog')}>
+                    Prophet's Blog
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setCurrentPage('Audio')}>
+                    Spirit World
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

@@ -11,6 +11,7 @@ import {
   Clock,
   User,
   Headphones,
+  Music,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Button } from './ui/button';
@@ -38,7 +39,7 @@ const audioRecordings: AudioItem[] = [
     duration: '42:15',
     description:
       "An inspiring message about trusting God's plan even when we cannot see the full picture. Discover how faith can transform your perspective and lead to breakthrough.",
-    driveUrl: 'https://drive.google.com/file/d/1abc123def456/preview',
+    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
     series: 'Faith Series',
     downloads: 287,
   },
@@ -50,7 +51,7 @@ const audioRecordings: AudioItem[] = [
     duration: '38:22',
     description:
       "Exploring how meaningful relationships within the church can strengthen our faith and provide support during life's challenges.",
-    driveUrl: 'https://drive.google.com/file/d/2def456ghi789/preview',
+    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
     series: 'Community Life',
     downloads: 201,
   },
@@ -62,7 +63,7 @@ const audioRecordings: AudioItem[] = [
     duration: '45:08',
     description:
       "When life feels overwhelming, discover how God's promises can provide hope and strength for the journey ahead.",
-    driveUrl: 'https://drive.google.com/file/d/3ghi789jkl012/preview',
+    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
     series: 'Hope & Encouragement',
     downloads: 324,
   },
@@ -74,7 +75,7 @@ const audioRecordings: AudioItem[] = [
     duration: '35:45',
     description:
       "Learn how serving others can transform your life and help you discover God's unique calling on your life.",
-    driveUrl: 'https://drive.google.com/file/d/4jkl012mno345/preview',
+    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
     series: 'Ministry & Service',
     downloads: 156,
   },
@@ -86,7 +87,7 @@ const audioRecordings: AudioItem[] = [
     duration: '40:30',
     description:
       'Unlock the power of prayer and learn how to develop a deeper, more meaningful prayer life that brings real transformation.',
-    driveUrl: 'https://drive.google.com/file/d/5mno345pqr678/preview',
+    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
     series: 'Prayer & Worship',
     downloads: 278,
   },
@@ -98,7 +99,7 @@ const audioRecordings: AudioItem[] = [
     duration: '32:18',
     description:
       "Reflect on the true meaning of Christmas and how God's incredible gift of love continues to transform lives today.",
-    driveUrl: 'https://drive.google.com/file/d/6pqr678stu901/preview',
+    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
     series: 'Christmas Special',
     downloads: 445,
   },
@@ -115,55 +116,138 @@ export function Audio() {
     }
   };
 
+  // Get the featured audio (most recent/first one)
+  const featuredAudio = audioRecordings[0];
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Featured Video Section */}
+      {/* Featured Audio Section */}
       <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Recent Messages</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Latest Message</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Watch our latest sermon and listen to recent audio messages from our church services.
+              Listen to our most recent sermon and explore our collection of inspiring audio
+              messages from our church services.
             </p>
           </div>
 
-          {/* Featured Video */}
+          {/* Featured Audio */}
           <div className="max-w-4xl mx-auto mb-12">
             <Card className="border-0 shadow-2xl overflow-hidden">
-              <div className="aspect-video bg-gray-900 relative">
-                {/* YouTube Embed - Most Recent Video */}
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                  title="Latest Sermon - Walking by Faith"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                      Walking by Faith, Not by Sight
-                    </h2>
-                    <div className="flex items-center text-gray-600 text-sm mb-3">
-                      <User className="h-4 w-4 mr-2" />
-                      <span className="mr-4">Pastor John Smith</span>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      <span>February 11, 2024</span>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed">
-                      An inspiring message about trusting God's plan even when we cannot see the
-                      full picture. Discover how faith can transform your perspective and lead to
-                      breakthrough in your life.
-                    </p>
+              {/* Large Audio Player Visual */}
+              <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-[#B28930] p-12 text-white relative">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <pattern
+                        id="audio-pattern"
+                        x="0"
+                        y="0"
+                        width="60"
+                        height="60"
+                        patternUnits="userSpaceOnUse"
+                      >
+                        <circle cx="30" cy="30" r="2" fill="currentColor" />
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#audio-pattern)" />
+                  </svg>
+                </div>
+
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <Badge className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm">
+                      {featuredAudio.series}
+                    </Badge>
+                    <Badge className="bg-[#B28930] text-white hover:bg-[#9A7328]">Featured</Badge>
                   </div>
-                  <Badge className="ml-4 bg-purple-100 text-purple-700 hover:bg-purple-200">
-                    Latest
-                  </Badge>
+
+                  <div className="text-center">
+                    {/* Large Audio Icon */}
+                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+                      <Music className="h-12 w-12 text-white" />
+                    </div>
+
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                      {featuredAudio.title}
+                    </h2>
+
+                    <div className="flex items-center justify-center text-white/90 mb-6 flex-wrap gap-6">
+                      <div className="flex items-center">
+                        <User className="h-5 w-5 mr-2" />
+                        <span>{featuredAudio.speaker}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="h-5 w-5 mr-2" />
+                        <span>{featuredAudio.date}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-5 w-5 mr-2" />
+                        <span>{featuredAudio.duration}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Headphones className="h-5 w-5 mr-2" />
+                        <span>{featuredAudio.downloads} listens</span>
+                      </div>
+                    </div>
+
+                    {/* Audio Embed */}
+                    <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 mb-6 max-w-2xl mx-auto">
+                      <iframe
+                        src={featuredAudio.driveUrl}
+                        width="100%"
+                        height="80"
+                        frameBorder="0"
+                        allow="autoplay"
+                        className="rounded-lg"
+                      />
+                    </div>
+
+                    {/* Play Controls */}
+                    <div className="flex items-center justify-center space-x-4">
+                      <Button
+                        onClick={() => toggleAudio(featuredAudio.id)}
+                        size="lg"
+                        className="bg-white text-purple-600 hover:bg-gray-100 px-8"
+                      >
+                        {playingAudio === featuredAudio.id ? (
+                          <Pause className="h-5 w-5 mr-2" />
+                        ) : (
+                          <Play className="h-5 w-5 mr-2" />
+                        )}
+                        {playingAudio === featuredAudio.id ? 'Pause' : 'Listen Now'}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                      >
+                        <Download className="h-5 w-5 mr-2" />
+                        Download
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                      >
+                        <Share2 className="h-5 w-5 mr-2" />
+                        Share
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description Section */}
+              <CardContent className="p-8">
+                <div className="text-center max-w-2xl mx-auto">
+                  <p className="text-gray-600 leading-relaxed text-lg">
+                    {featuredAudio.description}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -175,17 +259,17 @@ export function Audio() {
       <section className="py-16 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Audio Messages</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">More Audio Messages</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Listen to our recent sermons and teachings. Perfect for your commute, workout, or
-              quiet time.
+              Explore our complete collection of sermons and teachings. Perfect for your commute,
+              workout, or quiet time.
             </p>
             <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-[#B28930] rounded-full mx-auto mt-6" />
           </div>
 
-          {/* Audio List */}
+          {/* Audio List - Skip the first one since it's featured */}
           <div className="space-y-6">
-            {audioRecordings.map((audio, index) => (
+            {audioRecordings.slice(1).map((audio, index) => (
               <Card
                 key={audio.id}
                 className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
@@ -202,7 +286,7 @@ export function Audio() {
                           {audio.series}
                         </Badge>
                         <div className="text-sm opacity-90">
-                          #{String(index + 1).padStart(2, '0')}
+                          #{String(index + 2).padStart(2, '0')}
                         </div>
                       </div>
 

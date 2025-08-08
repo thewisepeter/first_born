@@ -142,7 +142,7 @@ export default function HomePage() {
                     onClick={() => setCurrentPage('Blog')}
                     className="hover:text-[#B28930] transition-colors"
                   >
-                    Blog
+                    Prophet's Blog
                   </button>
                 </li>
                 <li>
@@ -150,7 +150,7 @@ export default function HomePage() {
                     onClick={() => setCurrentPage('Audio')}
                     className="hover:text-[#B28930] transition-colors"
                   >
-                    Audio
+                    Spirit World
                   </button>
                 </li>
               </ul>
