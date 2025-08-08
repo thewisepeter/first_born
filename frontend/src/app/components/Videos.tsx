@@ -36,7 +36,7 @@ export function Videos() {
 
         const data = await response.json();
         console.log(data);
-        setVideos(data); // Ensure this matches the shape of your API
+        setVideos(data);
         setLoading(false);
       } catch (err: any) {
         setError(err.message || 'An error occurred');
