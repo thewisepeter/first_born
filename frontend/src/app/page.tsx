@@ -134,7 +134,7 @@ export default function HomePage() {
                     onClick={() => setCurrentPage('Videos')}
                     className="hover:text-[#B28930] transition-colors"
                   >
-                    Videos
+                    Prophecies
                   </button>
                 </li>
                 <li>

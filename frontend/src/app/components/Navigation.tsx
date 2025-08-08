@@ -20,7 +20,12 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileMediaExpanded, setIsMobileMediaExpanded] = useState(false);
 
-  const navItems = ['Home', 'About', 'Videos'];
+  const navItems = [
+    { name: 'Home', page: 'Home' },
+    { name: 'About', page: 'About' },
+    { name: 'Prophecies', page: 'Videos' }, // Display as "Prophecies" but reference as "Videos"
+  ];
+
   const mediaItems = [
     { name: 'Blog', page: 'Blog' },
     { name: 'Audio', page: 'Audio' },
@@ -64,15 +69,15 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 <button
-                  key={item}
-                  onClick={() => setCurrentPage(item)}
+                  key={item.page}
+                  onClick={() => setCurrentPage(item.page)}
                   className={`px-3 py-2 rounded-md transition-colors ${
-                    currentPage === item
+                    currentPage === item.page
                       ? 'text-purple-600 bg-purple-50'
                       : 'text-gray-600 hover:text-purple-600 hover:bg-gray-50'
                   }`}
                 >
-                  {item}
+                  {item.name}
                 </button>
               ))}
 
@@ -144,16 +149,18 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
               {/* Regular Navigation Items */}
               {navItems.map((item) => (
                 <button
-                  key={item}
-                  onClick={() => handleMobileNavClick(item)}
+                  key={item.page}
+                  onClick={() => handleMobileNavClick(item.page)}
                   className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                    currentPage === item
+                    currentPage === item.page
                       ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white shadow-md'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
                   }`}
                 >
-                  <span className="font-medium">{item}</span>
-                  {currentPage === item && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                  <span className="font-medium">{item.name}</span>
+                  {currentPage === item.page && (
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  )}
                 </button>
               ))}
 

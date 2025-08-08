@@ -98,10 +98,10 @@ export function Blog() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Page Title */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Church Blog</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Prophet's Blog</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Discover inspiring articles, spiritual insights, and practical guidance for your faith
-              journey from our church community.
+              journey from Prophet Namara Ernest
             </p>
           </div>
 

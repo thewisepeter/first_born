@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Play, Heart, Users, MessageSquare, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import {
+  Play,
+  Heart,
+  Users,
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Swords,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
@@ -81,12 +90,9 @@ export function Videos() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Page Title */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Sermons & Messages
-            </h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Prophetic Updates</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Watch our latest sermons, testimonies, and special messages that will inspire and
-              strengthen your faith journey.
+              Watch these awe inspiring and faith building prophetic fulfilments
             </p>
           </div>
 
@@ -217,40 +223,40 @@ export function Videos() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">The Power of Testimony</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">The Power of Prophecy</h2>
               <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-[#B28930] rounded-full mx-auto" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               {/* Content */}
               <div className="space-y-6">
-                <div className="prose prose-lg text-gray-700">
+                <div className="prose prose-lg text-gray-700 space-y-4">
                   <p>
-                    Testimonies are powerful declarations of God's faithfulness and love in our
-                    lives. When we share our stories of transformation, healing, and breakthrough,
-                    we not only glorify God but also encourage others who may be facing similar
-                    challenges.
+                    The Lord Jesus instructed Prophet Namara Ernest the vision bearer of Firstborn
+                    Fellowship Ministries to demonstrate The Assembly of the Firstborn (Hebrews
+                    12:22-23).
                   </p>
 
                   <p>
-                    Each testimony is a reminder that no situation is too difficult for God, and no
-                    person is beyond His reach. Through sharing our experiences, we become living
-                    proof of God's goodness and create a legacy of faith for future generations.
+                    His ongoing track record of remarkable prophetic revelations and predictions,
+                    all confirmed and fulfilled over time, stands as a testament to the divine
+                    position he holds and carries out.
                   </p>
 
                   <p>
-                    At Grace Church, we believe that every story matters. Whether it's overcoming
-                    addiction, finding purpose after loss, experiencing healing, or discovering
-                    God's love for the first time, your testimony has the power to change lives.
+                    Each prophecy fulfilment is a powerful demonstartion that God still directs the
+                    affairs of men,that God still speaks and that He is interested in changing the
+                    experience of our lives.
                   </p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#B28930]">
                   <blockquote className="text-lg italic text-gray-700 mb-4">
-                    "They triumphed over him by the blood of the Lamb and by the word of their
-                    testimony; they did not love their lives so much as to shrink from death."
+                    "Above all, you must realize that no prophecy in Scripture ever came from the
+                    prophet’s own understanding, or from human initiative. No, those prophets were
+                    moved by the Holy Spirit, and they spoke from God."
                   </blockquote>
-                  <cite className="text-[#B28930] font-semibold">— Revelation 12:11</cite>
+                  <cite className="text-[#B28930] font-semibold">— 2 Peter 1:20 - 21</cite>
                 </div>
               </div>
 
@@ -259,15 +265,23 @@ export function Videos() {
                 <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center text-purple-600">
-                      <Heart className="h-6 w-6 mr-3" />
-                      Encourages Others
+                      <Swords className="h-6 w-6 mr-3" />
+                      Equips for Warfare
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600">
-                      Your story of God's faithfulness gives hope to those who are struggling and
-                      shows them that breakthrough is possible.
+                    <p className="text-gray-600 ">
+                      Prophecy to you as a child of God is ammunition that you need to wage a good
+                      warfare and obtain victory.
                     </p>
+
+                    <div className="border-l-4 border-[#B28930] pl-4">
+                      <p className="text-[#B28930] font-semibold italic">
+                        "This charge I commit to you, son Timothy, according to the prophecies
+                        previously made concerning you, that by them you may wage the good warfare"
+                      </p>
+                      <p className="text-sm text-gray-600 mt-2">— 2 Timothy 1:28</p>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -275,29 +289,20 @@ export function Videos() {
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center text-[#B28930]">
                       <Users className="h-6 w-6 mr-3" />
-                      Builds Community
+                      Builds the Body of Christ
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">
-                      Sharing testimonies creates deeper connections within our church family and
-                      helps us support one another better.
+                      Prophecy energizes and charges up the body of Christ.
                     </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center text-purple-600">
-                      <MessageSquare className="h-6 w-6 mr-3" />
-                      Glorifies God
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">
-                      Every testimony points back to God's goodness, love, and power, bringing glory
-                      to His name and advancing His kingdom.
-                    </p>
+                    <div className="border-l-4 border-[#B28930] pl-4">
+                      <p className="text-[#B28930] font-semibold italic">
+                        "But one who prophesies strengthens others, encourages them, and comforts
+                        them."
+                      </p>
+                      <p className="text-sm text-gray-600 mt-2">— 1 Corinthians 14:3</p>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
