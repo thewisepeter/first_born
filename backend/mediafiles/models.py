@@ -1,11 +1,13 @@
 from django.db import models
+from django.utils import timezone
 
 class Audio(models.Model):
     title = models.CharField(max_length=255)
+    speaker = models.CharField(max_length=255, editable=False, default='Prophet Namara Ernest')
+    date = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    active = models.BooleanField(default=False)
     description = models.TextField(blank=True, null=True)
     drive_url = models.URLField()
-    date_posted = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

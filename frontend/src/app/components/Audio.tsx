@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Play,
   Pause,
@@ -28,77 +28,30 @@ interface AudioItem {
   driveUrl: string;
 }
 
-const audioRecordings: AudioItem[] = [
-  {
-    id: '1',
-    title: 'Walking by Faith, Not by Sight',
-    speaker: 'Pastor John Smith',
-    date: 'February 11, 2024',
-
-    active: false,
-    description:
-      "An inspiring message about trusting God's plan even when we cannot see the full picture. Discover how faith can transform your perspective and lead to breakthrough.",
-    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-  },
-  {
-    id: '2',
-    title: 'The Power of Community',
-    speaker: 'Pastor John Smith',
-    date: 'February 4, 2024',
-
-    active: false,
-    description:
-      "Exploring how meaningful relationships within the church can strengthen our faith and provide support during life's challenges.",
-    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-  },
-  {
-    id: '3',
-    title: 'Finding Hope in Difficult Times',
-    speaker: 'Pastor John Smith',
-    date: 'January 28, 2024',
-
-    active: false,
-    description:
-      "When life feels overwhelming, discover how God's promises can provide hope and strength for the journey ahead.",
-    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-  },
-  {
-    id: '4',
-    title: 'The Joy of Serving Others',
-    speaker: 'Guest Speaker: Sarah Johnson',
-    date: 'January 21, 2024',
-
-    active: false,
-    description:
-      "Learn how serving others can transform your life and help you discover God's unique calling on your life.",
-    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-  },
-  {
-    id: '5',
-    title: 'Prayer That Changes Everything',
-    speaker: 'Pastor John Smith',
-    date: 'January 14, 2024',
-
-    active: false,
-    description:
-      'Unlock the power of prayer and learn how to develop a deeper, more meaningful prayer life that brings real transformation.',
-    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-  },
-  {
-    id: '6',
-    title: "Christmas Message: God's Greatest Gift",
-    speaker: 'Pastor John Smith',
-    date: 'December 24, 2023',
-
-    active: true,
-    description:
-      "Reflect on the true meaning of Christmas and how God's incredible gift of love continues to transform lives today.",
-    driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-  },
-];
-
 export function Audio() {
+  const [audioRecordings, setAudioRecordings] = useState<AudioItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAudios() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/mediafiles/audio/');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: AudioItem[] = await response.json();
+        setAudioRecordings(data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch audio recordings');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAudios();
+  }, []);
 
   const toggleAudio = (audioId: string) => {
     if (playingAudio === audioId) {
@@ -108,12 +61,12 @@ export function Audio() {
     }
   };
 
-  // Get the featured audio (most recent/first one)
-  const featuredAudio = audioRecordings.find((audio) => audio.active) || audioRecordings[0];
+  const featuredAudio =
+    audioRecordings.find((audio) => audio.active) ||
+    (audioRecordings.length > 0 ? audioRecordings[0] : null);
 
-  // Get other audios sorted by date (newest first)
   const otherAudios = audioRecordings
-    .filter((audio) => audio.id !== featuredAudio.id)
+    .filter((audio) => featuredAudio && audio.id !== featuredAudio.id)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleDownload = (fileId: string, fileName: string) => {
@@ -121,10 +74,7 @@ export function Audio() {
       console.error('Invalid file ID');
       return;
     }
-    // Construct the download URL
     const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
-    // Create a temporary anchor element
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.setAttribute('download', fileName || 'audio-message.mp3');
@@ -137,6 +87,18 @@ export function Audio() {
     const match = url.match(/\/file\/d\/([^\/]+)/);
     return match ? match[1] : null;
   };
+
+  if (loading) {
+    return <div className="text-center py-20">Loading audios...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-20 text-red-600">Error: {error}</div>;
+  }
+
+  if (!featuredAudio) {
+    return <div className="text-center py-20">No audio recordings found.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -303,9 +265,9 @@ export function Audio() {
                             variant="ghost"
                             className="text-white hover:bg-white/20 h-8 w-8 p-0"
                             onClick={() => {
-                              const fileId = getFileIdFromUrl(featuredAudio.driveUrl);
+                              const fileId = getFileIdFromUrl(audio.driveUrl);
                               if (fileId) {
-                                handleDownload(fileId, `${featuredAudio.title}.mp3`);
+                                handleDownload(fileId, `${audio.title}.mp3`);
                               } else {
                                 console.error('Could not extract file ID from URL');
                               }
