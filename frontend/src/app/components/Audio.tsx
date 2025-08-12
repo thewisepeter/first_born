@@ -23,11 +23,9 @@ interface AudioItem {
   title: string;
   speaker: string;
   date: string;
-  duration: string;
   active: boolean;
   description: string;
   driveUrl: string;
-  downloads: number;
 }
 
 const audioRecordings: AudioItem[] = [
@@ -36,78 +34,66 @@ const audioRecordings: AudioItem[] = [
     title: 'Walking by Faith, Not by Sight',
     speaker: 'Pastor John Smith',
     date: 'February 11, 2024',
-    duration: '42:15',
+
     active: false,
     description:
       "An inspiring message about trusting God's plan even when we cannot see the full picture. Discover how faith can transform your perspective and lead to breakthrough.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-
-    downloads: 287,
   },
   {
     id: '2',
     title: 'The Power of Community',
     speaker: 'Pastor John Smith',
     date: 'February 4, 2024',
-    duration: '38:22',
+
     active: false,
     description:
       "Exploring how meaningful relationships within the church can strengthen our faith and provide support during life's challenges.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-
-    downloads: 201,
   },
   {
     id: '3',
     title: 'Finding Hope in Difficult Times',
     speaker: 'Pastor John Smith',
     date: 'January 28, 2024',
-    duration: '45:08',
+
     active: false,
     description:
       "When life feels overwhelming, discover how God's promises can provide hope and strength for the journey ahead.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-
-    downloads: 324,
   },
   {
     id: '4',
     title: 'The Joy of Serving Others',
     speaker: 'Guest Speaker: Sarah Johnson',
     date: 'January 21, 2024',
-    duration: '35:45',
+
     active: false,
     description:
       "Learn how serving others can transform your life and help you discover God's unique calling on your life.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-
-    downloads: 156,
   },
   {
     id: '5',
     title: 'Prayer That Changes Everything',
     speaker: 'Pastor John Smith',
     date: 'January 14, 2024',
-    duration: '40:30',
+
     active: false,
     description:
       'Unlock the power of prayer and learn how to develop a deeper, more meaningful prayer life that brings real transformation.',
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-
-    downloads: 278,
   },
   {
     id: '6',
     title: "Christmas Message: God's Greatest Gift",
     speaker: 'Pastor John Smith',
     date: 'December 24, 2023',
-    duration: '32:18',
+
     active: true,
     description:
       "Reflect on the true meaning of Christmas and how God's incredible gift of love continues to transform lives today.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-
-    downloads: 445,
   },
 ];
 
