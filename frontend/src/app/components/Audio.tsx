@@ -24,9 +24,9 @@ interface AudioItem {
   speaker: string;
   date: string;
   duration: string;
+  active: boolean;
   description: string;
   driveUrl: string;
-  series?: string;
   downloads: number;
 }
 
@@ -37,10 +37,11 @@ const audioRecordings: AudioItem[] = [
     speaker: 'Pastor John Smith',
     date: 'February 11, 2024',
     duration: '42:15',
+    active: false,
     description:
       "An inspiring message about trusting God's plan even when we cannot see the full picture. Discover how faith can transform your perspective and lead to breakthrough.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-    series: 'Faith Series',
+
     downloads: 287,
   },
   {
@@ -49,10 +50,11 @@ const audioRecordings: AudioItem[] = [
     speaker: 'Pastor John Smith',
     date: 'February 4, 2024',
     duration: '38:22',
+    active: false,
     description:
       "Exploring how meaningful relationships within the church can strengthen our faith and provide support during life's challenges.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-    series: 'Community Life',
+
     downloads: 201,
   },
   {
@@ -61,10 +63,11 @@ const audioRecordings: AudioItem[] = [
     speaker: 'Pastor John Smith',
     date: 'January 28, 2024',
     duration: '45:08',
+    active: false,
     description:
       "When life feels overwhelming, discover how God's promises can provide hope and strength for the journey ahead.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-    series: 'Hope & Encouragement',
+
     downloads: 324,
   },
   {
@@ -73,10 +76,11 @@ const audioRecordings: AudioItem[] = [
     speaker: 'Guest Speaker: Sarah Johnson',
     date: 'January 21, 2024',
     duration: '35:45',
+    active: false,
     description:
       "Learn how serving others can transform your life and help you discover God's unique calling on your life.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-    series: 'Ministry & Service',
+
     downloads: 156,
   },
   {
@@ -85,10 +89,11 @@ const audioRecordings: AudioItem[] = [
     speaker: 'Pastor John Smith',
     date: 'January 14, 2024',
     duration: '40:30',
+    active: false,
     description:
       'Unlock the power of prayer and learn how to develop a deeper, more meaningful prayer life that brings real transformation.',
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-    series: 'Prayer & Worship',
+
     downloads: 278,
   },
   {
@@ -97,10 +102,11 @@ const audioRecordings: AudioItem[] = [
     speaker: 'Pastor John Smith',
     date: 'December 24, 2023',
     duration: '32:18',
+    active: true,
     description:
       "Reflect on the true meaning of Christmas and how God's incredible gift of love continues to transform lives today.",
     driveUrl: 'https://drive.google.com/file/d/1ZQ6eySvGrOEmyKYP_atGDUoGWqdtw2M3/preview',
-    series: 'Christmas Special',
+
     downloads: 445,
   },
 ];
@@ -117,7 +123,34 @@ export function Audio() {
   };
 
   // Get the featured audio (most recent/first one)
-  const featuredAudio = audioRecordings[0];
+  const featuredAudio = audioRecordings.find((audio) => audio.active) || audioRecordings[0];
+
+  // Get other audios sorted by date (newest first)
+  const otherAudios = audioRecordings
+    .filter((audio) => audio.id !== featuredAudio.id)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const handleDownload = (fileId: string, fileName: string) => {
+    if (!fileId) {
+      console.error('Invalid file ID');
+      return;
+    }
+    // Construct the download URL
+    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    // Create a temporary anchor element
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute('download', fileName || 'audio-message.mp3');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const getFileIdFromUrl = (url: string) => {
+    const match = url.match(/\/file\/d\/([^\/]+)/);
+    return match ? match[1] : null;
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -125,10 +158,9 @@ export function Audio() {
       <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Latest Message</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Spirit World</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Listen to our most recent sermon and explore our collection of inspiring audio
-              messages from our church services.
+              Listen to weekly life giving broadcasts
             </p>
           </div>
 
@@ -159,9 +191,9 @@ export function Audio() {
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6">
                     <Badge className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm">
-                      {featuredAudio.series}
+                      {featuredAudio.date}
                     </Badge>
-                    <Badge className="bg-[#B28930] text-white hover:bg-[#9A7328]">Featured</Badge>
+                    <Badge className="bg-[#B28930] text-white hover:bg-[#9A7328]">Latest</Badge>
                   </div>
 
                   <div className="text-center">
@@ -178,18 +210,6 @@ export function Audio() {
                       <div className="flex items-center">
                         <User className="h-5 w-5 mr-2" />
                         <span>{featuredAudio.speaker}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-5 w-5 mr-2" />
-                        <span>{featuredAudio.date}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-5 w-5 mr-2" />
-                        <span>{featuredAudio.duration}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Headphones className="h-5 w-5 mr-2" />
-                        <span>{featuredAudio.downloads} listens</span>
                       </div>
                     </div>
 
@@ -208,34 +228,20 @@ export function Audio() {
                     {/* Play Controls */}
                     <div className="flex items-center justify-center space-x-4">
                       <Button
-                        onClick={() => toggleAudio(featuredAudio.id)}
-                        size="lg"
-                        className="bg-white text-purple-600 hover:bg-gray-100 px-8"
-                      >
-                        {playingAudio === featuredAudio.id ? (
-                          <Pause className="h-5 w-5 mr-2" />
-                        ) : (
-                          <Play className="h-5 w-5 mr-2" />
-                        )}
-                        {playingAudio === featuredAudio.id ? 'Pause' : 'Listen Now'}
-                      </Button>
-
-                      <Button
                         variant="outline"
                         size="lg"
-                        className="border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                        className="border-white/30 text-white bg-white/20 backdrop-blur-sm"
+                        onClick={() => {
+                          const fileId = getFileIdFromUrl(featuredAudio.driveUrl);
+                          if (fileId) {
+                            handleDownload(fileId, `${featuredAudio.title}.mp3`);
+                          } else {
+                            console.error('Could not extract file ID from URL');
+                          }
+                        }}
                       >
                         <Download className="h-5 w-5 mr-2" />
                         Download
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        className="border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
-                      >
-                        <Share2 className="h-5 w-5 mr-2" />
-                        Share
                       </Button>
                     </div>
                   </div>
@@ -259,17 +265,16 @@ export function Audio() {
       <section className="py-16 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">More Audio Messages</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">More Spirit World Audios</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Explore our complete collection of sermons and teachings. Perfect for your commute,
-              workout, or quiet time.
+              Listen to more life giving broadcasts of the Spirit World.
             </p>
             <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-[#B28930] rounded-full mx-auto mt-6" />
           </div>
 
           {/* Audio List - Skip the first one since it's featured */}
           <div className="space-y-6">
-            {audioRecordings.slice(1).map((audio, index) => (
+            {otherAudios.map((audio, index) => (
               <Card
                 key={audio.id}
                 className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
@@ -279,12 +284,6 @@ export function Audio() {
                     {/* Audio Player Section */}
                     <div className="lg:w-2/5 bg-gradient-to-br from-purple-600 to-purple-700 p-6 text-white">
                       <div className="flex items-center justify-between mb-4">
-                        <Badge
-                          variant="secondary"
-                          className="bg-white/20 text-white hover:bg-white/30"
-                        >
-                          {audio.series}
-                        </Badge>
                         <div className="text-sm opacity-90">
                           #{String(index + 2).padStart(2, '0')}
                         </div>
@@ -296,7 +295,6 @@ export function Audio() {
                         <User className="h-4 w-4 mr-2" />
                         <span className="mr-4">{audio.speaker}</span>
                         <Clock className="h-4 w-4 mr-2" />
-                        <span>{audio.duration}</span>
                       </div>
 
                       {/* Audio Embed */}
@@ -313,41 +311,21 @@ export function Audio() {
 
                       {/* Play Controls */}
                       <div className="flex items-center justify-between">
-                        <Button
-                          onClick={() => toggleAudio(audio.id)}
-                          size="sm"
-                          className="bg-white/20 hover:bg-white/30 text-white border-white/30"
-                          variant="outline"
-                        >
-                          {playingAudio === audio.id ? (
-                            <Pause className="h-4 w-4 mr-2" />
-                          ) : (
-                            <Play className="h-4 w-4 mr-2" />
-                          )}
-                          {playingAudio === audio.id ? 'Pause' : 'Play'}
-                        </Button>
-
                         <div className="flex items-center space-x-2">
                           <Button
                             size="sm"
                             variant="ghost"
                             className="text-white hover:bg-white/20 h-8 w-8 p-0"
-                          >
-                            <Volume2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-white hover:bg-white/20 h-8 w-8 p-0"
+                            onClick={() => {
+                              const fileId = getFileIdFromUrl(featuredAudio.driveUrl);
+                              if (fileId) {
+                                handleDownload(fileId, `${featuredAudio.title}.mp3`);
+                              } else {
+                                console.error('Could not extract file ID from URL');
+                              }
+                            }}
                           >
                             <Download className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-white hover:bg-white/20 h-8 w-8 p-0"
-                          >
-                            <Share2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -358,37 +336,11 @@ export function Audio() {
                       <div className="flex items-center text-gray-500 text-sm mb-3">
                         <Calendar className="h-4 w-4 mr-2" />
                         <span className="mr-4">{audio.date}</span>
-                        <Headphones className="h-4 w-4 mr-2" />
-                        <span>{audio.downloads} listens</span>
                       </div>
 
                       <p className="text-gray-600 leading-relaxed mb-6">{audio.description}</p>
 
                       <Separator className="mb-4" />
-
-                      {/* Action Buttons */}
-                      <div className="flex flex-wrap gap-3">
-                        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-                          <Play className="h-4 w-4 mr-2" />
-                          Listen Now
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-gray-300 text-gray-600 hover:bg-gray-50"
-                        >
-                          <Share2 className="h-4 w-4 mr-2" />
-                          Share
-                        </Button>
-                      </div>
                     </div>
                   </div>
                 </CardContent>
