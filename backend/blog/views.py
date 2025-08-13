@@ -14,5 +14,6 @@ class ArticleViewSet(AdminReadOnlyModelViewSet):
     serializer_class = ArticleSerializer
 
 class TestimonyViewSet(AdminReadOnlyModelViewSet):
-    queryset = Testimony.objects.all().order_by('-date_posted')
+    queryset = Testimony.objects.all()
     serializer_class = TestimonySerializer
+

@@ -37,6 +37,15 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TestimonySerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Testimony
-        fields = '__all__'
+        fields = ['id', 'name', 'image', 'quote', 'role']
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and hasattr(obj.image, 'url'):
+            return request.build_absolute_uri(obj.image.url) if request else obj.image.url
+        return ''
+

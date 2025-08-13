@@ -12,55 +12,26 @@ interface Testimony {
   role: string;
 }
 
-const testimonies: Testimony[] = [
-  {
-    id: 1,
-    name: 'Sarah Johnson',
-    image:
-      'https://images.unsplash.com/photo-1494790108755-2616b9c1d8f1?w=150&h=150&fit=crop&crop=face',
-    quote:
-      'Grace Church has been a blessing in my life. The community here is so welcoming and supportive.',
-    role: 'Member since 2019',
-  },
-  {
-    id: 2,
-    name: 'Michael Chen',
-    image:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    quote: 'The teachings here have helped me grow spiritually and find purpose in my daily life.',
-    role: 'Member since 2020',
-  },
-  {
-    id: 3,
-    name: 'Emily Rodriguez',
-    image:
-      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    quote:
-      'I found my calling through the youth ministry program. This church changed my life forever.',
-    role: 'Youth Leader',
-  },
-  {
-    id: 4,
-    name: 'David Thompson',
-    image:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-    quote: "The sense of community and fellowship here is incredible. We're truly one big family.",
-    role: 'Member since 2018',
-  },
-  {
-    id: 5,
-    name: 'Lisa Park',
-    image:
-      'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face',
-    quote:
-      'Grace Church provided support when I needed it most. The love here is genuine and transformative.',
-    role: 'Member since 2021',
-  },
-];
-
 export function TestimoniesCarousel() {
+  const [testimonies, setTestimonies] = useState<Testimony[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
+
+  useEffect(() => {
+    // Fetch testimonies from API
+    const fetchTestimonies = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/blog/testimonies/');
+        if (!res.ok) throw new Error('Failed to fetch testimonies');
+        const data: Testimony[] = await res.json();
+        setTestimonies(data);
+      } catch (error) {
+        console.error('Error fetching testimonies:', error);
+      }
+    };
+
+    fetchTestimonies();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -92,10 +63,9 @@ export function TestimoniesCarousel() {
     <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Community Says</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Testimonies</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Hear from members of our church family about their experiences and how Grace Church has
-            impacted their lives.
+            Hear various testimonies of the workings of God in our midst.
           </p>
         </div>
 

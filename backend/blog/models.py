@@ -52,13 +52,10 @@ class Article(models.Model):
         return f"{self.title} on {self.page}"
 
 class Testimony(models.Model):
-    title = models.CharField(max_length=150)
-    snippet = models.TextField()
-    author = models.CharField(max_length=100, blank=True, null=True)
-    date_posted = models.DateTimeField(auto_now_add=True)
-    picture = models.ImageField(upload_to='blog_images/', default='blog_images/prophet_namara_logo.png')
-    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=255, default='Peter Wisdom')
+    image = models.ImageField(upload_to='testimonies/', default='blog_images/prophet_namara_logo.png')
+    quote = models.TextField()
+    role = models.CharField(max_length=255, default='CEO')
 
     def __str__(self):
-        return self.title
-
+        return self.name
