@@ -78,16 +78,32 @@ export function ActionButtons() {
 
     setIsSubmitting(true);
 
-    // Simulate form submission
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch('http://127.0.0.1:8000/api/partners/partner/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: partnerFormData.firstName,
+          lastName: partnerFormData.lastName,
+          email: partnerFormData.email,
+          phone: partnerFormData.phone,
+          message: partnerFormData.message,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Partner form submitted successfully:', data);
 
       // Reset form and close modal
       setPartnerFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
       setFormErrors({});
       setShowPartnerForm(false);
-
-      console.log('Partner form submitted successfully:', partnerFormData);
     } catch (error) {
       console.error('Form submission error:', error);
     } finally {
@@ -133,8 +149,8 @@ export function ActionButtons() {
             </div>
             <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-4 rounded-lg">
               <p className="text-gray-700 text-sm leading-relaxed">
-                Join our church family as a partner! We'd love to learn more about you and how you'd
-                like to get involved in our community and ministry.
+                Come into Partnership with Prophet Namara Ernest and become a partaker of the unique
+                workings of God manifested in His life and the ministry.
               </p>
             </div>
           </DialogHeader>
@@ -212,13 +228,13 @@ export function ActionButtons() {
 
             <div>
               <Label htmlFor="message" className="text-sm font-medium text-gray-700">
-                Tell us about yourself and your interests *
+                Share your financial commitment *
               </Label>
               <Textarea
                 id="message"
                 value={partnerFormData.message}
                 onChange={(e) => handleInputChange('message', e.target.value)}
-                placeholder="Share a bit about yourself, your spiritual journey, and how you'd like to get involved with Grace Church..."
+                placeholder="I am committing to UGX 100,000 weekly"
                 rows={4}
                 className={`mt-1 resize-none ${formErrors.message ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 disabled={isSubmitting}
@@ -251,7 +267,7 @@ export function ActionButtons() {
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-2" />
-                    Submit Application
+                    Submit
                   </>
                 )}
               </Button>

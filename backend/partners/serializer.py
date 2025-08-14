@@ -4,4 +4,4 @@ from .models import Partner
 class PartnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partner
-        fields = '__all__'
+        fields = '__all__'  # includes all model fields automatically

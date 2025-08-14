@@ -41,7 +41,6 @@ class BlogPost(models.Model):
         return f"{self.title} ({self.status})"
 
 
-
 class Article(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
