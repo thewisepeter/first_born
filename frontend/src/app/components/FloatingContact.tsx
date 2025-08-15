@@ -8,6 +8,7 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 
 interface FormData {
+  fullName: string;
   email: string;
   phone: string;
   message: string;
@@ -18,6 +19,7 @@ export function FloatingContact() {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
+    fullName: '',
     email: '',
     phone: '',
     message: '',
@@ -34,6 +36,10 @@ export function FloatingContact() {
 
   const validateForm = () => {
     const errors: Partial<FormData> = {};
+
+    if (!formData.fullName.trim()) {
+      errors.fullName = 'Full name is required';
+    }
 
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
@@ -66,17 +72,28 @@ export function FloatingContact() {
 
     setIsSubmitting(true);
 
-    // Simulate form submission
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch('http://127.0.0.1:8000/api/contactmessages/contact/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      // Reset form and show success
-      setFormData({ email: '', phone: '', message: '' });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('API error:', errorData || response.statusText);
+        throw new Error('Failed to submit contact message');
+      }
+
+      // Reset form on success
+      setFormData({ fullName: '', email: '', phone: '', message: '' });
       setShowForm(false);
       setIsOpen(false);
+      setFormErrors({});
 
-      // You could show a success toast here
-      console.log('Form submitted successfully:', formData);
+      console.log('Form submitted successfully');
     } catch (error) {
       console.error('Form submission error:', error);
     } finally {
@@ -87,7 +104,7 @@ export function FloatingContact() {
   const handleClose = () => {
     setIsOpen(false);
     setShowForm(false);
-    setFormData({ email: '', phone: '', message: '' });
+    setFormData({ fullName: '', email: '', phone: '', message: '' });
     setFormErrors({});
   };
 
@@ -118,7 +135,7 @@ export function FloatingContact() {
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <Phone className="h-5 w-5 text-purple-600 flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-gray-900">(555) 123-4567</p>
+                    <p className="font-medium text-gray-900">+256 778 030 496</p>
                     <p className="text-sm text-gray-600">Call us</p>
                   </div>
                 </div>
@@ -126,7 +143,7 @@ export function FloatingContact() {
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <Mail className="h-5 w-5 text-purple-600 flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-gray-900">info@gracechurch.org</p>
+                    <p className="font-medium text-gray-900">propheternestnamara@gmail.com</p>
                     <p className="text-sm text-gray-600">Email us</p>
                   </div>
                 </div>
@@ -134,7 +151,9 @@ export function FloatingContact() {
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <MapPin className="h-5 w-5 text-purple-600 flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-gray-900">123 Faith Street</p>
+                    <p className="font-medium text-gray-900">
+                      Gardenia Hall, Imperial Royale Hotel
+                    </p>
                     <p className="text-sm text-gray-600">Visit us</p>
                   </div>
                 </div>
@@ -170,6 +189,24 @@ export function FloatingContact() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
+                    Full Name *
+                  </Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={formData.fullName}
+                    onChange={(e) => handleInputChange('fullName', e.target.value)}
+                    placeholder="Your full name"
+                    className={`mt-1 ${formErrors.fullName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    disabled={isSubmitting}
+                  />
+                  {formErrors.fullName && (
+                    <p className="mt-1 text-xs text-red-600">{formErrors.fullName}</p>
+                  )}
+                </div>
+
                 <div>
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                     Email Address *

@@ -78,16 +78,34 @@ export function ShareStorySection() {
 
     setIsSubmitting(true);
 
-    // Simulate form submission
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch('http://127.0.0.1:8000/api/contactmessages/testimony/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testimonyFormData),
+      });
 
-      // Reset form and close modal
-      setTestimonyFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+      if (!response.ok) {
+        // Try to parse errors if available
+        const errorData = await response.json().catch(() => null);
+        console.error('API error:', errorData || response.statusText);
+        throw new Error('Failed to submit testimony');
+      }
+
+      // Success — clear form
+      setTestimonyFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        message: '',
+      });
       setFormErrors({});
       setShowTestimonyForm(false);
 
-      console.log('Testimony form submitted successfully:', testimonyFormData);
+      console.log('Testimony form submitted successfully');
     } catch (error) {
       console.error('Form submission error:', error);
     } finally {
@@ -223,8 +241,8 @@ export function ShareStorySection() {
                 id="message"
                 value={testimonyFormData.message}
                 onChange={(e) => handleInputChange('message', e.target.value)}
-                placeholder="Share your story of faith, transformation, healing, or how God has worked in your life. Your testimony could be exactly what someone else needs to hear..."
-                rows={6}
+                placeholder="Share your story of how the power of prophecy has influenced your life for the better"
+                rows={4}
                 className={`mt-1 resize-none ${formErrors.message ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 disabled={isSubmitting}
               />

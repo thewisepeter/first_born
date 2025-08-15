@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'blog',
     'corsheaders',
     'mediafiles',
-    'partners'
+    'partners',
+    'contactmessages'
 
 ]
 

@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/blog/', include('blog.urls')),
     path('api/mediafiles/', include('mediafiles.urls')),
     path('api/partners/', include('partners.urls')),
+    path('api/contactmessages/', include('contactmessages.urls'))
 ]
 
 if settings.DEBUG:
