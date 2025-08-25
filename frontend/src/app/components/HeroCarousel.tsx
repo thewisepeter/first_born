@@ -9,52 +9,42 @@ interface HeroSlide {
   id: number;
   title: string;
   subtitle: string;
-  image: string;
+  image: string; // your serializer should return the image URL
   description: string;
 }
 
-const heroSlides: HeroSlide[] = [
-  {
-    id: 1,
-    title: 'Welcome to Grace Church',
-    subtitle: 'Pastor John Smith',
-    image:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&crop=face',
-    description: 'Join us every Sunday as we worship together and grow in faith',
-  },
-  {
-    id: 2,
-    title: 'Youth Conference 2024',
-    subtitle: 'February 15-17',
-    image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop',
-    description: 'Three days of worship, learning, and fellowship for young people',
-  },
-  {
-    id: 3,
-    title: 'Community Outreach',
-    subtitle: 'Serving Our Neighborhood',
-    image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&h=600&fit=crop',
-    description: 'Making a difference in our community through love and service',
-  },
-  {
-    id: 4,
-    title: 'Easter Celebration',
-    subtitle: 'March 31st',
-    image: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800&h=600&fit=crop',
-    description: 'Celebrate the resurrection with special services and activities',
-  },
-];
-
 export function HeroCarousel() {
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
 
+  // fetch data from API
   useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/blog/heroslide/');
+        if (!res.ok) throw new Error('Failed to fetch slides');
+        const data: HeroSlide[] = await res.json();
+        setHeroSlides(data);
+      } catch (error) {
+        console.error('Error fetching hero slides:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSlides();
+  }, []);
+
+  // auto-slide every 5s
+  useEffect(() => {
+    if (heroSlides.length === 0) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [heroSlides]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -63,6 +53,18 @@ export function HeroCarousel() {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
   };
+
+  if (loading) {
+    return <div className="h-[70vh] flex items-center justify-center text-white">Loading...</div>;
+  }
+
+  if (heroSlides.length === 0) {
+    return (
+      <div className="h-[70vh] flex items-center justify-center text-white">
+        No slides available
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-[70vh] min-h-[500px] overflow-hidden">
