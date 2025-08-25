@@ -157,3 +157,16 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',  # For development
     ]
 }
+
+# email settings
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Your Gmail account (use an App Password, not your real password)
+EMAIL_HOST_USER = "rempeterwisdom@gmail.com"
+EMAIL_HOST_PASSWORD = "wavo avxt ocna zhkn"
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
