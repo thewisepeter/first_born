@@ -58,3 +58,15 @@ class Testimony(models.Model):
 
     def __str__(self):
         return self.name
+
+class HeroSlide(models.Model):
+    title = models.CharField(max_length=255)
+    subtitle = models.CharField(max_length=255, blank=True, null=True)
+    image = models.ImageField(upload_to="hero_pics/", default='blog_images/prophet_namara_logo.png')  
+    description = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)  # optional but good for tracking
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title 

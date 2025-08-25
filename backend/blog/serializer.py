@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import BlogPost, Article, Testimony
+from .models import BlogPost, Article, Testimony, HeroSlide
 
 class BlogPostSerializer(serializers.ModelSerializer):
     excerpt = serializers.SerializerMethodField()
@@ -42,6 +42,20 @@ class TestimonySerializer(serializers.ModelSerializer):
     class Meta:
         model = Testimony
         fields = ['id', 'name', 'image', 'quote', 'role']
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and hasattr(obj.image, 'url'):
+            return request.build_absolute_uri(obj.image.url) if request else obj.image.url
+        return ''
+
+
+class HeroSlideSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HeroSlide
+        fields = ['id', 'title', 'subtitle', 'image', 'description']
 
     def get_image(self, obj):
         request = self.context.get('request')
