@@ -143,7 +143,9 @@ export function FloatingContact() {
                 <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <Mail className="h-5 w-5 text-purple-600 flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-gray-900">propheternestnamara@gmail.com</p>
+                    <p className="font-medium text-sm text-gray-900">
+                      propheternestnamara@gmail.com
+                    </p>
                     <p className="text-sm text-gray-600">Email us</p>
                   </div>
                 </div>

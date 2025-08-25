@@ -281,7 +281,7 @@ export function ShareStorySection() {
             </div>
 
             <p className="text-xs text-gray-500 text-center pt-2">
-              Your testimony will be reviewed before being shared publicly
+              Your testimony will be reviewed and we will contact you
             </p>
           </form>
         </DialogContent>
