@@ -87,17 +87,11 @@ export function HeroCarousel() {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/40" />
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-end justify-center pb-16">
               <div className="text-center text-white max-w-4xl px-4">
                 <h1 className="text-5xl md:text-6xl font-bold mb-4">{slide.title}</h1>
-                <h2 className="text-2xl md:text-3xl text-[#B28930] mb-6">{slide.subtitle}</h2>
+                <h2 className="text-2xl md:text-3xl text-white mb-6">{slide.subtitle}</h2>
                 <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">{slide.description}</p>
-                <Button
-                  size="lg"
-                  className="bg-[#B28930] hover:bg-[#9A7328] text-white px-8 py-4 text-lg"
-                >
-                  Learn More
-                </Button>
               </div>
             </div>
           </div>
