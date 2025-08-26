@@ -281,7 +281,7 @@ export function ActionButtons() {
             </div>
 
             <p className="text-xs text-gray-500 text-center pt-2">
-              Someone from our team will reach out to you within 48 hours
+              Someone from our team will reach out to you within 24 hours
             </p>
           </form>
         </DialogContent>
