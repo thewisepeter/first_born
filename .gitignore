@@ -209,3 +209,4 @@ __marimo__/
 # VS Code
 .vscode/
 .env
+sqlite_data.json
