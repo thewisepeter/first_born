@@ -62,7 +62,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'first_ones_api.wsgi.application'
 
 # Database
-DATABASES = {
 if config("DB_NAME", default="") and config("DB_USER", default=""):
     DATABASES = {
         "default": {
@@ -81,7 +80,6 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
