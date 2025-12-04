@@ -1,46 +1,12 @@
-asgiref==3.8.1
-bcrypt==4.1.3
-blinker==1.7.0
-certifi==2023.11.17
-charset-normalizer==3.3.2
-click==8.1.7
-distlib==0.3.9
 Django==5.1.3
-django-cors-headers==4.7.0
-django-debug-toolbar==5.0.1
 djangorestframework==3.15.2
-dnspython==2.6.1
-email_validator==2.1.1
-environs==14.1.1
-filelock==3.17.0
-Flask==3.0.0
-Flask-Mail==0.9.1
-Flask-MySQLdb==2.0.0
-Flask-SQLAlchemy==3.1.1
-Flask-WTF==1.2.1
-idna==3.6
-itsdangerous==2.1.2
-Jinja2==3.1.2
-MarkupSafe==2.1.3
-marshmallow==3.26.1
-mysqlclient==2.2.4
-packaging==24.0
-passlib==1.7.4
-pillow==11.1.0
-pipenv==2024.4.1
-platformdirs==4.3.6
-plotly==5.22.0
-psycopg2-binary==2.9.10
-pycodestyle==2.11.1
-python-dotenv==1.1.0
-requests==2.31.0
-setuptools==75.8.0
-SQLAlchemy==2.0.27
-sqlparse==0.5.1
-tenacity==8.3.0
-timeago==1.0.16
-typing_extensions==4.10.0
-urllib3==2.1.0
-virtualenv==20.29.2
-Werkzeug==3.0.1
-WTForms==3.1.2
+django-cors-headers==4.7.0
+python-decouple==4.2.0
+psycopg2-binary==2.9.10   # PostgreSQL
+marshmallow==3.26.1       # optional, if you use it
+plotly==5.22.0            # optional, if you use charts
+bcrypt==4.1.3             # for password hashing (optional if not used)
+email-validator==2.1.1    # for validating emails
+pillow==11.1.0            # for handling images (media files)
+gunicorn==20.1.0         # for deployment
+whitenoise==6.5.0        # for serving static files in production
