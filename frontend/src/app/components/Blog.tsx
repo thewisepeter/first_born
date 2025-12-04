@@ -20,11 +20,12 @@ import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader } from './ui/dialog';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
+// Update interface to accept both string and string[] for content
 interface BlogPost {
   id: string;
   title: string;
   excerpt: string;
-  content: string;
+  content: string | string[]; // Changed to accept both string and array
   author: string;
   date: string;
   status: string;
@@ -89,6 +90,37 @@ export function Blog() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedBlogPost(null);
+  };
+
+  // Helper function to format content into paragraphs
+  const formatContent = (content: string | string[]): string[] => {
+    if (Array.isArray(content)) {
+      // If it's already an array, return it
+      return content.filter((paragraph) => paragraph.trim().length > 0);
+    }
+
+    if (typeof content === 'string') {
+      // If it's a string, try different splitting methods
+      // First try double newlines
+      const doubleNewlineSplit = content.split(/\n\s*\n/);
+      if (
+        doubleNewlineSplit.length > 1 ||
+        (doubleNewlineSplit.length === 1 && doubleNewlineSplit[0] !== content)
+      ) {
+        return doubleNewlineSplit.filter((p) => p.trim().length > 0);
+      }
+
+      // Then try single newlines
+      const singleNewlineSplit = content.split('\n');
+      if (singleNewlineSplit.length > 1) {
+        return singleNewlineSplit.filter((p) => p.trim().length > 0);
+      }
+
+      // If no newlines found, return as single paragraph
+      return content.trim() ? [content] : [];
+    }
+
+    return [];
   };
 
   return (
@@ -160,14 +192,7 @@ export function Blog() {
                     </div>
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                       <div className="flex items-center space-x-4 text-xs text-gray-500">
-                        {/* <div className="flex items-center">
-                          <Heart className="h-3 w-3 mr-1" />
-                          <span>{post.likes}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          <span>{post.comments}</span>
-                        </div> */}
+                        {/* Commented out like/comment counters */}
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -179,14 +204,7 @@ export function Blog() {
                           <BookOpen className="h-3 w-3 mr-1" />
                           Read
                         </Button>
-                        {/* <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white text-xs px-3 transition-all duration-200"
-                        >
-                          <Share2 className="h-3 w-3 mr-1" />
-                          Share
-                        </Button> */}
+                        {/* Commented out share button */}
                       </div>
                     </div>
                   </CardContent>
@@ -253,7 +271,7 @@ export function Blog() {
         </div>
       </section>
 
-      {/* Modal Section (unchanged) */}
+      {/* Modal Section */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-4xl w-[95%] max-h-[90vh] p-0 flex flex-col">
           {selectedBlogPost && (
@@ -308,11 +326,11 @@ export function Blog() {
                   </div>
                 </div>
 
-                <div className="p-8">
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                <div className="p-6 md:p-8">
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
                     {selectedBlogPost.title}
                   </h1>
-                  <div className="flex flex-wrap gap-2 mb-8">
+                  <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
                     {selectedBlogPost.tags.map((tag) => (
                       <Badge
                         key={tag}
@@ -323,30 +341,43 @@ export function Blog() {
                       </Badge>
                     ))}
                   </div>
+
+                  {/* Updated Content Section */}
                   <div className="prose prose-lg max-w-none">
-                    {selectedBlogPost.content.split('\n\n').map((paragraph, index) => (
-                      <p key={index} className="text-gray-700 leading-relaxed mb-6">
-                        {paragraph.trim()}
-                      </p>
-                    ))}
+                    {(() => {
+                      const paragraphs = formatContent(selectedBlogPost.content);
+
+                      if (paragraphs.length === 0) {
+                        return <p className="text-gray-500 italic">No content available.</p>;
+                      }
+
+                      return paragraphs.map((paragraph, index) => (
+                        <p key={index} className="text-gray-700 leading-relaxed mb-4 md:mb-6">
+                          {paragraph}
+                        </p>
+                      ));
+                    })()}
                   </div>
-                  <div className="border-t border-gray-200 pt-6 mt-8">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-6">
+
+                  <div className="border-t border-gray-200 pt-6 mt-6 md:mt-8">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center space-x-4 md:space-x-6">
                         <div className="flex items-center space-x-2">
-                          <Heart className="h-5 w-5 text-gray-400" />
-                          <span className="text-gray-600">{selectedBlogPost.likes} likes</span>
+                          <Heart className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
+                          <span className="text-gray-600 text-sm md:text-base">
+                            {selectedBlogPost.likes} likes
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <MessageSquare className="h-5 w-5 text-gray-400" />
-                          <span className="text-gray-600">
+                          <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
+                          <span className="text-gray-600 text-sm md:text-base">
                             {selectedBlogPost.comments} comments
                           </span>
                         </div>
                       </div>
                       <Button
                         variant="outline"
-                        className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
+                        className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white w-full md:w-auto"
                       >
                         <Share2 className="h-4 w-4 mr-2" />
                         Share Article

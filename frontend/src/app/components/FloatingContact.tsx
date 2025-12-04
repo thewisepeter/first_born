@@ -121,42 +121,39 @@ export function FloatingContact() {
           {!showForm ? (
             // Contact Information View
             <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-center items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Contact Us</h3>
                 <button
                   onClick={handleClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-6 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Phone className="h-5 w-5 text-purple-600 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-gray-900">+256 778 030 496</p>
-                    <p className="text-sm text-gray-600">Call us</p>
-                  </div>
-                </div>
+                <div className="space-y-4">
+                  {/* WhatsApp QR Code with Phone */}
+                  <div className="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex flex-col items-center pt-3">
+                      <img
+                        src="/prophet_namara_whatsapp_qr_purple.png"
+                        alt="WhatsApp QR Code"
+                        className="w-36 h-36 object-contain rounded-lg border-2 border-purple-100 mb-2"
+                      />
+                      <p className="text-xs text-gray-600 mt-1">Scan QR for WhatsApp</p>
 
-                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Mail className="h-5 w-5 text-purple-600 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">
-                      propheternestnamara@gmail.com
-                    </p>
-                    <p className="text-sm text-gray-600">Email us</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <MapPin className="h-5 w-5 text-purple-600 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Gardenia Hall, Imperial Royale Hotel
-                    </p>
-                    <p className="text-sm text-gray-600">Visit us</p>
+                      <div className="mt-4">
+                        {' '}
+                        {/* Added margin top here */}
+                        <div className="flex items-center space-x-3 mb-3">
+                          <Phone className="h-5 w-5 text-purple-600 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-gray-900">+256 778 030 496</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -166,7 +163,7 @@ export function FloatingContact() {
                 className="w-full mt-4 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Send Message
+                Send Email
               </Button>
             </div>
           ) : (
