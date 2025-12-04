@@ -23,8 +23,6 @@ interface VideoData {
   source_url: string;
   date: string;
   category: string;
-  duration: string;
-  views: string;
 }
 
 export function Videos() {
@@ -312,57 +310,88 @@ export function Videos() {
       </section>
 
       {/* Video Modal */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl w-[95%] h-[90%] p-0 bg-black border-0">
-          <DialogHeader className="absolute top-4 right-4 z-10">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={closeVideoModal}
-              className="text-white hover:bg-white/20 h-10 w-10 p-0 rounded-full"
-            >
-              <X className="h-6 w-6" />
-            </Button>
-          </DialogHeader>
-
+      <Dialog open={isDialogOpen} onOpenChange={closeVideoModal}>
+        <DialogContent
+          className="!fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 
+                         !w-[95vw] !h-[80vh] !max-w-none !bg-black !border-0 !p-0 
+                         !grid-rows-none !rounded-none !shadow-none
+                         sm:!w-[90vw] sm:!h-[70vh]
+                         lg:!w-[1200px] lg:!h-[675px]
+                         xl:!w-[1400px] xl:!h-[788px]"
+        >
           {selectedVideo && (
-            <div className="w-full h-full flex flex-col">
-              {/* Video Player */}
-              <div className="flex-1 relative">
-                <iframe
-                  className="w-full h-full"
-                  src={selectedVideo.source_url}
-                  title={selectedVideo.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
+            <div className="flex flex-col lg:flex-row h-full">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeVideoModal}
+                className="absolute top-4 right-4 z-50 text-white hover:bg-white/20 h-10 w-10 p-0 rounded-full"
+              >
+                <X className="h-6 w-6" />
+              </Button>
 
-              {/* Video Info Panel */}
-              <div className="bg-white p-6 max-h-48 overflow-y-auto">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedVideo.title}</h2>
-                    <div className="flex items-center text-gray-600 text-sm mb-3 flex-wrap gap-4">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
-                        {selectedVideo.category}
-                      </span>
-                      <span>{selectedVideo.date}</span>
-                      <span>{selectedVideo.views} views</span>
-                      <span>{selectedVideo.duration}</span>
-                    </div>
-                  </div>
+              {/* Video Player - 16:9 Aspect Ratio */}
+              <div className="flex-1 lg:w-3/4 bg-black relative">
+                <div className="absolute inset-0 flex items-center justify-center p-4">
+                  <iframe
+                    key={selectedVideo.id}
+                    src={`${selectedVideo.source_url}?autoplay=1&rel=0&modestbranding=1`}
+                    title={selectedVideo.title}
+                    className="w-full h-full max-w-full max-h-full"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
                 </div>
 
-                <p className="text-gray-700 leading-relaxed mb-4">{selectedVideo.description}</p>
+                {/* Title Overlay (Desktop only) */}
+                <div className="absolute inset-x-0 top-0 z-40 bg-gradient-to-b from-black/70 to-transparent p-6 hidden lg:block">
+                  <h2 className="text-xl font-bold text-white mb-1 truncate">
+                    {selectedVideo.title}
+                  </h2>
+                  <div className="flex items-center gap-3 text-gray-300 text-sm">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-purple-500/30 text-purple-200 backdrop-blur-sm">
+                      {selectedVideo.category}
+                    </span>
+                    <span>{selectedVideo.date}</span>
+                  </div>
+                </div>
+              </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center space-x-3">
+              {/* Info Panel - Desktop */}
+              <div className="hidden lg:flex lg:w-1/4 bg-white flex-col">
+                <div className="p-6 flex-1 overflow-y-auto">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">About this video</h3>
+                  <div className="mb-4">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800 font-medium mb-2">
+                      {selectedVideo.category}
+                    </span>
+                    <p className="text-gray-500 text-sm mb-2">Posted on {selectedVideo.date}</p>
+                  </div>
+
+                  <div className="prose prose-sm max-w-none">
+                    <p className="text-gray-700">{selectedVideo.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile Info Panel */}
+              <div className="lg:hidden bg-white p-4 border-t border-gray-200 max-h-[40vh] overflow-y-auto">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{selectedVideo.title}</h3>
+                <div className="flex items-center gap-3 text-gray-600 text-sm mb-3">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                    {selectedVideo.category}
+                  </span>
+                  <span>{selectedVideo.date}</span>
+                </div>
+                <p className="text-gray-700 text-sm mb-4">{selectedVideo.description}</p>
+
+                {/* <div className="flex gap-3">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
+                    className="flex-1 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
                   >
                     <Heart className="h-4 w-4 mr-2" />
                     Like
@@ -370,12 +399,12 @@ export function Videos() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
+                    className="flex-1 border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Share
                   </Button>
-                </div>
+                </div> */}
               </div>
             </div>
           )}
