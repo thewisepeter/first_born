@@ -137,7 +137,7 @@ export function FloatingContact() {
                   <div className="p-3 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex flex-col items-center pt-3">
                       <img
-                        src="/prophet_namara_whatsapp_qr_purple.png"
+                        src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/prophet_namara_whatsapp_qr_purple.png`}
                         alt="WhatsApp QR Code"
                         className="w-36 h-36 object-contain rounded-lg border-2 border-purple-100 mb-2"
                       />
