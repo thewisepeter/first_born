@@ -24,7 +24,7 @@ class VideoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Video
-        fields = ['id', 'title', 'description', 'embed_id', 'source_url', 'duration', 'views', 'category', 'date']
+        fields = ['id', 'title', 'description', 'embed_id', 'source_url', 'category', 'date']
 
     def get_date(self, obj):
         return obj.formatted_date()
