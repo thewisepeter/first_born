@@ -9,10 +9,46 @@ class Audio(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True, null=True)
     active = models.BooleanField(default=False)
     description = models.TextField(blank=True, null=True)
-    drive_url = models.URLField()
+
+    # User pastes this into the admin
+    original_url = models.URLField(null=False, blank=False, default='https://drive.google.com/file/d/1CtcO2nRbULMYMoI4QuWNBt5m8yibF_sC/view?usp=sharing')
+
+    # This will be auto-generated
+    drive_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return self.title
+
+    def extract_drive_file_id(self, url):
+        """
+        Extract file ID from Google Drive URL formats.
+        Supports:
+        - https://drive.google.com/file/d/<ID>/view?usp=sharing
+        - https://drive.google.com/open?id=<ID>
+        - anything containing /d/<ID>/
+        """
+        import re
+
+        patterns = [
+            r'/file/d/([^/]+)',       # /file/d/<ID>
+            r'id=([^&]+)'             # id=<ID>
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, url)
+            if match:
+                return match.group(1)
+
+        return None
+
+    def save(self, *args, **kwargs):
+        if self.original_url:
+            file_id = self.extract_drive_file_id(self.original_url)
+            if file_id:
+                self.drive_url = f"https://drive.google.com/file/d/{file_id}/preview"
+        
+        super().save(*args, **kwargs)
+
 
 class Video(models.Model):
     CATEGORY_CHOICES = (

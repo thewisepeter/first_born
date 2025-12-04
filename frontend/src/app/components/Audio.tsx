@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
+import Link from 'next/link';
 
 interface AudioItem {
   id: string;
@@ -314,28 +315,19 @@ export function Audio() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Never Miss a Message</h2>
           <p className="text-purple-100 text-lg mb-8 max-w-2xl mx-auto">
-            Subscribe to our podcast or follow us on your favorite platform to get the latest
-            sermons and teachings delivered directly to you.
+            Click below and add Spirit World to your calendar to get weekly reminders for new audio
+            messages.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 px-8">
-              Subscribe to Podcast
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white text-white hover:bg-white hover:text-purple-600 px-8"
+            <Link
+              href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Spirit%20World&dates=20251208T220000/20251208T230000&recur=RRULE:FREQ=WEEKLY;BYDAY=MO"
+              target="_blank"
             >
-              Follow on Spotify
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white text-white hover:bg-white hover:text-purple-600 px-8"
-            >
-              Follow on Apple Podcasts
-            </Button>
+              <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 px-8">
+                Add to Calendar
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
