@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
+import Link from 'next/link';
 
 interface AboutProps {
   setCurrentPage: (page: string) => void;
@@ -112,6 +113,19 @@ export function About({ setCurrentPage }: AboutProps) {
                   prosperity are at their fullest—raising a people who walk boldly and consistently
                   in the supernatural.
                 </p> */}
+                <Link
+                  href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=First%20Born%20Fellowship&dates=20251206T173000/20251207T210000&recur=RRULE:FREQ=WEEKLY;BYDAY=SA"
+                  target="_blank"
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage('Audio')}
+                    className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-3 transition-all duration-200"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Never Miss
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -127,12 +141,12 @@ export function About({ setCurrentPage }: AboutProps) {
                 <p className="text-gray-600">
                   In 2016, Prophet Namara Ernest began broadcasting the Spirit World program on
                   radio. It officially launched on Uganda’s 96.6 Spirit FM on December 9, 2019, and
-                  continues to impact lives today.
+                  continues to impact lives today. Click below to listen and be blessed.
                 </p>
-                <p className="text-gray-600">
+                {/* <p className="text-gray-600">
                   "Spirit World" broadcasts every <strong>Monday</strong> evening at{' '}
                   <strong>10:00 PM</strong> on <strong>Spirit FM 96.6</strong>, in Kampala Uganda.
-                </p>
+                </p> */}
                 <Button
                   variant="outline"
                   onClick={() => setCurrentPage('Audio')}

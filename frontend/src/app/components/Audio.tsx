@@ -266,6 +266,7 @@ export function Audio() {
             target="_blank"
           >
             <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 px-8">
+              <Calendar className="h-5 w-5" />
               Add to Calendar
             </Button>
           </Link>
