@@ -49,8 +49,7 @@ export function Blog() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
-        const response = await fetch(`${API_URL}/blog/blogposts/`);
+        const response = await fetch('https://prophetnamara.org/api/blog/blogposts/');
         const data = await response.json();
         const publishedPosts = data.filter((post: BlogPost) => post.status === 'Published');
         setBlogPosts(publishedPosts);
