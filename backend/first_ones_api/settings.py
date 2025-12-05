@@ -96,6 +96,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+
 # Static & Media
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -117,13 +118,41 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="http://localhost:3000", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="http://localhost:3000", cast=Csv())
 
+# Add these settings for reverse proxy support
+USE_X_FORWARDED_HOST = config("USE_X_FORWARDED_HOST", default=True, cast=bool)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Update CSRF settings to work with Nginx
+#CSRF_COOKIE_DOMAIN = '.prophetnamara.org'  # Only if using subdomains
+CSRF_COOKIE_PATH = '/'
+CSRF_COOKIE_SAMESITE = 'Lax'  # or 'None' if you need cross-site
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False  # Set to True if not using JS to read CSRF token
+
+# Session cookie settings for cross-domain if needed
+#SESSION_COOKIE_DOMAIN = '.prophetnamara.org'  # Only if using subdomains
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True
+
+# Additional security for production
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    
+    # Additional security headers
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+
 # Django Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # change to IsAuthenticated in prod
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # Better than AllowAny for production
     ]
 }
 
