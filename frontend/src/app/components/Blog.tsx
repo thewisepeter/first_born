@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Calendar,
   User,
@@ -43,6 +43,7 @@ export function Blog() {
   const [selectedBlogPost, setSelectedBlogPost] = useState<BlogPost | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const postsPerPage = 3;
 
@@ -153,7 +154,7 @@ export function Blog() {
                     <ImageWithFallback
                       src={post.image}
                       alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-4 left-4">
                       <Badge className="bg-purple-600 text-white hover:bg-purple-700">
@@ -273,120 +274,159 @@ export function Blog() {
 
       {/* Modal Section */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl w-[95%] max-h-[90vh] p-0 flex flex-col">
+        <DialogContent
+          className="!fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 
+                           !w-[95vw] !max-w-7xl !h-[90vh] !max-h-[800px] !rounded-xl 
+                           !border !border-gray-200 !shadow-2xl !p-0 !overflow-hidden"
+        >
           {selectedBlogPost && (
-            <>
-              <DialogHeader className="flex-shrink-0 bg-white z-10 border-b border-gray-200 p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+            <div className="flex h-full min-h-0">
+              {/* Fixed Sidebar */}
+              <div className="hidden lg:flex w-80 flex-shrink-0 flex-col border-r border-gray-200 bg-gray-50">
+                <div className="p-6 overflow-y-auto flex-1">
+                  {/* Article Meta */}
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-2">Published</h4>
+                      <div className="flex items-center text-gray-700">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        <span>{selectedBlogPost.date}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-2">Reading Time</h4>
+                      <div className="flex items-center text-gray-700">
+                        <Clock className="h-4 w-4 mr-2" />
+                        <span>{selectedBlogPost.readTime}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-2">Category</h4>
+                      <Badge className="bg-purple-600 text-white">
+                        {selectedBlogPost.category}
+                      </Badge>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-2">Tags</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedBlogPost.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Back to all articles */}
+                <div className="p-6 border-t border-gray-200 flex-shrink-0">
+                  <div className="flex justify-center">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={handleCloseModal}
-                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white text-xs px-3 transition-all duration-200"
                     >
-                      <ArrowLeft className="h-4 w-4" />
+                      All Articles
                     </Button>
-                    <Badge className="bg-purple-600 text-white">{selectedBlogPost.category}</Badge>
                   </div>
+                </div>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="flex-1 flex flex-col min-h-0">
+                {' '}
+                {/* Important: min-h-0 allows flex child to shrink */}
+                {/* Mobile Header */}
+                <div className="lg:hidden flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+                  <Button variant="ghost" onClick={handleCloseModal} className="flex items-center">
+                    <ArrowLeft className="h-5 w-5 mr-2" />
+                    Back
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleCloseModal}
-                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    className="h-8 w-8 p-0"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
-              </DialogHeader>
+                {/* Scrollable Content Container */}
+                <div className="flex-1 overflow-y-auto" ref={contentRef}>
+                  {' '}
+                  {/* This is the scrollable area */}
+                  {/* Hero Image */}
+                  <div className="relative h-64 md:h-72">
+                    <ImageWithFallback
+                      src={selectedBlogPost.image}
+                      alt={selectedBlogPost.title}
+                      className="w-full h-full object-cover object-top"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  </div>
+                  {/* Article Content */}
+                  <div className="max-w-3xl mx-auto px-6 md:px-8 py-8">
+                    <Badge className="mb-4 bg-purple-600 text-white">
+                      {selectedBlogPost.category}
+                    </Badge>
 
-              <div className="flex-1 overflow-y-auto min-h-0">
-                <div className="relative aspect-[16/9] bg-gray-100">
-                  <ImageWithFallback
-                    src={selectedBlogPost.image}
-                    alt={selectedBlogPost.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <div className="flex items-center space-x-4 text-sm mb-2">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                      {selectedBlogPost.title}
+                    </h1>
+
+                    <div className="flex items-center space-x-4 text-sm text-gray-500 mb-8">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1" />
+                        <User className="h-4 w-4 mr-2" />
                         <span>{selectedBlogPost.author}</span>
                       </div>
+                      <span>•</span>
                       <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
+                        <Calendar className="h-4 w-4 mr-2" />
                         <span>{selectedBlogPost.date}</span>
                       </div>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>{selectedBlogPost.readTime}</span>
-                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="p-6 md:p-8">
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
-                    {selectedBlogPost.title}
-                  </h1>
-                  <div className="flex flex-wrap gap-2 mb-6 md:mb-8">
-                    {selectedBlogPost.tags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="secondary"
-                        className="bg-[#F5F0E1] text-[#B28930] hover:bg-[#B28930] hover:text-white"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Updated Content Section */}
-                  <div className="prose prose-lg max-w-none">
-                    {(() => {
-                      const paragraphs = formatContent(selectedBlogPost.content);
-
-                      if (paragraphs.length === 0) {
-                        return <p className="text-gray-500 italic">No content available.</p>;
-                      }
-
-                      return paragraphs.map((paragraph, index) => (
-                        <p key={index} className="text-gray-700 leading-relaxed mb-4 md:mb-6">
-                          {paragraph}
-                        </p>
-                      ));
-                    })()}
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-6 mt-6 md:mt-8">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                      {/* <div className="flex items-center space-x-4 md:space-x-6">
-                        <div className="flex items-center space-x-2">
-                          <Heart className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
-                          <span className="text-gray-600 text-sm md:text-base">
-                            {selectedBlogPost.likes} likes
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
-                          <span className="text-gray-600 text-sm md:text-base">
-                            {selectedBlogPost.comments} comments
-                          </span>
-                        </div>
+                    <article className="prose prose-lg max-w-none">
+                      <div className="text-gray-700 leading-relaxed space-y-6">
+                        {(() => {
+                          const paragraphs = formatContent(selectedBlogPost.content);
+                          if (paragraphs.length === 0) {
+                            return <p className="text-gray-500 italic">No content available.</p>;
+                          }
+                          return paragraphs.map((paragraph, index) => (
+                            <p key={index}>{paragraph}</p>
+                          ));
+                        })()}
                       </div>
+                    </article>
+
+                    {/* Back to top button */}
+                    <div className="mt-12 pt-8 border-t border-gray-200">
                       <Button
-                        variant="outline"
-                        className="border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white w-full md:w-auto"
+                        variant="ghost"
+                        onClick={() => {
+                          if (contentRef.current) {
+                            contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                          }
+                        }}
+                        className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white text-xs px-3 transition-all duration-200"
                       >
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Share Article
-                      </Button> */}
+                        <ArrowLeft className="h-4 w-4 mr-2 rotate-90" />
+                        Back to top
+                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
