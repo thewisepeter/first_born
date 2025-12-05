@@ -32,7 +32,7 @@ export function About({ setCurrentPage }: AboutProps) {
                 <ImageWithFallback
                   src="/pn_abt.jpg"
                   alt="Prophet Namara Ernest"
-                  className="w-full h-[500px] object-cover"
+                  className="w-full h-[500px] object-cover object-top"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>

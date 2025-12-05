@@ -160,7 +160,7 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Service Times</h4>
               <div className="text-gray-300 space-y-2">
                 <p>Saturday Fellowship: 5 pm</p>
-                <p>Spirit World Radio Program: 10 pm</p>
+                <p>Gardenia Hall, Imperial Royale Hotel</p>
               </div>
             </div>
           </div>
