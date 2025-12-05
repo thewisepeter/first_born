@@ -21,7 +21,7 @@ export function TestimoniesCarousel() {
     // Fetch testimonies from API
     const fetchTestimonies = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/blog/testimonies/');
+        const res = await fetch('https://prophetnamara.org/api/blog/testimonies/');
         if (!res.ok) throw new Error('Failed to fetch testimonies');
         const data: Testimony[] = await res.json();
         setTestimonies(data);

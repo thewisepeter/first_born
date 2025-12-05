@@ -29,7 +29,7 @@ export function Audio() {
   useEffect(() => {
     async function fetchAudios() {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/mediafiles/audio/');
+        const response = await fetch('https://prophetnamara.org/api/mediafiles/audio/');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

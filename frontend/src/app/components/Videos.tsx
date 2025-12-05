@@ -38,7 +38,7 @@ export function Videos() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/mediafiles/video/');
+        const response = await fetch('https://prophetnamara.org/api/mediafiles/video/');
         if (!response.ok) throw new Error('Failed to fetch videos');
 
         const data = await response.json();

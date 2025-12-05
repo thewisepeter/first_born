@@ -22,7 +22,7 @@ export function HeroCarousel() {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/blog/heroslide/');
+        const res = await fetch('https://prophetnamara.org/api/blog/heroslide/');
         if (!res.ok) throw new Error('Failed to fetch slides');
         const data: HeroSlide[] = await res.json();
         setHeroSlides(data);

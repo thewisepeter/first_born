@@ -79,7 +79,7 @@ export function ShareStorySection() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/contactmessages/testimony/', {
+      const response = await fetch('https://prophetnamara.org/api/contactmessages/testimony/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
