@@ -119,7 +119,6 @@ export function About({ setCurrentPage }: AboutProps) {
                 >
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentPage('Audio')}
                     className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-3 transition-all duration-200"
                   >
                     <Calendar className="h-4 w-4 mr-2" />
