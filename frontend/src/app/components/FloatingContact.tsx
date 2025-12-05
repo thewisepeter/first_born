@@ -205,12 +205,19 @@ export function FloatingContact() {
                   {/* WhatsApp QR Code with Phone */}
                   <div className="p-3 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex flex-col items-center pt-3">
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/prophet_namara_whatsapp_qr_purple.png`}
-                        alt="WhatsApp QR Code"
-                        className="w-36 h-36 object-contain rounded-lg border-2 border-purple-100 mb-2"
-                      />
-                      <p className="text-xs text-gray-600 mt-1">Scan QR for WhatsApp</p>
+                      <a
+                        href="https://wa.me/message/PI5UF25MGYZED1"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/prophet_namara_whatsapp_qr_purple.png`}
+                          alt="WhatsApp QR Code"
+                          className="w-36 h-36 object-contain rounded-lg border-2 border-purple-100 mb-2"
+                        />
+                      </a>
+
+                      <p className="text-xs text-gray-600 mt-1">Scan QR or Tap for WhatsApp</p>
 
                       <div className="mt-4">
                         {' '}
