@@ -361,7 +361,7 @@ export function Blog() {
 
                   <div className="border-t border-gray-200 pt-6 mt-6 md:mt-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                      <div className="flex items-center space-x-4 md:space-x-6">
+                      {/* <div className="flex items-center space-x-4 md:space-x-6">
                         <div className="flex items-center space-x-2">
                           <Heart className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
                           <span className="text-gray-600 text-sm md:text-base">
@@ -381,7 +381,7 @@ export function Blog() {
                       >
                         <Share2 className="h-4 w-4 mr-2" />
                         Share Article
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </div>
