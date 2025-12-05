@@ -230,157 +230,176 @@ export function ShareStorySection() {
 
       {/* Share Testimony Modal */}
       <Dialog open={showTestimonyForm} onOpenChange={setShowTestimonyForm}>
-        <DialogContent className="max-w-lg w-[95%] max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="space-y-4">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center">
-                <BookOpen className="h-6 w-6 mr-2 text-purple-600" />
-                Share Your Testimony
-              </DialogTitle>
-            </div>
-            <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-4 rounded-lg">
-              <p className="text-gray-700 text-sm leading-relaxed">
-                Your story of faith, transformation, and God's goodness has the power to inspire
-                others. Share how God has worked in your life!
+        <DialogContent className="max-w-lg w-[95%] !grid !grid-cols-1">
+          <div className="w-full max-w-full overflow-hidden">
+            {' '}
+            {/* Added overflow-hidden */}
+            <DialogHeader className="space-y-4 w-full">
+              <div className="flex items-center justify-between w-full">
+                <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center">
+                  <BookOpen className="h-6 w-6 mr-2 text-purple-600" />
+                  Share Your Testimony
+                </DialogTitle>
+              </div>
+              <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-4 rounded-lg w-full">
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  Your story of faith, transformation, and God's goodness has the power to inspire
+                  others. Share how God has worked in your life!
+                </p>
+              </div>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-full">
+              {/* Hidden CSRF token field for fallback */}
+              {csrfToken && <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />}
+
+              <div className="grid grid-cols-2 gap-4 w-full">
+                <div className="w-full">
+                  <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                    First Name *
+                  </Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    value={testimonyFormData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    placeholder="John"
+                    className={`mt-1 w-full min-w-0 ${formErrors.firstName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    disabled={isSubmitting}
+                  />
+                  {formErrors.firstName && (
+                    <p className="mt-1 text-xs text-red-600">{formErrors.firstName}</p>
+                  )}
+                </div>
+
+                <div className="w-full">
+                  <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                    Last Name *
+                  </Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    value={testimonyFormData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    placeholder="Smith"
+                    className={`mt-1 w-full min-w-0 ${formErrors.lastName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    disabled={isSubmitting}
+                  />
+                  {formErrors.lastName && (
+                    <p className="mt-1 text-xs text-red-600">{formErrors.lastName}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="w-full">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email Address *
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={testimonyFormData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="john.smith@example.com"
+                  className={`mt-1 w-full min-w-0 ${formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  disabled={isSubmitting}
+                />
+                {formErrors.email && (
+                  <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>
+                )}
+              </div>
+
+              <div className="w-full">
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                  Phone Number *
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={testimonyFormData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="(555) 123-4567"
+                  className={`mt-1 w-full min-w-0 ${formErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  disabled={isSubmitting}
+                />
+                {formErrors.phone && (
+                  <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>
+                )}
+              </div>
+
+              <div className="w-full">
+                <Label htmlFor="message" className="text-sm font-medium text-gray-700">
+                  Your Testimony *
+                </Label>
+                <div className="mt-1 w-full">
+                  <Textarea
+                    id="message"
+                    value={testimonyFormData.message}
+                    onChange={(e) => handleInputChange('message', e.target.value)}
+                    placeholder="Share your story of how the power of prophecy has influenced your life for the better"
+                    rows={4}
+                    className={`
+              w-full min-w-0 max-w-full
+              resize-none
+              ${formErrors.message ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+            `}
+                    disabled={isSubmitting}
+                    style={{
+                      boxSizing: 'border-box',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      maxWidth: '100%',
+                    }}
+                  />
+                </div>
+                {formErrors.message && (
+                  <p className="mt-1 text-xs text-red-600">{formErrors.message}</p>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-4 w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseModal}
+                  disabled={isSubmitting}
+                  className="flex-1 min-w-0"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !csrfToken}
+                  className="flex-1 min-w-0 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                      Sharing...
+                    </>
+                  ) : !csrfToken ? (
+                    'CSRF Token Missing'
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Share Testimony
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <p className="text-xs text-gray-500 text-center pt-2 w-full">
+                Your testimony will be reviewed and we will contact you
               </p>
-            </div>
-          </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Hidden CSRF token field for fallback */}
-            {csrfToken && <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                  First Name *
-                </Label>
-                <Input
-                  id="firstName"
-                  type="text"
-                  value={testimonyFormData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  placeholder="John"
-                  className={`mt-1 ${formErrors.firstName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                  disabled={isSubmitting}
-                />
-                {formErrors.firstName && (
-                  <p className="mt-1 text-xs text-red-600">{formErrors.firstName}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                  Last Name *
-                </Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  value={testimonyFormData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  placeholder="Smith"
-                  className={`mt-1 ${formErrors.lastName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                  disabled={isSubmitting}
-                />
-                {formErrors.lastName && (
-                  <p className="mt-1 text-xs text-red-600">{formErrors.lastName}</p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                Email Address *
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={testimonyFormData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="john.smith@example.com"
-                className={`mt-1 ${formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                disabled={isSubmitting}
-              />
-              {formErrors.email && <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                Phone Number *
-              </Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={testimonyFormData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="(555) 123-4567"
-                className={`mt-1 ${formErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                disabled={isSubmitting}
-              />
-              {formErrors.phone && <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="message" className="text-sm font-medium text-gray-700">
-                Your Testimony *
-              </Label>
-              <Textarea
-                id="message"
-                value={testimonyFormData.message}
-                onChange={(e) => handleInputChange('message', e.target.value)}
-                placeholder="Share your story of how the power of prophecy has influenced your life for the better"
-                rows={4}
-                className={`mt-1 resize-none ${formErrors.message ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-                disabled={isSubmitting}
-              />
-              {formErrors.message && (
-                <p className="mt-1 text-xs text-red-600">{formErrors.message}</p>
+              {/* Debug info - remove in production */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-400 border-t pt-2 w-full">
+                  CSRF token status:{' '}
+                  {csrfToken ? `✓ Found (${csrfToken.substring(0, 10)}...)` : '✗ Missing'}
+                </div>
               )}
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCloseModal}
-                disabled={isSubmitting}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting || !csrfToken}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                    Sharing...
-                  </>
-                ) : !csrfToken ? (
-                  'CSRF Token Missing'
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2" />
-                    Share Testimony
-                  </>
-                )}
-              </Button>
-            </div>
-
-            <p className="text-xs text-gray-500 text-center pt-2">
-              Your testimony will be reviewed and we will contact you
-            </p>
-
-            {/* Debug info - remove in production */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="text-xs text-gray-400 border-t pt-2">
-                CSRF token status:{' '}
-                {csrfToken ? `✓ Found (${csrfToken.substring(0, 10)}...)` : '✗ Missing'}
-              </div>
-            )}
-          </form>
+            </form>
+          </div>
         </DialogContent>
       </Dialog>
     </>
