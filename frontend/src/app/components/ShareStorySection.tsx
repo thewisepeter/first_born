@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Input } from './ui/input';
@@ -16,9 +16,26 @@ interface TestimonyFormData {
   message: string;
 }
 
+// CSRF token helper function - READ FROM COOKIE
+const getCsrfToken = (): string => {
+  if (typeof document === 'undefined') return ''; // Server-side check
+
+  const cookieString = document.cookie;
+  const cookies = cookieString.split('; ');
+
+  for (const cookie of cookies) {
+    if (cookie.startsWith('csrftoken=')) {
+      return cookie.substring('csrftoken='.length);
+    }
+  }
+
+  return '';
+};
+
 export function ShareStorySection() {
   const [showTestimonyForm, setShowTestimonyForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string>('');
   const [testimonyFormData, setTestimonyFormData] = useState<TestimonyFormData>({
     firstName: '',
     lastName: '',
@@ -27,6 +44,20 @@ export function ShareStorySection() {
     message: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<TestimonyFormData>>({});
+
+  // Get CSRF token when modal opens
+  useEffect(() => {
+    if (showTestimonyForm) {
+      const token = getCsrfToken();
+      setCsrfToken(token);
+
+      // For debugging
+      console.log('Testimony Form - CSRF Token found:', token ? 'Yes' : 'No');
+      if (token) {
+        console.log('Testimony Form - Token length:', token.length);
+      }
+    }
+  }, [showTestimonyForm]);
 
   const handleInputChange = (field: keyof TestimonyFormData, value: string) => {
     setTestimonyFormData((prev) => ({ ...prev, [field]: value }));
@@ -79,22 +110,59 @@ export function ShareStorySection() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://prophetnamara.org/api/contactmessages/testimony/', {
+      // Get CSRF token - try from state first, then from cookies directly
+      let token = csrfToken || getCsrfToken();
+
+      if (!token) {
+        throw new Error('CSRF token not found. Please refresh the page and try again.');
+      }
+
+      // Use relative URL instead of absolute
+      const response = await fetch('/api/contactmessages/testimony/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': token, // Add CSRF token header
         },
+        credentials: 'include', // Important: include cookies
         body: JSON.stringify(testimonyFormData),
       });
 
+      const data = await response.json().catch(() => null);
+
       if (!response.ok) {
-        // Try to parse errors if available
-        const errorData = await response.json().catch(() => null);
-        console.error('API error:', errorData || response.statusText);
-        throw new Error('Failed to submit testimony');
+        console.error('Testimony API error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        });
+
+        // Handle CSRF token errors specifically
+        if (response.status === 403 && data?.detail?.includes('CSRF')) {
+          // CSRF token might be expired
+          const freshToken = getCsrfToken();
+          if (freshToken && freshToken !== token) {
+            console.log('Testimony Form - Retrying with fresh CSRF token');
+            setCsrfToken(freshToken);
+          }
+          throw new Error('Session expired. Please refresh the page and try again.');
+        }
+
+        // Handle validation errors from Django
+        if (response.status === 400 && data) {
+          const errorMessages = Object.entries(data)
+            .map(
+              ([field, messages]) =>
+                `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`
+            )
+            .join('\n');
+          throw new Error(`Validation error:\n${errorMessages}`);
+        }
+
+        throw new Error(data?.detail || data?.message || 'Failed to submit testimony');
       }
 
-      // Success — clear form
+      // Success — clear form and close modal
       setTestimonyFormData({
         firstName: '',
         lastName: '',
@@ -105,9 +173,13 @@ export function ShareStorySection() {
       setFormErrors({});
       setShowTestimonyForm(false);
 
-      console.log('Testimony form submitted successfully');
+      // Show success message
+      alert('Thank you for sharing your testimony! We will review it and may contact you.');
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Testimony form submission error:', error);
+      alert(
+        `Error: ${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -117,6 +189,12 @@ export function ShareStorySection() {
     setShowTestimonyForm(false);
     setFormErrors({});
     setTestimonyFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+  };
+
+  // For debugging: Check what cookies are available
+  const checkCookies = () => {
+    console.log('All cookies:', document.cookie);
+    console.log('CSRF token:', getCsrfToken());
   };
 
   return (
@@ -133,7 +211,13 @@ export function ShareStorySection() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                onClick={() => setShowTestimonyForm(true)}
+                onClick={() => {
+                  // Optional: check cookies before showing form
+                  if (process.env.NODE_ENV === 'development') {
+                    checkCookies();
+                  }
+                  setShowTestimonyForm(true);
+                }}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-8"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
@@ -163,6 +247,9 @@ export function ShareStorySection() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Hidden CSRF token field for fallback */}
+            {csrfToken && <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />}
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
@@ -263,7 +350,7 @@ export function ShareStorySection() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !csrfToken}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
@@ -271,6 +358,8 @@ export function ShareStorySection() {
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                     Sharing...
                   </>
+                ) : !csrfToken ? (
+                  'CSRF Token Missing'
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-2" />
@@ -283,6 +372,14 @@ export function ShareStorySection() {
             <p className="text-xs text-gray-500 text-center pt-2">
               Your testimony will be reviewed and we will contact you
             </p>
+
+            {/* Debug info - remove in production */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs text-gray-400 border-t pt-2">
+                CSRF token status:{' '}
+                {csrfToken ? `✓ Found (${csrfToken.substring(0, 10)}...)` : '✗ Missing'}
+              </div>
+            )}
           </form>
         </DialogContent>
       </Dialog>

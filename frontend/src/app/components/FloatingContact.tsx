@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageCircle, X, Phone, Mail, MapPin, Send, ArrowLeft } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -14,10 +14,27 @@ interface FormData {
   message: string;
 }
 
+// CSRF token helper function - READ FROM COOKIE
+const getCsrfToken = (): string => {
+  if (typeof document === 'undefined') return ''; // Server-side check
+
+  const cookieString = document.cookie;
+  const cookies = cookieString.split('; ');
+
+  for (const cookie of cookies) {
+    if (cookie.startsWith('csrftoken=')) {
+      return cookie.substring('csrftoken='.length);
+    }
+  }
+
+  return '';
+};
+
 export function FloatingContact() {
   const [isOpen, setIsOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -25,6 +42,20 @@ export function FloatingContact() {
     message: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
+
+  // Get CSRF token when component mounts or form opens
+  useEffect(() => {
+    if (isOpen) {
+      const token = getCsrfToken();
+      setCsrfToken(token);
+
+      // For debugging - log token status
+      console.log('CSRF Token found:', token ? 'Yes' : 'No');
+      if (token) {
+        console.log('Token length:', token.length);
+      }
+    }
+  }, [isOpen]);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -73,18 +104,46 @@ export function FloatingContact() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://prophetnamara.org/api/contactmessages/contact/', {
+      // Get CSRF token - try from state first, then from cookies directly
+      let token = csrfToken || getCsrfToken();
+
+      if (!token) {
+        throw new Error('CSRF token not found. Please refresh the page and try again.');
+      }
+
+      // Use relative URL instead of absolute
+      const response = await fetch('/api/contactmessages/contact/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': token, // Add CSRF token header
         },
+        credentials: 'include', // Important: include cookies
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json().catch(() => null);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error('API error:', errorData || response.statusText);
-        throw new Error('Failed to submit contact message');
+        console.error('API error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        });
+
+        // Handle CSRF token errors specifically
+        if (response.status === 403 && data?.detail?.includes('CSRF')) {
+          // CSRF token might be expired
+          // Try to get a fresh one from cookie
+          const freshToken = getCsrfToken();
+          if (freshToken && freshToken !== token) {
+            console.log('Retrying with fresh CSRF token');
+            // You could implement a retry logic here
+          }
+          throw new Error('Session expired. Please refresh the page and try again.');
+        }
+
+        throw new Error(data?.detail || data?.message || 'Failed to submit contact message');
       }
 
       // Reset form on success
@@ -93,9 +152,13 @@ export function FloatingContact() {
       setIsOpen(false);
       setFormErrors({});
 
-      console.log('Form submitted successfully');
+      // Show success message
+      alert('Message sent successfully! We will get back to you soon.');
     } catch (error) {
       console.error('Form submission error:', error);
+      alert(
+        `Error: ${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -111,6 +174,12 @@ export function FloatingContact() {
   const handleBackToContact = () => {
     setShowForm(false);
     setFormErrors({});
+  };
+
+  // For debugging: Check what cookies are available
+  const checkCookies = () => {
+    console.log('All cookies:', document.cookie);
+    console.log('CSRF token:', getCsrfToken());
   };
 
   return (
@@ -159,12 +228,28 @@ export function FloatingContact() {
               </div>
 
               <Button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  // Optional: check cookies before showing form
+                  if (process.env.NODE_ENV === 'development') {
+                    checkCookies();
+                  }
+                  setShowForm(true);
+                }}
                 className="w-full mt-4 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Send Email
               </Button>
+
+              {/* Debug info - remove in production */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-2 text-xs text-gray-500">
+                  CSRF token: {csrfToken ? `${csrfToken.substring(0, 10)}...` : 'Not found'}
+                  <button onClick={checkCookies} className="ml-2 text-blue-500 hover:text-blue-700">
+                    Check cookies
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             // Contact Form View
@@ -190,7 +275,7 @@ export function FloatingContact() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
-                    Full Name *
+                    Full Name
                   </Label>
                   <Input
                     id="fullName"
@@ -208,7 +293,7 @@ export function FloatingContact() {
 
                 <div>
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    Email Address *
+                    Email Address
                   </Label>
                   <Input
                     id="email"
@@ -226,7 +311,7 @@ export function FloatingContact() {
 
                 <div>
                   <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                    Phone Number *
+                    Phone Number
                   </Label>
                   <Input
                     id="phone"
@@ -244,7 +329,7 @@ export function FloatingContact() {
 
                 <div>
                   <Label htmlFor="message" className="text-sm font-medium text-gray-700">
-                    Message *
+                    Message
                   </Label>
                   <Textarea
                     id="message"
@@ -262,7 +347,7 @@ export function FloatingContact() {
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !csrfToken}
                   className="w-full bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
@@ -270,6 +355,8 @@ export function FloatingContact() {
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                       Sending...
                     </>
+                  ) : !csrfToken ? (
+                    'CSRF Token Missing - Refresh Page'
                   ) : (
                     <>
                       <Send className="h-4 w-4 mr-2" />

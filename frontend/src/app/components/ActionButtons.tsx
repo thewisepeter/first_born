@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Input } from './ui/input';
@@ -16,9 +16,26 @@ interface PartnerFormData {
   message: string;
 }
 
+// CSRF token helper function - READ FROM COOKIE
+const getCsrfToken = (): string => {
+  if (typeof document === 'undefined') return ''; // Server-side check
+
+  const cookieString = document.cookie;
+  const cookies = cookieString.split('; ');
+
+  for (const cookie of cookies) {
+    if (cookie.startsWith('csrftoken=')) {
+      return cookie.substring('csrftoken='.length);
+    }
+  }
+
+  return '';
+};
+
 export function ActionButtons() {
   const [showPartnerForm, setShowPartnerForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string>('');
   const [partnerFormData, setPartnerFormData] = useState<PartnerFormData>({
     firstName: '',
     lastName: '',
@@ -27,6 +44,20 @@ export function ActionButtons() {
     message: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<PartnerFormData>>({});
+
+  // Get CSRF token when modal opens
+  useEffect(() => {
+    if (showPartnerForm) {
+      const token = getCsrfToken();
+      setCsrfToken(token);
+
+      // For debugging
+      console.log('Partner Form - CSRF Token found:', token ? 'Yes' : 'No');
+      if (token) {
+        console.log('Partner Form - Token length:', token.length);
+      }
+    }
+  }, [showPartnerForm]);
 
   const handleInputChange = (field: keyof PartnerFormData, value: string) => {
     setPartnerFormData((prev) => ({ ...prev, [field]: value }));
@@ -79,11 +110,21 @@ export function ActionButtons() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://prophetnamara.org/api/partners/partner/', {
+      // Get CSRF token - try from state first, then from cookies directly
+      let token = csrfToken || getCsrfToken();
+
+      if (!token) {
+        throw new Error('CSRF token not found. Please refresh the page and try again.');
+      }
+
+      // Use relative URL instead of absolute
+      const response = await fetch('/api/partners/partner/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': token, // Add CSRF token header
         },
+        credentials: 'include', // Important: include cookies
         body: JSON.stringify({
           firstName: partnerFormData.firstName,
           lastName: partnerFormData.lastName,
@@ -93,19 +134,54 @@ export function ActionButtons() {
         }),
       });
 
+      const data = await response.json().catch(() => null);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.error('Partner API error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        });
+
+        // Handle CSRF token errors specifically
+        if (response.status === 403 && data?.detail?.includes('CSRF')) {
+          // CSRF token might be expired
+          const freshToken = getCsrfToken();
+          if (freshToken && freshToken !== token) {
+            console.log('Partner Form - Retrying with fresh CSRF token');
+            setCsrfToken(freshToken);
+          }
+          throw new Error('Session expired. Please refresh the page and try again.');
+        }
+
+        // Handle validation errors from Django
+        if (response.status === 400 && data) {
+          const errorMessages = Object.entries(data)
+            .map(
+              ([field, messages]) =>
+                `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`
+            )
+            .join('\n');
+          throw new Error(`Validation error:\n${errorMessages}`);
+        }
+
+        throw new Error(data?.detail || data?.message || `HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
       console.log('Partner form submitted successfully:', data);
 
       // Reset form and close modal
       setPartnerFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
       setFormErrors({});
       setShowPartnerForm(false);
+
+      // Show success message
+      alert('Thank you for your partnership interest! We will contact you within 24 hours.');
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Partner form submission error:', error);
+      alert(
+        `Error: ${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -115,6 +191,12 @@ export function ActionButtons() {
     setShowPartnerForm(false);
     setFormErrors({});
     setPartnerFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+  };
+
+  // For debugging: Check what cookies are available
+  const checkCookies = () => {
+    console.log('All cookies:', document.cookie);
+    console.log('CSRF token:', getCsrfToken());
   };
 
   return (
@@ -134,7 +216,13 @@ export function ActionButtons() {
 
             <Button
               variant="outline"
-              onClick={() => setShowPartnerForm(true)}
+              onClick={() => {
+                // Optional: check cookies before showing form
+                if (process.env.NODE_ENV === 'development') {
+                  checkCookies();
+                }
+                setShowPartnerForm(true);
+              }}
               className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
             >
               <Users className="h-4 w-4 mr-2" />
@@ -163,6 +251,9 @@ export function ActionButtons() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Hidden CSRF token field for fallback */}
+            {csrfToken && <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} />}
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
@@ -263,7 +354,7 @@ export function ActionButtons() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !csrfToken}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
@@ -271,6 +362,8 @@ export function ActionButtons() {
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                     Submitting...
                   </>
+                ) : !csrfToken ? (
+                  'CSRF Token Missing'
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-2" />
@@ -283,6 +376,14 @@ export function ActionButtons() {
             <p className="text-xs text-gray-500 text-center pt-2">
               Someone from our team will reach out to you within 24 hours
             </p>
+
+            {/* Debug info - remove in production */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs text-gray-400 border-t pt-2">
+                CSRF token status:{' '}
+                {csrfToken ? `✓ Found (${csrfToken.substring(0, 10)}...)` : '✗ Missing'}
+              </div>
+            )}
           </form>
         </DialogContent>
       </Dialog>
