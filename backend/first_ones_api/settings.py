@@ -115,8 +115,20 @@ X_FRAME_OPTIONS = "DENY"
 
 # CORS
 CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="http://localhost:3000", cast=Csv())
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="http://localhost:3000", cast=Csv())
+CORS_ALLOWED_ORIGINS = [
+    "https://prophetnamara.org",
+    "https://www.prophetnamara.org",
+    "http://prophetnamara.org",
+    "http://www.prophetnamara.org",
+    "http://localhost:3000",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://prophetnamara.org",
+    "https://www.prophetnamara.org",
+    "http://prophetnamara.org",
+    "http://www.prophetnamara.org",
+    "http://localhost:3000",
+]
 
 # Add these settings for reverse proxy support
 USE_X_FORWARDED_HOST = config("USE_X_FORWARDED_HOST", default=True, cast=bool)
