@@ -193,12 +193,6 @@ export function ActionButtons() {
     setPartnerFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
   };
 
-  // For debugging: Check what cookies are available
-  const checkCookies = () => {
-    console.log('All cookies:', document.cookie);
-    console.log('CSRF token:', getCsrfToken());
-  };
-
   return (
     <>
       <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] py-4">
@@ -217,10 +211,6 @@ export function ActionButtons() {
             <Button
               variant="outline"
               onClick={() => {
-                // Optional: check cookies before showing form
-                if (process.env.NODE_ENV === 'development') {
-                  checkCookies();
-                }
                 setShowPartnerForm(true);
               }}
               className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
@@ -376,14 +366,6 @@ export function ActionButtons() {
             <p className="text-xs text-gray-500 text-center pt-2">
               Someone from our team will reach out to you within 24 hours
             </p>
-
-            {/* Debug info - remove in production */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="text-xs text-gray-400 border-t pt-2">
-                CSRF token status:{' '}
-                {csrfToken ? `✓ Found (${csrfToken.substring(0, 10)}...)` : '✗ Missing'}
-              </div>
-            )}
           </form>
         </DialogContent>
       </Dialog>

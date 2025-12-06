@@ -191,12 +191,6 @@ export function ShareStorySection() {
     setTestimonyFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' });
   };
 
-  // For debugging: Check what cookies are available
-  const checkCookies = () => {
-    console.log('All cookies:', document.cookie);
-    console.log('CSRF token:', getCsrfToken());
-  };
-
   return (
     <>
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
@@ -212,10 +206,6 @@ export function ShareStorySection() {
               <Button
                 size="lg"
                 onClick={() => {
-                  // Optional: check cookies before showing form
-                  if (process.env.NODE_ENV === 'development') {
-                    checkCookies();
-                  }
                   setShowTestimonyForm(true);
                 }}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-8"
@@ -390,14 +380,6 @@ export function ShareStorySection() {
               <p className="text-xs text-gray-500 text-center pt-2 w-full">
                 Your testimony will be reviewed and we will contact you
               </p>
-
-              {/* Debug info - remove in production */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="text-xs text-gray-400 border-t pt-2 w-full">
-                  CSRF token status:{' '}
-                  {csrfToken ? `✓ Found (${csrfToken.substring(0, 10)}...)` : '✗ Missing'}
-                </div>
-              )}
             </form>
           </div>
         </DialogContent>

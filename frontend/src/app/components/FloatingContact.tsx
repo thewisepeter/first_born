@@ -176,12 +176,6 @@ export function FloatingContact() {
     setFormErrors({});
   };
 
-  // For debugging: Check what cookies are available
-  const checkCookies = () => {
-    console.log('All cookies:', document.cookie);
-    console.log('CSRF token:', getCsrfToken());
-  };
-
   return (
     <>
       {/* Contact Panel */}
@@ -236,10 +230,6 @@ export function FloatingContact() {
 
               <Button
                 onClick={() => {
-                  // Optional: check cookies before showing form
-                  if (process.env.NODE_ENV === 'development') {
-                    checkCookies();
-                  }
                   setShowForm(true);
                 }}
                 className="w-full mt-4 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200"
@@ -247,16 +237,6 @@ export function FloatingContact() {
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Send Email
               </Button>
-
-              {/* Debug info - remove in production */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="mt-2 text-xs text-gray-500">
-                  CSRF token: {csrfToken ? `${csrfToken.substring(0, 10)}...` : 'Not found'}
-                  <button onClick={checkCookies} className="ml-2 text-blue-500 hover:text-blue-700">
-                    Check cookies
-                  </button>
-                </div>
-              )}
             </div>
           ) : (
             // Contact Form View
