@@ -27,7 +27,7 @@ export function About({ setCurrentPage }: AboutProps) {
       <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Pastor Image */}
+            {/* Prophet Image */}
             <div className="relative">
               <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                 <ImageWithFallback
@@ -80,6 +80,47 @@ export function About({ setCurrentPage }: AboutProps) {
         </div>
       </section>
 
+      {/* Mission & Vision Section */}
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1  gap-12">
+            {/* Mission */}
+            <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-3xl font-bold text-gray-900 mb-6">Prophetic Mandate</h3>
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                A mandate can be simply defined as an official order or commission to do something.
+                The mandate upon Prophet Namara’s life is to Preserve and Protect that which has
+                been entrusted to him. His calling is in preserving and protecting those that the
+                Lord brings to him and the grace is abundant.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                This grace is like salt that is used to preserve something and it will not go bad,
+                fade away or rot. We are rest assured that as long as our heart is with the man of
+                God, our destiny is preserved and protected.
+              </p>
+            </div>
+
+            {/* Vision */}
+            {/* <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+              <h3 className="text-3xl font-bold text-gray-900 mb-6">First Born</h3>
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                The Lord Jesus appeared to and instructed Prophet Namara Ernest to demonstrate ‘The
+                Assembly of the Firstborn’.
+              </p>
+              <div className="border-l-4 border-[#B28930] pl-4">
+                <p className="text-[#B28930] font-semibold italic">
+                  "But you have come to Mount Zion and to the city of the living God, the heavenly
+                  Jerusalem, to an innumerable company of angels, 23 to the general assembly and
+                  church of the <strong>firstborn</strong> who are registered in heaven, to God the
+                  Judge of all, to the spirits of just men made perfect"
+                </p>
+                <p className="text-sm text-gray-600 mt-2">— Hebrews 12:22-23</p>
+              </div>
+            </div> */}
+          </div>
+        </div>
+      </section>
+
       {/* Church Information Tiles */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -102,9 +143,10 @@ export function About({ setCurrentPage }: AboutProps) {
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  Prophet Namara Ernest Ministries began as a fellowship in Kampala called Firstborn
-                  Fellowship on February 17th, 2015. It was founded to usher God’s children into a
-                  family where Jesus is recognized as the Firstborn.
+                  The Lord Jesus appeared to Prophet Namara Ernest and instructed him to establish
+                  The Assembly of the Firstborn. In response, Firstborn Fellowship began meeting in
+                  Kampala on February 17, 2015, to usher God’s children into a family that
+                  recognizes Jesus as the Firstborn.
                 </p>
                 {/* <p className="text-gray-600">
                   What sets this ministry apart is the unique grace not only to teach but also to
@@ -166,15 +208,19 @@ export function About({ setCurrentPage }: AboutProps) {
                 <CardTitle className="text-xl text-gray-900">YouTube Channel</CardTitle>
               </CardHeader>
               <CardContent className="text-center space-y-4">
-                <p className="text-gray-600">Watch amazing prophetic fulfilments</p>
+                <p className="text-gray-600">
+                  The YouTube channel serves as a platform where various prophetic fulfillments,
+                  testimonies, and key ministry moments are documented and shared. Through these
+                  videos, be encouraged by the real-life testimonies of His faithfulness.
+                </p>
 
-                <div className="border-l-4 border-[#B28930] pl-4">
+                {/* <div className="border-l-4 border-[#B28930] pl-4">
                   <p className="text-[#B28930] font-semibold italic">
                     "Believe in the Lord your God, so shall ye be established, believe his prophets,
                     so shall ye prosper"
                   </p>
                   <p className="text-sm text-gray-600 mt-2">— 2 Chronicles 20:20</p>
-                </div>
+                </div> */}
 
                 <a
                   href="https://www.youtube.com/channel/UCjF4Z56eCPD-gnWO1TOmFMQ"
@@ -198,8 +244,9 @@ export function About({ setCurrentPage }: AboutProps) {
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-gray-600">
-                  Stay connected with our church family through our active social media presence
-                  across multiple platforms.
+                  Stay connected, informed, and engaged with what God is doing through the ministry
+                  in real time. Receive regular updates on ministry activities and
+                  announcements.{' '}
                 </p>
                 <div className="flex justify-center space-x-4 my-4">
                   <a
@@ -244,47 +291,6 @@ export function About({ setCurrentPage }: AboutProps) {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision Section */}
-      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Mission */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">Prophetic Mandate</h3>
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                A mandate can be simply defined as an official order or commission to do something.
-                The mandate upon Prophet Namara’s life is to Preserve and Protect that which has
-                been entrusted to him. His calling is in preserving and protecting those that the
-                Lord brings to him and the grace is abundant.
-              </p>
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                This grace is like salt that is used to preserve something and it will not go bad,
-                fade away or rot. We are rest assured that as long as our heart is with the man of
-                God, our destiny is preserved and protected.
-              </p>
-            </div>
-
-            {/* Vision */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">First Born</h3>
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                The Lord Jesus appeared to and instructed Prophet Namara Ernest to demonstrate ‘The
-                Assembly of the Firstborn’.
-              </p>
-              <div className="border-l-4 border-[#B28930] pl-4">
-                <p className="text-[#B28930] font-semibold italic">
-                  "But you have come to Mount Zion and to the city of the living God, the heavenly
-                  Jerusalem, to an innumerable company of angels, 23 to the general assembly and
-                  church of the <strong>firstborn</strong> who are registered in heaven, to God the
-                  Judge of all, to the spirits of just men made perfect"
-                </p>
-                <p className="text-sm text-gray-600 mt-2">— Hebrews 12:22-23</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>

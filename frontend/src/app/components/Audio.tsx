@@ -104,7 +104,12 @@ export function Audio() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Spirit World</h1>
-            <p className="text-xl text-gray-600">Listen to weekly life giving broadcasts</p>
+            <p className="text-xl text-gray-600">
+              In 2016, Prophet Namara Ernest began broadcasting the Spirit World on Uganda’s 96.6
+              Spirit FM. Officially launched on December 9, 2019, the program continues to impact
+              lives today. These broadcasts now have a new home on our website—click to listen or
+              download.
+            </p>
           </div>
 
           <div className="max-w-4xl mx-auto mb-12">

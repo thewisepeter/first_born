@@ -7,6 +7,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { X, Send, BookOpen, Phone } from 'lucide-react';
+import { ActionButtons } from './ActionButtons';
 
 interface TestimonyFormData {
   firstName: string;
@@ -196,13 +197,14 @@ export function ShareStorySection() {
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center p-8 bg-gradient-to-r from-purple-50 to-[#F5F0E1] rounded-2xl max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Ready to Share Your Testimony?
-            </h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Advance the Kingdom With Us?</h3>
+
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              We would love to hear how God is working in your life.
+              Join us in advancing the Kingdom. Whether you are testifying of God’s goodness, sowing
+              a seed of support, or committing to a deeper walk as a ministry partner, your
+              involvement fuels the transformation of hearts and lives.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 size="lg"
                 onClick={() => {
@@ -213,6 +215,7 @@ export function ShareStorySection() {
                 <BookOpen className="h-4 w-4 mr-2" />
                 Share Your Testimony
               </Button>
+              <ActionButtons />
             </div>
           </div>
         </div>

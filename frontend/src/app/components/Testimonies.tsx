@@ -14,6 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { ShareStorySection } from './ShareStorySection';
 
 interface VideoData {
   id: string;
@@ -25,7 +26,7 @@ interface VideoData {
   category: string;
 }
 
-export function Videos() {
+export function Testimonies() {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
@@ -39,7 +40,7 @@ export function Videos() {
     const fetchVideos = async () => {
       try {
         const response = await fetch(
-          'https://prophetnamara.org/api/mediafiles/video/?category=Prophecy'
+          'https://prophetnamara.org/api/mediafiles/video/?category=Testimony'
         );
         if (!response.ok) throw new Error('Failed to fetch videos');
 
@@ -90,33 +91,37 @@ export function Videos() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Page Title */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Prophetic Updates</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Testimonies</h1>
+            <p className="text-xl text-gray-600 max-w-3xl mb-12 mx-auto">
+              There is nothing more powerful than a miracle testimony. People may argue with your
+              doctrine, challenge what you believe, but they cannot argue with your testimony. A
+              testimony declares "God said it, and it came to pass!". It is evidence of the workings
+              of the mighty hand of God in the lives of men.
+            </p>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Prophecy and it's fulfilment is a powerful demonstration that God is still involved in
-              the affairs of men; that God still speaks and that He is interested in changing the
-              experience of our lives. As you watch these videos, may your faith be strengthened and
-              your walk with God be empowered, for what He said, He will surely do.
+              Be encouraged as you watch these testimonies, and if God did it for them, He will rise
+              up in your life as well, for He is no respector of persons. Let these testimonies
+              light a fire to your faith
             </p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
               <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center text-purple-600">
                     <Swords className="h-6 w-6 mr-3" />
-                    Prophecy Equips for Warfare
+                    Testimonies Inspire Victory
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 ">
-                    Prophecy to you as a child of God is ammunition that you need to wage a good
-                    warfare and obtain victory.
+                    Cast not your confidence away, you too will overcome.
                   </p>
 
                   <div className="border-l-4 border-[#B28930] pl-4">
                     <p className="text-[#B28930] font-semibold italic">
-                      "This charge I commit to you, son Timothy, according to the prophecies
-                      previously made concerning you, that by them you may wage the good warfare"
+                      "And they overcame him by the blood of the Lamb, and by the word of their
+                      testimony; and they loved not their lives unto the death."
                     </p>
-                    <p className="text-sm text-gray-600 mt-2">— 2 Timothy 1:28</p>
+                    <p className="text-sm text-gray-600 mt-2">— Revelation 12:11</p>
                   </div>
                 </CardContent>
               </Card>
@@ -125,19 +130,18 @@ export function Videos() {
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center text-[#B28930]">
                     <Users className="h-6 w-6 mr-3" />
-                    Builds the Body of Christ
+                    Bearing Witness
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
-                    Prophecy energizes and charges up the body of Christ.
-                  </p>
+                  <p className="text-gray-600">Miracles Confirm the Truth</p>
                   <div className="border-l-4 border-[#B28930] pl-4">
                     <p className="text-[#B28930] font-semibold italic">
-                      "But one who prophesies strengthens others, encourages them, and comforts
-                      them."
+                      "If I do not the works of my Father, believe me not. But if I do, though ye
+                      believe not me, believe the works: that ye may know, and believe, that the
+                      Father is in me, and I in him."
                     </p>
-                    <p className="text-sm text-gray-600 mt-2">— 1 Corinthians 14:3</p>
+                    <p className="text-sm text-gray-600 mt-2">— John 10:37–38</p>
                   </div>
                 </CardContent>
               </Card>
@@ -265,6 +269,8 @@ export function Videos() {
           </div>
         </div>
       </section>
+
+      <ShareStorySection />
 
       {/* Video Modal */}
       <Dialog open={isDialogOpen} onOpenChange={closeVideoModal}>
