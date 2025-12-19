@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     # third-party
     'rest_framework',
     'corsheaders',
+    'django_filters',
 
     # custom apps
     'blog',
@@ -165,7 +166,10 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # Better than AllowAny for production
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 }
 
 # Email

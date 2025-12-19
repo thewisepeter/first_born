@@ -24,11 +24,12 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
     { name: 'Home', page: 'Home' },
     { name: 'About', page: 'About' },
     { name: 'Prophecies', page: 'Videos' }, // Display as "Prophecies" but reference as "Videos"
+    { name: 'Testimonies', page: 'Testimonies' },
   ];
 
   const mediaItems = [
     { name: "Prophet's Blog", page: 'Blog' },
-    { name: 'Spirit World', page: 'Audio' },
+    { name: 'Audio Sermons', page: 'Audio' }, // Display as "Audio Sermons" but reference as "Audio"
   ];
 
   const handleMobileNavClick = (page: string) => {
@@ -100,7 +101,7 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                     Prophet's Blog
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setCurrentPage('Audio')}>
-                    Spirit World
+                    Audio Sermons
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

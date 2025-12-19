@@ -9,6 +9,7 @@ import { ShareStorySection } from './components/ShareStorySection';
 import { FloatingContact } from './components/FloatingContact';
 import { About } from './components/About';
 import { Videos } from './components/Videos';
+import { Testimonies } from './components/Testimonies';
 import { Blog } from './components/Blog';
 import { Audio } from './components/Audio';
 import { Facebook, Twitter, Instagram, Youtube, Music2 } from 'lucide-react';
@@ -31,6 +32,9 @@ export default function HomePage() {
         return <About setCurrentPage={setCurrentPage} />;
       case 'Videos':
         return <Videos />;
+
+      case 'Testimonies':
+        return <Testimonies />;
       case 'Blog':
         return <Blog />;
       case 'Audio':
@@ -40,7 +44,6 @@ export default function HomePage() {
         return (
           <>
             {/* Action Buttons */}
-            <ActionButtons />
 
             {/* Hero Carousel */}
             <HeroCarousel />
@@ -68,7 +71,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <h3 className="text-2xl font-bold text-[#B28930] mb-4">Follow Prophet Namara</h3>
+              <h3 className="text-2xl font-bold text-[#B28930] mb-4">Stay Connected</h3>
               <div className="flex space-x-4">
                 <a
                   href="https://x.com/ProphetNamara"
@@ -139,6 +142,14 @@ export default function HomePage() {
                 </li>
                 <li>
                   <button
+                    onClick={() => setCurrentPage('Testimonies')}
+                    className="hover:text-[#B28930] transition-colors"
+                  >
+                    Testimonies
+                  </button>
+                </li>
+                <li>
+                  <button
                     onClick={() => setCurrentPage('Blog')}
                     className="hover:text-[#B28930] transition-colors"
                   >
@@ -159,8 +170,8 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold mb-4">Service Times</h4>
               <div className="text-gray-300 space-y-2">
-                <p>Saturday Fellowship: 5 pm</p>
-                <p>Gardenia Hall, Imperial Royale Hotel</p>
+                <p>Every Saturday, 5 pm</p>
+                <p>At Gardenia Hall, Imperial Royale Hotel</p>
               </div>
             </div>
           </div>

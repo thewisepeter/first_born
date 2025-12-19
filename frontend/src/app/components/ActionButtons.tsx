@@ -195,32 +195,32 @@ export function ActionButtons() {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a
-              href="https://flutterwave.com/pay/prophetnamaraernesti69d"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button className="bg-[#B28930] hover:bg-[#9A7328] text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
-                Give
-              </Button>
-            </a>
+      {/* <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <a
+          href="https://flutterwave.com/pay/prophetnamaraernesti69d"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button className="bg-[#B28930] hover:bg-[#9A7328] text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
+            Give
+          </Button>
+        </a>
 
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowPartnerForm(true);
-              }}
-              className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Become a Partner
-            </Button>
-          </div>
-        </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setShowPartnerForm(true);
+          }}
+          className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+        >
+          <Users className="h-4 w-4 mr-2" />
+          Become a Partner
+        </Button>
       </div>
+      {/* </div>
+      </div> */}
 
       {/* Become a Partner Modal */}
       <Dialog open={showPartnerForm} onOpenChange={setShowPartnerForm}>
