@@ -230,7 +230,13 @@ export function Audio() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center space-x-4 mt-12">
-              <Button variant="outline" size="sm" onClick={prevPage} disabled={currentPage === 0}>
+              <Button
+                variant="outline"
+                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+                size="sm"
+                onClick={prevPage}
+                disabled={currentPage === 0}
+              >
                 Previous
               </Button>
 
@@ -240,6 +246,11 @@ export function Audio() {
                   variant={currentPage === i ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => goToPage(i)}
+                  className={
+                    currentPage === i
+                      ? 'border-purple-600 hover:bg-purple-600 text-white'
+                      : 'border-gray-300 text-purple-600 hover:border-purple-600 hover:text-purple-600 hover:bg-purple-50'
+                  }
                 >
                   {i + 1}
                 </Button>
@@ -247,6 +258,7 @@ export function Audio() {
 
               <Button
                 variant="outline"
+                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
                 size="sm"
                 onClick={nextPage}
                 disabled={currentPage === totalPages - 1}
@@ -259,22 +271,23 @@ export function Audio() {
       </section>
 
       {/* Subscribe Section */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-purple-700">
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-3xl font-bold text-white mb-4">Never Miss a Message</h2>
-          <p className="text-purple-100 text-lg mb-8">
-            Click below to add Spirit World to your calendar.
-          </p>
+          <div className="text-center p-8 bg-gradient-to-r from-purple-50 to-[#F5F0E1] rounded-2xl max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Never Miss a Message</h2>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Click below to add Spirit World to your calendar.
+            </p>
 
-          <Link
-            href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Spirit%20World&dates=20251208T220000/20251208T230000&recur=RRULE:FREQ=WEEKLY;BYDAY=MO"
-            target="_blank"
-          >
-            <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 px-8">
+            <Link
+              href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Spirit%20World&dates=20251208T220000/20251208T230000&recur=RRULE:FREQ=WEEKLY;BYDAY=MO"
+              target="_blank"
+              className="inline-flex items-center justify-center gap-2 border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg text-lg font-medium"
+            >
               <Calendar className="h-5 w-5" />
               Add to Calendar
-            </Button>
-          </Link>
+            </Link>
+          </div>
         </div>
       </section>
     </div>

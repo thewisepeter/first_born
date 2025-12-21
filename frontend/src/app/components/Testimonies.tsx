@@ -237,8 +237,8 @@ export function Testimonies() {
                     onClick={() => goToPage(i)}
                     className={
                       currentPage === i
-                        ? 'bg-[#B28930] hover:bg-[#9A7328] text-white'
-                        : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                        ? 'border-purple-600 hover:bg-purple-600 text-white'
+                        : 'border-gray-300 text-purple-600 hover:border-purple-600 hover:text-purple-600 hover:bg-purple-50'
                     }
                   >
                     {i + 1}
