@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Quote, Users } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Button } from './ui/button';
 
 interface Testimony {
   id: number;
@@ -12,7 +13,11 @@ interface Testimony {
   role: string;
 }
 
-export function TestimoniesCarousel() {
+interface TestimonyProps {
+  setCurrentPage: (page: string) => void;
+}
+
+export function TestimoniesCarousel({ setCurrentPage }: TestimonyProps) {
   const [testimonies, setTestimonies] = useState<Testimony[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
@@ -71,7 +76,7 @@ export function TestimoniesCarousel() {
 
         <div className="relative">
           {/* Testimonies Container */}
-          <div className="overflow-hidden">
+          <div className="overflow-hidden pb-12">
             <div
               className="flex transition-transform duration-300 ease-in-out"
               style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
@@ -132,16 +137,32 @@ export function TestimoniesCarousel() {
 
         {/* Dots Indicator */}
         {maxIndex > 0 && (
-          <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: maxIndex + 1 }, (_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-purple-600' : 'bg-gray-300'
-                }`}
-              />
-            ))}
+          <div className="flex flex-col items-center space-y-6 mt-12">
+            {/* Dots only */}
+            <div className="flex justify-center space-x-2">
+              {Array.from({ length: maxIndex + 1 }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    index === currentIndex ? 'bg-purple-600' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Centered button with spacing from dots */}
+            <div className="text-center">
+              <Button
+                onClick={() => setCurrentPage('Testimonies')}
+                size="lg"
+                variant="outline"
+                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+              >
+                <Users className="h-5 w-5 mr-2" />
+                See more testimonies
+              </Button>
+            </div>
           </div>
         )}
       </div>

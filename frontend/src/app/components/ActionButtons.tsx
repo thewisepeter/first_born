@@ -203,7 +203,10 @@ export function ActionButtons() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Button className="bg-[#B28930] hover:bg-[#9A7328] text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
+          <Button
+            variant="outline"
+            className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+          >
             Give
           </Button>
         </a>
