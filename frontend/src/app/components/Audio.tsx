@@ -282,15 +282,10 @@ export function Audio() {
             <Link
               href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Spirit%20World&dates=20251208T220000/20251208T230000&recur=RRULE:FREQ=WEEKLY;BYDAY=MO"
               target="_blank"
+              className="inline-flex items-center justify-center gap-2 border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg text-lg font-medium"
             >
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-              >
-                <Calendar className="h-5 w-5" />
-                Add to Calendar
-              </Button>
+              <Calendar className="h-5 w-5" />
+              Add to Calendar
             </Link>
           </div>
         </div>

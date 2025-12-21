@@ -136,14 +136,7 @@ export default function HomePage() {
                     Prophecies
                   </button>
                 </li>
-                <li>
-                  <button
-                    onClick={() => setCurrentPage('Testimonies')}
-                    className="hover:text-[#B28930] transition-colors"
-                  >
-                    Testimonies
-                  </button>
-                </li>
+
                 <li>
                   <button
                     onClick={() => setCurrentPage('Testimonies')}

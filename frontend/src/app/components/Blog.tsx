@@ -237,7 +237,7 @@ export function Blog() {
                     onClick={() => goToPage(i)}
                     className={
                       currentPage === i
-                        ? 'border-purple-600 hover:bg-purple-600 text-white'
+                        ? 'bg-purple-600 border-purple-600 text-white hover:bg-purple-700'
                         : 'border-gray-300 text-purple-600 hover:border-purple-600 hover:text-purple-600 hover:bg-purple-50'
                     }
                   >
