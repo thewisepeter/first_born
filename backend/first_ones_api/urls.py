@@ -22,7 +22,7 @@ from core.views import csrf
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('api/csrf/', csrf),
+    path('api/csrf/', csrf, name='csrf_token'),
     path('api/blog/', include('blog.urls')),
     path('api/mediafiles/', include('mediafiles.urls')),
     path('api/partners/', include('partners.urls')),
