@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 export function CsrfInitializer() {
   useEffect(() => {
-    fetch('https://prophetnamara.org/api/csrf//api/csrf/', {
+    fetch('https://prophetnamara.org/api/csrf/', {
       credentials: 'include',
     }).catch((error) => {
       console.error('Failed to initialize CSRF token:', error);
