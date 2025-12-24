@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from core.views import csrf
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/csrf/', csrf, name='csrf_token'),
     path('api/blog/', include('blog.urls')),
     path('api/mediafiles/', include('mediafiles.urls')),
     path('api/partners/', include('partners.urls')),

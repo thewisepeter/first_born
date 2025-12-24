@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'mediafiles',
     'partners',
     'contactmessages',
+    'core',
 ]
 
 MIDDLEWARE = [
