@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { CsrfInitializer } from './components/CsrfInitializer';
 
 export const metadata: Metadata = {
   title: 'Prophet Namara Ernest',
@@ -17,7 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/prophet_namara_logo.png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/prophet_namara_logo.png" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {' '}
+        <CsrfInitializer /> {children}
+      </body>
     </html>
   );
 }
