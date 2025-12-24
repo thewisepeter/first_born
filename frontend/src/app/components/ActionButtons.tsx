@@ -7,7 +7,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Send, Users } from 'lucide-react';
-import { getCsrfToken } from '@/app/lib/csrf';
+import { getCsrfToken } from '../lib/csrf';
 
 interface PartnerFormData {
   firstName: string;

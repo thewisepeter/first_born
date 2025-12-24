@@ -8,6 +8,7 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Send, BookOpen } from 'lucide-react';
 import { ActionButtons } from './ActionButtons';
+import { getCsrfToken } from '../lib/csrf';
 
 interface TestimonyFormData {
   firstName: string;
@@ -16,16 +17,6 @@ interface TestimonyFormData {
   phone: string;
   message: string;
 }
-
-/**
- * Read CSRF token directly from cookie
- * (Most reliable approach for mobile browsers)
- */
-const getCsrfToken = (): string => {
-  if (typeof document === 'undefined') return '';
-  const match = document.cookie.match(/csrftoken=([^;]+)/);
-  return match ? match[1] : '';
-};
 
 export function ShareStorySection() {
   const [showTestimonyForm, setShowTestimonyForm] = useState(false);
@@ -85,6 +76,11 @@ export function ShareStorySection() {
     setIsSubmitting(true);
 
     try {
+      const csrfToken = getCsrfToken();
+      if (!csrfToken) {
+        throw new Error('Security token missing. Please refresh the page.');
+      }
+
       const response = await fetch('/api/contactmessages/testimony/', {
         method: 'POST',
         headers: {
