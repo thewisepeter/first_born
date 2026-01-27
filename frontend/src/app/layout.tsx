@@ -1,6 +1,10 @@
 import './globals.css';
+import { Navigation } from './components/Navigation';
+import { FloatingContact } from './components/FloatingContact';
+import { Footer } from './components/Footer';
 import type { Metadata } from 'next';
 import { CsrfInitializer } from './components/CsrfInitializer';
+import { AuthProvider } from '../contexts/AuthContext';
 
 export const metadata: Metadata = {
   title: 'Prophet Namara Ernest',
@@ -18,9 +22,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/prophet_namara_logo.png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/prophet_namara_logo.png" />
       </head>
-      <body className="antialiased">
-        {' '}
-        <CsrfInitializer /> {children}
+
+      <body className="antialiased min-h-screen flex flex-col">
+        <AuthProvider>
+          {/* Global initializers */}
+          <CsrfInitializer />
+
+          {/* Global navigation */}
+          <Navigation />
+
+          {/* Page content */}
+          <main className="flex-1">{children}</main>
+          {/* Global footer */}
+          <Footer />
+
+          {/* Floating contact button */}
+          <FloatingContact />
+        </AuthProvider>
       </body>
     </html>
   );

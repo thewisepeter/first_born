@@ -18,15 +18,26 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from core.views import csrf
+from core.views import (
+    csrf, 
+    current_user, 
+    login_view,  
+    get_csrf_token,
+    session_logout
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/csrf/', csrf, name='csrf_token'),
+    path('api/auth/me/', current_user, name='current-user'),
+    path('api/auth/login/', login_view, name='login'),  
+    path('api/auth/logout/', session_logout, name='logout'),  
+    path('api/auth/csrf-token/', get_csrf_token, name='get-csrf-token'), 
     path('api/blog/', include('blog.urls')),
     path('api/mediafiles/', include('mediafiles.urls')),
     path('api/partners/', include('partners.urls')),
-    path('api/contactmessages/', include('contactmessages.urls'))
+    path('api/contactmessages/', include('contactmessages.urls')),
+    
 ]
 
 if settings.DEBUG:

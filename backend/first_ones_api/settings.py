@@ -130,7 +130,9 @@ CSRF_TRUSTED_ORIGINS = [
     "http://prophetnamara.org",
     "http://www.prophetnamara.org",
     "http://localhost:3000",
+    "http://127.0.0.1:3000", 
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 # Add these settings for reverse proxy support
 USE_X_FORWARDED_HOST = config("USE_X_FORWARDED_HOST", default=True, cast=bool)
@@ -182,3 +184,6 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = config("EMAIL_HOST_USER", default="")
 EMAIL_USE_SSL = False
+
+# Frontend URL for email links
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:3000")

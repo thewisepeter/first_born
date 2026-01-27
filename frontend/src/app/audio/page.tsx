@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Download, Calendar, Clock, User, Music } from 'lucide-react';
-import { Card, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
+import { Card, CardContent } from '../components//ui/card';
+import { Button } from '../components//ui/button';
+import { Badge } from '../components//ui/badge';
+import { Separator } from '../components//ui/separator';
 import Link from 'next/link';
 
 interface AudioItem {
@@ -18,7 +18,7 @@ interface AudioItem {
   driveUrl: string;
 }
 
-export function Audio() {
+export default function Audio() {
   const [audioRecordings, setAudioRecordings] = useState<AudioItem[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -105,7 +105,7 @@ export function Audio() {
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Spirit World</h1>
             <p className="text-xl text-gray-600">
-              In 2016, Prophet Namara Ernest began broadcasting the Spirit World on Uganda’s 96.6
+              In 2016, Prophet Namara Ernest began broadcasting the Spirit World on Uganda's 96.6
               Spirit FM. Officially launched on December 9, 2019, the program continues to impact
               lives today. These broadcasts now have a new home on our website—click to listen or
               download.
@@ -178,95 +178,116 @@ export function Audio() {
             </p>
           </div>
 
-          <div className="space-y-6">
-            {paginatedAudios.map((audio, index) => (
-              <Card key={audio.id} className="border-0 shadow-lg hover:shadow-xl">
-                <CardContent className="p-0">
-                  <div className="flex flex-col lg:flex-row">
-                    {/* Player part */}
-                    <div className="lg:w-2/5 bg-gradient-to-br from-purple-600 to-purple-700 p-6 text-white">
-                      <h3 className="text-xl font-bold mb-2">{audio.title}</h3>
+          {otherAudios.length > 0 ? (
+            <>
+              <div className="space-y-6">
+                {paginatedAudios.map((audio) => (
+                  <Card key={audio.id} className="border-0 shadow-lg hover:shadow-xl">
+                    <CardContent className="p-0">
+                      <div className="flex flex-col lg:flex-row">
+                        {/* Player part */}
+                        <div className="lg:w-2/5 bg-gradient-to-br from-purple-600 to-purple-700 p-6 text-white">
+                          <h3 className="text-xl font-bold mb-2">{audio.title}</h3>
 
-                      <div className="flex items-center text-sm opacity-90 mb-4">
-                        <User className="h-4 w-4 mr-2" /> {audio.speaker}
-                        <Clock className="h-4 w-4 mr-4 ml-4" /> {audio.date}
+                          <div className="flex items-center text-sm opacity-90 mb-4">
+                            <User className="h-4 w-4 mr-2" /> {audio.speaker}
+                            <Clock className="h-4 w-4 mr-4 ml-4" /> {audio.date}
+                          </div>
+
+                          <div className="bg-black/20 rounded-lg p-4 mb-4">
+                            <iframe
+                              src={audio.driveUrl}
+                              width="100%"
+                              height="60"
+                              frameBorder="0"
+                              allow="autoplay"
+                              className="rounded"
+                            />
+                          </div>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-white hover:bg-white/20"
+                            onClick={() => {
+                              const fileId = getFileIdFromUrl(audio.driveUrl);
+                              if (fileId) handleDownload(fileId, `${audio.title}.mp3`);
+                            }}
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {/* Description part */}
+                        <div className="lg:w-3/5 p-6">
+                          <p className="text-gray-600 mb-6">{audio.description}</p>
+                          <Separator className="mb-4" />
+                        </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-                      <div className="bg-black/20 rounded-lg p-4 mb-4">
-                        <iframe
-                          src={audio.driveUrl}
-                          width="100%"
-                          height="60"
-                          frameBorder="0"
-                          allow="autoplay"
-                          className="rounded"
-                        />
-                      </div>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center space-x-4 mt-8">
+                  <Button
+                    variant="outline"
+                    className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+                    size="sm"
+                    onClick={prevPage}
+                    disabled={currentPage === 0}
+                  >
+                    Previous
+                  </Button>
 
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-white hover:bg-white/20"
-                        onClick={() => {
-                          const fileId = getFileIdFromUrl(audio.driveUrl);
-                          if (fileId) handleDownload(fileId, `${audio.title}.mp3`);
-                        }}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <Button
+                      key={i}
+                      variant={currentPage === i ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => goToPage(i)}
+                      className={
+                        currentPage === i
+                          ? 'border-purple-600 hover:bg-purple-600 text-white'
+                          : 'border-gray-300 text-purple-600 hover:border-purple-600 hover:text-purple-600 hover:bg-purple-50'
+                      }
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
 
-                    {/* Description part */}
-                    <div className="lg:w-3/5 p-6">
-                      <p className="text-gray-600 mb-6">{audio.description}</p>
-                      <Separator className="mb-4" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center space-x-4 mt-12">
-              <Button
-                variant="outline"
-                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-                size="sm"
-                onClick={prevPage}
-                disabled={currentPage === 0}
-              >
-                Previous
-              </Button>
-
-              {Array.from({ length: totalPages }, (_, i) => (
-                <Button
-                  key={i}
-                  variant={currentPage === i ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => goToPage(i)}
-                  className={
-                    currentPage === i
-                      ? 'border-purple-600 hover:bg-purple-600 text-white'
-                      : 'border-gray-300 text-purple-600 hover:border-purple-600 hover:text-purple-600 hover:bg-purple-50'
-                  }
-                >
-                  {i + 1}
-                </Button>
-              ))}
-
-              <Button
-                variant="outline"
-                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-                size="sm"
-                onClick={nextPage}
-                disabled={currentPage === totalPages - 1}
-              >
-                Next
-              </Button>
+                  <Button
+                    variant="outline"
+                    className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+                    size="sm"
+                    onClick={nextPage}
+                    disabled={currentPage === totalPages - 1}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No additional audio recordings available</p>
+              <p className="text-gray-400 mt-2">
+                Check back later for more Spirit World broadcasts
+              </p>
             </div>
           )}
+        </div>
+        {/* Page Info */}
+        <div className="text-center mt-4">
+          {otherAudios.length > 0 ? (
+            <p className="text-gray-500 text-sm">
+              Showing {currentPage * itemsPerPage + 1} -{' '}
+              {Math.min((currentPage + 1) * itemsPerPage, otherAudios.length)} of{' '}
+              {otherAudios.length} audios
+            </p>
+          ) : null}
         </div>
       </section>
 
@@ -281,11 +302,16 @@ export function Audio() {
 
             <Link
               href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Spirit%20World&dates=20251208T220000/20251208T230000&recur=RRULE:FREQ=WEEKLY;BYDAY=MO"
-              target="_blank"
-              className="inline-flex items-center justify-center gap-2 border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg text-lg font-medium"
+              target="blank"
             >
-              <Calendar className="h-5 w-5" />
-              Add to Calendar
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+              >
+                <Calendar className="h-5 w-5" />
+                Add to Calendar
+              </Button>
             </Link>
           </div>
         </div>

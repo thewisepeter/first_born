@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Calendar, ChevronLeft, ChevronRight, Quote, Users } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Button } from './ui/button';
@@ -13,11 +14,7 @@ interface Testimony {
   role: string;
 }
 
-interface TestimonyProps {
-  setCurrentPage: (page: string) => void;
-}
-
-export function TestimoniesCarousel({ setCurrentPage }: TestimonyProps) {
+export function TestimoniesCarousel() {
   const [testimonies, setTestimonies] = useState<Testimony[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
@@ -153,15 +150,16 @@ export function TestimoniesCarousel({ setCurrentPage }: TestimonyProps) {
 
             {/* Centered button with spacing from dots */}
             <div className="text-center">
-              <Button
-                onClick={() => setCurrentPage('Testimonies')}
-                size="lg"
-                variant="outline"
-                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-              >
-                <Users className="h-5 w-5 mr-2" />
-                See more testimonies
-              </Button>
+              <Link href="/testimonies">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+                >
+                  <Users className="h-5 w-5 mr-2" />
+                  See more testimonies
+                </Button>
+              </Link>
             </div>
           </div>
         )}

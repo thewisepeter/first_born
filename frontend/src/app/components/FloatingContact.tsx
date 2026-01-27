@@ -305,7 +305,7 @@ export function FloatingContact() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="(555) 123-4567"
+                    placeholder="+256 775 123 456"
                     className={`mt-1 ${formErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                     disabled={isSubmitting}
                   />

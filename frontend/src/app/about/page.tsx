@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import {
   Calendar,
   Users,
@@ -12,15 +12,15 @@ import {
   Music,
   Music2,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import Link from 'next/link';
 
 interface AboutProps {
   setCurrentPage: (page: string) => void;
 }
 
-export function About({ setCurrentPage }: AboutProps) {
+export default function About({ setCurrentPage }: AboutProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Prophet Hero Section */}
@@ -170,7 +170,7 @@ export function About({ setCurrentPage }: AboutProps) {
               </CardContent>
             </Card>
 
-            {/* Radio Ministry */}
+            {/* Spirit World */}
             <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#B28930] to-[#9A7328] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -188,14 +188,16 @@ export function About({ setCurrentPage }: AboutProps) {
                   "Spirit World" broadcasts every <strong>Monday</strong> evening at{' '}
                   <strong>10:00 PM</strong> on <strong>Spirit FM 96.6</strong>, in Kampala Uganda.
                 </p> */}
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage('Audio')}
-                  className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white transition-all duration-200"
-                >
-                  <Music className="h-4 w-4 mr-2" />
-                  Listen Online
-                </Button>
+                <Link href="/audios">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage('Audio')}
+                    className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white transition-all duration-200"
+                  >
+                    <Music className="h-4 w-4 mr-2" />
+                    Listen Online
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 

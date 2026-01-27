@@ -152,10 +152,17 @@ export function ShareStorySection() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>First Name</Label>
+                <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                  First Name
+                </Label>
                 <Input
+                  id="firstName"
+                  type="text"
                   value={formData.firstName}
                   onChange={(e) => handleChange('firstName', e.target.value)}
+                  placeholder="John"
+                  className={`mt-1 ${formErrors.firstName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  disabled={isSubmitting}
                 />
                 {formErrors.firstName && (
                   <p className="text-xs text-red-600">{formErrors.firstName}</p>
@@ -163,10 +170,17 @@ export function ShareStorySection() {
               </div>
 
               <div>
-                <Label>Last Name</Label>
+                <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                  Last Name
+                </Label>
                 <Input
+                  id="lastName"
+                  type="text"
                   value={formData.lastName}
                   onChange={(e) => handleChange('lastName', e.target.value)}
+                  placeholder="Smith"
+                  className={`mt-1 ${formErrors.lastName ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                  disabled={isSubmitting}
                 />
                 {formErrors.lastName && (
                   <p className="text-xs text-red-600">{formErrors.lastName}</p>
@@ -175,35 +189,54 @@ export function ShareStorySection() {
             </div>
 
             <div>
-              <Label>Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                Email
+              </Label>
               <Input
+                id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
+                placeholder="your.email@example.com"
+                className={`mt-1 ${formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                disabled={isSubmitting}
               />
               {formErrors.email && <p className="text-xs text-red-600">{formErrors.email}</p>}
             </div>
 
             <div>
-              <Label>Phone</Label>
+              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                Phone
+              </Label>
               <Input
+                id="phone"
+                type="tel"
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
+                placeholder="+256 775 123 456"
+                className={`mt-1 ${formErrors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                disabled={isSubmitting}
               />
               {formErrors.phone && <p className="text-xs text-red-600">{formErrors.phone}</p>}
             </div>
 
             <div>
-              <Label>Your Testimony</Label>
+              <Label htmlFor="message" className="text-sm font-medium text-gray-700">
+                Your Testimony
+              </Label>
               <Textarea
+                id="message"
                 rows={4}
                 value={formData.message}
                 onChange={(e) => handleChange('message', e.target.value)}
+                placeholder="How have you been blessed or transformed?"
+                className={`mt-1 resize-none ${formErrors.message ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
+                disabled={isSubmitting}
               />
               {formErrors.message && <p className="text-xs text-red-600">{formErrors.message}</p>}
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex justify-center gap-3 pt-4">
               <Button
                 type="button"
                 variant="outline"
