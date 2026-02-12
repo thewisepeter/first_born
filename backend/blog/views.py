@@ -3,11 +3,16 @@ from .models import BlogPost, Article, Testimony, HeroSlide
 from .serializer import BlogPostSerializer, ArticleSerializer, TestimonySerializer, HeroSlideSerializer
 from first_ones_api.base_viewsets import AdminReadOnlyModelViewSet
 from rest_framework.permissions import AllowAny
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class BlogPostViewSet(AdminReadOnlyModelViewSet):
     queryset = BlogPost.objects.all().order_by('-date_posted')
     serializer_class = BlogPostSerializer
+
+    # Adding filtering capability
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['category']
 
 class ArticleViewSet(AdminReadOnlyModelViewSet):
     queryset = Article.objects.all().order_by('-date_posted')

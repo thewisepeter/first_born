@@ -8,12 +8,17 @@ class BlogPost(models.Model):
         ('Published', 'Published'),
     )
 
+    CATEGORY_CHOICES = (
+        ('Blog', 'Blog'),
+        ('Partners', 'Partners'),
+    )
+
     title = models.CharField(max_length=100)
     content = models.TextField()
     author = models.CharField(max_length=100, default="Prophet Namara Ernest")
     date_posted = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Draft')
-    category = models.CharField(max_length=100, default="Faith")
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='Blog')
     tags = models.JSONField(default=list, blank=True)  # Frontend expects a list of strings
     likes = models.PositiveIntegerField(default=0)
     comments = models.PositiveIntegerField(default=0)  # You can later relate this to a Comment model

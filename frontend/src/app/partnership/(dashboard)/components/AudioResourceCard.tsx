@@ -142,8 +142,7 @@ export function AudioResourceCard({ title, description, audios }: AudioResourceC
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{audio.title}</h3>
                 <p className="text-sm text-gray-600 line-clamp-2 mb-3">{audio.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">By {audio.author}</span>
+                <div className="flex items-center justify-center">
                   <Button
                     size="sm"
                     className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
@@ -204,16 +203,6 @@ export function AudioResourceCard({ title, description, audios }: AudioResourceC
         >
           {selectedAudio && (
             <div className="flex flex-col">
-              {/* Close Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={closeAudioModal}
-                className="absolute top-4 right-4 z-50 text-gray-500 hover:text-gray-700 h-8 w-8 p-0 rounded-full"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-
               {/* Audio Player */}
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-8">
                 <div className="flex flex-col items-center text-white">
@@ -275,24 +264,6 @@ export function AudioResourceCard({ title, description, audios }: AudioResourceC
 
                 {/* Audio Stats */}
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Eye className="h-4 w-4 mr-2" />
-                    <div>
-                      <div className="text-xs text-gray-500">Listens</div>
-                      <div className="font-medium">
-                        {selectedAudio.views?.toLocaleString() || '0'}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Heart className="h-4 w-4 mr-2" />
-                    <div>
-                      <div className="text-xs text-gray-500">Likes</div>
-                      <div className="font-medium">
-                        {selectedAudio.likes?.toLocaleString() || '0'}
-                      </div>
-                    </div>
-                  </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Users className="h-4 w-4 mr-2" />
                     <div>

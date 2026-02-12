@@ -136,8 +136,7 @@ export function VideoResourceCard({ title, description, videos }: VideoResourceC
                   {video.title}
                 </h3>
                 <p className="text-sm text-gray-600 line-clamp-2 mb-3">{video.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">By {video.author}</span>
+                <div className="flex items-center justify-center">
                   <Button
                     size="sm"
                     className="bg-red-600 hover:bg-red-700 text-white text-xs"
@@ -270,38 +269,6 @@ export function VideoResourceCard({ title, description, videos }: VideoResourceC
 
                   <div className="prose prose-sm max-w-none">
                     <p className="text-gray-700 mb-4">{selectedVideo.description}</p>
-                  </div>
-
-                  {/* Video Stats */}
-                  <div className="space-y-3 pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Eye className="h-4 w-4 mr-2" />
-                        <span>Views</span>
-                      </div>
-                      <span className="font-medium">{selectedVideo.views.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Heart className="h-4 w-4 mr-2" />
-                        <span>Likes</span>
-                      </div>
-                      <span className="font-medium">{selectedVideo.likes.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Users className="h-4 w-4 mr-2" />
-                        <span>Author</span>
-                      </div>
-                      <span className="font-medium">{selectedVideo.author}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>Duration</span>
-                      </div>
-                      <span className="font-medium">{formatDuration(selectedVideo.duration)}</span>
-                    </div>
                   </div>
                 </div>
               </div>

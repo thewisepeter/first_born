@@ -30,6 +30,11 @@ INSTALLED_APPS = [
     'partners',
     'contactmessages',
     'core',
+    'drives',
+    'opportunities',
+    'giving',
+    'marketplace',
+    'weekly_budget',
 ]
 
 MIDDLEWARE = [

@@ -156,15 +156,7 @@ export function ArticleResourceCard({ title, description, articles }: ArticleRes
                   </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-xs text-gray-500">By {article.author}</span>
-                    {article.comments && (
-                      <span className="text-xs text-gray-500 flex items-center">
-                        <MessageCircle className="h-3 w-3 mr-1" /> {article.comments}
-                      </span>
-                    )}
-                  </div>
+                <div className="flex items-center justify-center">
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-white text-xs"
@@ -264,26 +256,6 @@ export function ArticleResourceCard({ title, description, articles }: ArticleRes
                             {tag}
                           </span>
                         )) || 'No tags'}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-2">Stats</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center text-gray-700">
-                          <span className="mr-2">👁️</span>
-                          <span>{selectedArticle.views?.toLocaleString() || '0'} views</span>
-                        </div>
-                        <div className="flex items-center text-gray-700">
-                          <span className="mr-2">❤️</span>
-                          <span>{selectedArticle.likes?.toLocaleString() || '0'} likes</span>
-                        </div>
-                        {selectedArticle.comments && (
-                          <div className="flex items-center text-gray-700">
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            <span>{selectedArticle.comments} comments</span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

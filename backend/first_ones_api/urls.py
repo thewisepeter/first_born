@@ -37,8 +37,13 @@ urlpatterns = [
     path('api/mediafiles/', include('mediafiles.urls')),
     path('api/partners/', include('partners.urls')),
     path('api/contactmessages/', include('contactmessages.urls')),
-    
+    path('api/drives/', include('drives.urls')),
+    path('api/opportunities/', include('opportunities.urls')),
+    path('api/giving/', include('giving.urls')),
+    path('api/marketplace/', include('marketplace.urls')),
+    path('api/weekly-budget/', include('weekly_budget.urls')),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

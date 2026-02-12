@@ -8,7 +8,7 @@ class AudioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Audio
-        fields = ['id', 'title', 'speaker', 'date', 'active', 'description', 'driveUrl']
+        fields = ['id', 'title', 'speaker', 'date', 'active', 'description', 'category', 'driveUrl']
 
     def get_id(self, obj):
         return str(obj.id)

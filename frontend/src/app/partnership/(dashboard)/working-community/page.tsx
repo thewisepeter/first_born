@@ -41,55 +41,34 @@ export default function WorkingClassCommunityPage() {
       </div>
 
       {/* Community Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Members</p>
-                <h3 className="text-2xl font-bold text-gray-900">245</h3>
-              </div>
-              <Users className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Monthly Giving</p>
-                <h3 className="text-2xl font-bold text-gray-900">UGX 42M</h3>
-              </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl">Active Members</CardTitle>
+            <Users className="h-8 w-8 text-green-600" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">245</h3>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Projects</p>
-                <h3 className="text-2xl font-bold text-gray-900">12</h3>
-              </div>
-              <Target className="h-8 w-8 text-green-600" />
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Monthly Giving</p>
+              <h3 className="text-2xl font-bold text-gray-900">UGX 42M</h3>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Next Meeting</p>
-                <h3 className="text-2xl font-bold text-gray-900">May 15</h3>
-              </div>
-              <Calendar className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <DollarSign className="h-8 w-8 text-green-600" />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Community Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -99,30 +78,6 @@ export default function WorkingClassCommunityPage() {
             <CardDescription>Latest updates for working class partners</CardDescription>
           </CardHeader>
           <CardContent>{/* Announcements content */}</CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Community Forum
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Calendar className="h-4 w-4 mr-2" />
-              Upcoming Events
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Resources
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Heart className="h-4 w-4 mr-2" />
-              Prayer Requests
-            </Button>
-          </CardContent>
         </Card>
       </div>
     </div>

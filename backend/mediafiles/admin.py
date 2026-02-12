@@ -10,7 +10,7 @@ class AudioAdmin(admin.ModelAdmin):
     readonly_fields = ('date', 'speaker')  # optional
 
     # What to show in the list page
-    list_display = ('title', 'speaker', 'active')
+    list_display = ('title', 'speaker', 'active', 'category')
 
 
 admin.site.register(Audio, AudioAdmin)
