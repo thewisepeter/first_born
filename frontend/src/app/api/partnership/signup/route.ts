@@ -1,4 +1,4 @@
-// app/api/partner/signup/route.ts
+// app/api/partnership/signup/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {

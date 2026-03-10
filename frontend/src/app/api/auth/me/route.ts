@@ -1,5 +1,3 @@
-// src/app/api/auth/me/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -11,7 +9,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication service not configured' }, { status: 500 });
     }
 
-    // Forward cookies to Django exactly as received
     const response = await fetch(`${apiUrl}/api/auth/me/`, {
       method: 'GET',
       headers: {
@@ -34,11 +31,33 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const user = await response.json();
+    const djangoUser = await response.json();
+
+    // ✅ TRANSFORM the Django response to match frontend expected format
+    const transformedUser = {
+      id: djangoUser.id,
+      email: djangoUser.email,
+      first_name: djangoUser.first_name,
+      last_name: djangoUser.last_name,
+      firstName: djangoUser.first_name, // Add camelCase version
+      lastName: djangoUser.last_name, // Add camelCase version
+      is_staff: djangoUser.is_staff,
+      is_superuser: djangoUser.is_superuser,
+      is_partner: djangoUser.is_partner || false,
+      phone: djangoUser.phone,
+      partner_profile: djangoUser.partner_profile,
+      // Add these for your dashboard
+      partnerType: djangoUser.partner_profile?.partner_type,
+      community: djangoUser.partner_profile?.community,
+      communityType:
+        djangoUser.partner_profile?.community === 'business' ? 'business-class' : 'working-class',
+      total_given: djangoUser.partner_profile?.total_given,
+      months_active: djangoUser.partner_profile?.months_active,
+    };
 
     return NextResponse.json({
       authenticated: true,
-      user,
+      user: transformedUser,
     });
   } catch (error) {
     console.error('Get user error:', error);

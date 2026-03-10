@@ -11,57 +11,83 @@ import {
   Calendar,
   TrendingUp,
   Download,
-  Filter,
   Plus,
   History,
   Target,
   Clock,
   ChevronLeft,
   ChevronRight,
+  AlertCircle,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatsCard } from '../components/StatsCard';
 import { StatementDatePicker } from '../components/StatementDatePicker';
 import { ScheduleGivingModal, type ScheduleFormData } from '../components/ScheduleGivingModal';
-import {
-  getLatestStatements,
-  getLatestStatementsArray,
-  downloadStatement,
-  formatTimeAgo,
-  generateGivingData,
-  type GivingData,
-} from '../data/mockData';
+import { AddGivingModal, type AddGivingFormData } from '../components/AddGivingModal';
+import { useGiving } from '../../../../hooks/useGiving';
+import { useAuth } from '../../../../contexts/AuthContext';
+
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-UG', {
+    style: 'currency',
+    currency: 'UGX',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 
 export default function GivingPage() {
+  const { user } = useAuth();
+  const {
+    loading,
+    error,
+    stats,
+    history,
+    historyCount,
+    scheduledGivings,
+    statements,
+    createSchedule,
+    updateSchedule,
+    cancelSchedule,
+    createDirectGiving,
+    payNow,
+    downloadStatement,
+    generateCustomStatement,
+    refresh,
+  } = useGiving();
+
+  // Add this near the top of your GivingPage component, after the useGiving() hook
+  useEffect(() => {}, [scheduledGivings]);
+
+  useEffect(() => {}, [history]);
+
   const [activeTab, setActiveTab] = useState('history');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [editingPayment, setEditingPayment] = useState<ScheduleFormData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  // Add to your existing useState declarations
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [customStartDate, setCustomStartDate] = useState<string>('');
   const [customEndDate, setCustomEndDate] = useState<string>('');
-
-  // Pagination state for giving history
   const [currentHistoryPage, setCurrentHistoryPage] = useState(0);
+  const [showAddGivingModal, setShowAddGivingModal] = useState(false);
+
   const historyPerPage = 5;
+  const totalHistoryPages = Math.ceil((history?.length || 0) / historyPerPage);
 
-  // Use mock data from centralized file
-  const [givingData, setGivingData] = useState<GivingData>(generateGivingData());
-
-  const progressPercentage = (givingData.totalGiven / givingData.monthlyGoal) * 100;
-  const goalProgress = progressPercentage.toFixed(0);
-
-  // Calculate pagination values
-  const totalHistoryPages = Math.ceil(givingData.givingHistory.length / historyPerPage);
-
-  // Get current page history items
+  // Pagination
   const getCurrentHistoryItems = () => {
     const startIndex = currentHistoryPage * historyPerPage;
-    return givingData.givingHistory.slice(startIndex, startIndex + historyPerPage);
+    return history?.slice(startIndex, startIndex + historyPerPage) || [];
   };
 
-  // Pagination handlers
   const nextHistoryPage = () => {
     setCurrentHistoryPage((prev) => (prev + 1) % totalHistoryPages);
   };
@@ -76,94 +102,68 @@ export default function GivingPage() {
 
   // Handle schedule submission
   const handleScheduleSubmit = async (formData: ScheduleFormData) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const amount = parseInt(formData.amount);
 
-    if (isEditing && editingPayment) {
-      // Update existing payment
-      setGivingData((prev) => ({
-        ...prev,
-        upcomingPayments: prev.upcomingPayments.map((payment) =>
-          payment.id === editingPayment.id
-            ? {
-                ...payment,
-                ...formData,
-                amount: parseInt(formData.amount),
-                id: Number(payment.id),
-                status: 'pending',
-              }
-            : payment
-        ),
-      }));
-
-      alert('Scheduled payment updated successfully!');
-    } else {
-      // Add new payment
-      const newPayment = {
-        id: Number(givingData.upcomingPayments.length + 1),
-        amount: parseInt(formData.amount),
-        dueDate: new Date(formData.startDate).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        }),
-        type:
-          formData.purpose === 'weekly-partnership'
-            ? 'Weekly Partnership'
-            : formData.purpose === 'radio-broadcast'
-              ? 'Radio Broadcast Support'
-              : formData.purpose === 'youth-camp'
-                ? 'Youth Camp Support'
-                : formData.purpose === 'bible-distribution'
-                  ? 'Bible Distribution'
-                  : formData.purpose === 'fellowship'
-                    ? 'Fellowship Support'
-                    : 'General Ministry Support',
+    if (isEditing && formData.id) {
+      // 🔴 EDIT MODE - Update existing schedule
+      const result = await updateSchedule(Number(formData.id), {
+        amount: amount.toString(), // ✅ Fix: Use the amount variable, not the type 'number'
+        giving_type: formData.purpose,
+        title: formData.title || formData.purpose,
         frequency: formData.frequency,
-        startDate: formData.startDate,
-        paymentMethod: formData.paymentMethod,
-        purpose: formData.purpose,
-        notes: formData.notes,
-        title:
-          formData.purpose === 'weekly-partnership'
-            ? 'Weekly Partnership'
-            : formData.purpose === 'radio-broadcast'
-              ? 'Radio Broadcast Support'
-              : formData.purpose === 'youth-camp'
-                ? 'Youth Camp Support'
-                : formData.purpose === 'bible-distribution'
-                  ? 'Bible Distribution'
-                  : formData.purpose === 'fellowship'
-                    ? 'Fellowship Support'
-                    : 'General Ministry Support',
-        status: 'pending' as const,
+        start_date: formData.startDate,
+        ...(formData.frequency !== 'one-time' && { end_date: null }),
+      });
+
+      if (result.success) {
+        setShowScheduleModal(false);
+        setEditingPayment(null);
+        setIsEditing(false);
+      } else {
+        alert(result.error);
+      }
+    } else {
+      // 🔴 CREATE MODE - Create new schedule
+      const scheduleData: {
+        amount: number;
+        giving_type: string;
+        title: string;
+        frequency: string;
+        start_date: string;
+        end_date?: string | null;
+      } = {
+        amount: amount, // ✅ Fix: Use the amount variable
+        giving_type: formData.purpose,
+        title: formData.title || formData.purpose,
+        frequency: formData.frequency,
+        start_date: formData.startDate,
       };
 
-      setGivingData((prev) => ({
-        ...prev,
-        upcomingPayments: [...prev.upcomingPayments, newPayment],
-      }));
+      if (formData.frequency !== 'one-time') {
+        scheduleData.end_date = null;
+      }
 
-      alert('New scheduled payment added successfully!');
+      const result = await createSchedule(scheduleData);
+
+      if (result.success) {
+        setShowScheduleModal(false);
+        setEditingPayment(null);
+        setIsEditing(false);
+      } else {
+        alert(result.error);
+      }
     }
-
-    // Reset editing state
-    setEditingPayment(null);
-    setIsEditing(false);
   };
 
   // Handle edit button click
   const handleEditClick = (payment: any) => {
-    // Convert payment data to ScheduleFormData format
     const formData: ScheduleFormData = {
       id: payment.id,
       amount: payment.amount.toString(),
-      frequency: payment.frequency || 'weekly',
-      startDate: payment.startDate || payment.dueDate.split(' ').slice(1).join(' '), // Convert date
-      paymentMethod: payment.paymentMethod || 'mobile-money',
-      purpose: payment.purpose || payment.type.toLowerCase().replace(/ /g, '-'),
-      notes: payment.notes || '',
-      title: payment.title || payment.type,
+      frequency: payment.frequency,
+      startDate: payment.next_payment_date || payment.start_date,
+      purpose: payment.giving_type,
+      title: payment.title,
     };
 
     setEditingPayment(formData);
@@ -171,145 +171,133 @@ export default function GivingPage() {
     setShowScheduleModal(true);
   };
 
-  // Handle new schedule button click
-  const handleNewScheduleClick = () => {
-    setEditingPayment(null);
-    setIsEditing(false);
-    setShowScheduleModal(true);
-  };
+  // Handle cancel schedule
+  const handleCancelSchedule = async (id: number) => {
+    const confirmed = window.confirm('Are you sure you want to cancel this scheduled payment?');
 
-  // Handle cancel schedule (optional functionality)
-  const handleCancelSchedule = async (paymentId: number) => {
-    if (confirm('Are you sure you want to cancel this scheduled payment?')) {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!confirmed) return;
 
-      setGivingData((prev) => ({
-        ...prev,
-        upcomingPayments: prev.upcomingPayments.filter((payment) => payment.id !== paymentId),
-      }));
+    try {
+      const result = await cancelSchedule(id);
 
-      alert('Scheduled payment cancelled successfully!');
+      if (result.success) {
+        alert(result.message || 'Scheduled payment cancelled successfully.');
+
+        // refresh the scheduled givings list
+        refresh();
+      } else {
+        alert(result.error || 'Failed to cancel scheduled payment.');
+      }
+    } catch (error) {
+      console.error('Cancel schedule error:', error);
+      alert('Something went wrong while cancelling the schedule.');
     }
   };
 
-  const handlePayNow = async (paymentId: number) => {
+  // Handle pay now
+  const handlePayNow = async (id: number) => {
     if (confirm('Are you sure you want to mark this payment as completed?')) {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Find the payment to move to history
-      const payment = givingData.upcomingPayments.find((p) => p.id === paymentId);
-
-      if (payment) {
-        // Create a new history item
-        const newHistoryItem = {
-          id: givingData.givingHistory.length + 1,
-          amount: payment.amount,
-          date: new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          }),
-          type: payment.type,
-          status: 'completed',
-        };
-
-        // Update the state
-        setGivingData((prev) => ({
-          ...prev,
-          // Remove from upcoming payments
-          upcomingPayments: prev.upcomingPayments.filter((p) => p.id !== paymentId),
-          // Add to history
-          givingHistory: [newHistoryItem, ...prev.givingHistory],
-          // Update total given
-          totalGiven: prev.totalGiven + payment.amount,
-        }));
-
-        alert('Payment marked as completed successfully!');
+      const result = await payNow(id);
+      if (result.success) {
+        alert(result.message);
+      } else {
+        alert(result.error);
       }
     }
   };
 
-  const handleCustomDownload = (startDate: Date, endDate: Date) => {
-    console.log('Custom range:', startDate, 'to', endDate);
-    // Generate statement for custom range
-    setShowDatePicker(false);
+  // Update your handleDownloadStatement function
+  const handleDownloadStatement = async (statement: any) => {
+    try {
+      // Show loading state if desired
+      const result = await downloadStatement(statement.id);
+      if (result.success) {
+        // Optional success message
+        console.log('Statement downloaded successfully');
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download statement');
+    }
   };
 
-  const handleDownloadStatement = async (statement: any) => {
-    const result = await downloadStatement(
-      statement.type === 'quarterly'
-        ? `q${statement.quarter}-${statement.year}`
-        : `annual-${statement.year}`,
-      statement.type as 'quarterly' | 'annual'
-    );
+  // Handle custom date range download
+  const handleCustomDownload = async (startDate: Date, endDate: Date) => {
+    try {
+      // Validate dates
+      if (startDate > endDate) {
+        alert('Start date must be before end date');
+        return;
+      }
+
+      const result = await generateCustomStatement(startDate, endDate);
+
+      if (result.success) {
+        setShowDatePicker(false);
+        setCustomStartDate('');
+        setCustomEndDate('');
+        // Optional success message
+        alert('Statement generated successfully');
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      console.error('Custom download error:', error);
+      alert('Failed to generate statement');
+    }
+  };
+
+  const handleAddGiving = async (data: AddGivingFormData) => {
+    // You'll need to add createDirectGiving to your hook
+    const result = await createDirectGiving({
+      amount: parseInt(data.amount),
+      giving_type: data.giving_type,
+      date: data.date,
+      payment_method: data.payment_method,
+    });
 
     if (result.success) {
-      // Record the download
-      const recentDownload = {
-        id: `download-${Date.now()}`,
-        statementId:
-          statement.id || `${statement.type}-${statement.year}-${statement.quarter || ''}`,
-        statementName: statement.label,
-        downloadedAt: new Date().toISOString(),
-        fileSize: statement.type === 'quarterly' ? '1.1 MB' : '2.4 MB',
-      };
-
-      // Update recent downloads in state
-      setGivingData((prev) => ({
-        ...prev,
-        recentDownloads: [recentDownload, ...(prev.recentDownloads || [])].slice(0, 5), // Keep only 5 most recent
-      }));
-
-      alert(result.message);
+      setShowAddGivingModal(false);
     } else {
-      alert(`Error: ${result.message}`);
+      alert(result.error);
     }
   };
 
-  // Add helper functions
-  const handleQuickRange = (range: string) => {
-    const today = new Date();
-    const startDate = new Date();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your giving data...</p>
+        </div>
+      </div>
+    );
+  }
 
-    switch (range) {
-      case 'last30':
-        startDate.setDate(today.getDate() - 30);
-        break;
-      case 'lastQuarter':
-        startDate.setMonth(today.getMonth() - 3);
-        break;
-      case 'last6Months':
-        startDate.setMonth(today.getMonth() - 6);
-        break;
-      case 'yearToDate':
-        startDate.setMonth(0, 1); // January 1st
-        break;
-    }
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div className="flex items-center space-x-3">
+          <AlertCircle className="h-6 w-6 text-red-600" />
+          <div>
+            <h3 className="font-semibold text-red-800">Unable to Load Giving Data</h3>
+            <p className="text-red-700 mt-1">{error}</p>
+            <Button
+              onClick={refresh}
+              variant="outline"
+              className="mt-4 border-red-300 text-red-700 hover:bg-red-100"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-    setCustomStartDate(startDate.toISOString().split('T')[0]);
-    setCustomEndDate(today.toISOString().split('T')[0]);
-  };
-
-  const handleCustomDateRangeSubmit = async () => {
-    if (!customStartDate || !customEndDate) {
-      alert('Please select both start and end dates');
-      return;
-    }
-
-    const start = new Date(customStartDate);
-    const end = new Date(customEndDate);
-
-    if (start > end) {
-      alert('Start date must be before end date');
-      return;
-    }
-
-    // Call your existing handler
-    await handleCustomDownload(start, end);
-    setShowDatePicker(false);
-  };
+  const goalProgress = stats?.goal_progress || 0;
 
   return (
     <div className="space-y-6">
@@ -318,54 +306,71 @@ export default function GivingPage() {
         <h1 className="text-2xl font-bold text-gray-900">Your Giving</h1>
         <p className="text-gray-600 mt-1">Manage and track your partnership and giving</p>
       </div>
-      {/* Quick Stats - Using StatsCard component */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Button
+          onClick={() => {
+            // You'll need to add state for this modal
+            setShowAddGivingModal(true);
+          }}
+          variant="outline"
+          className="border-purple-600 text-purple-600 hover:bg-purple-50"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Record Giving
+        </Button>
+
+        <Button
+          onClick={() => {
+            setEditingPayment(null);
+            setIsEditing(false);
+            setShowScheduleModal(true);
+          }}
+          className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Schedule New Giving
+        </Button>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatsCard
           title="Total Given This Month"
-          value={`UGX ${givingData.totalGiven.toLocaleString()}`}
+          value={formatCurrency(stats?.this_month_giving || 0)}
           description="On track for monthly goal"
           icon={DollarSign}
           color="green"
-          trend={12.5}
+          trend={stats?.month_over_month_change || 0}
           trendLabel="vs last month"
-          onClick={() => console.log('View total given details')}
-        />
-
-        <StatsCard
-          title="Monthly Goal Progress"
-          value={`${goalProgress}%`}
-          description={`UGX ${givingData.monthlyGoal.toLocaleString()} target`}
-          icon={Target}
-          color="blue"
-          trend={parseInt(goalProgress) > 85 ? 5.2 : -2.3}
-          trendLabel={parseInt(goalProgress) > 85 ? 'ahead of schedule' : 'needs attention'}
-          onClick={() => console.log('View goal progress details')}
         />
 
         <StatsCard
           title="Upcoming Payments"
-          value={givingData.upcomingPayments.length.toString()}
+          value={stats?.upcoming_payments?.toString() || '0'}
           description="Scheduled contributions"
           icon={Calendar}
           color="purple"
-          onClick={() => console.log('View upcoming payments')}
         />
       </div>
-      {/* Main Content - Full Width */}
+
+      {/* Main Content */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center">
-              <History className="h-5 w-5 mr-2 text-gray-500" />
-              <CardTitle className="text-lg text-center sm:text-left">
-                Giving History & Scheduled Payments
-              </CardTitle>
+          <div className="flex flex-col items-center justify-center text-center gap-2">
+            <div className="flex items-center justify-center">
+              <CardTitle className="text-lg">Giving History & Scheduled Payments</CardTitle>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+          <Tabs
+            key={scheduledGivings?.length}
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid w-full max-w-md grid-cols-2 mx-auto">
               <TabsTrigger value="history" className="flex items-center">
                 <History className="h-4 w-4 mr-2" />
                 History
@@ -376,7 +381,7 @@ export default function GivingPage() {
               </TabsTrigger>
             </TabsList>
 
-            {/* History Tab Content with Pagination */}
+            {/* History Tab */}
             <TabsContent value="history" className="space-y-6 mt-6">
               <div className="rounded-lg border">
                 {getCurrentHistoryItems().map((item) => (
@@ -389,13 +394,24 @@ export default function GivingPage() {
                         <DollarSign className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{item.type}</p>
-                        <p className="text-sm text-gray-500">{item.date}</p>
+                        <p className="font-medium text-gray-900">{item.giving_type}</p>
+                        <p className="text-sm text-gray-500">{formatDate(item.date)}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-gray-900">UGX {item.amount.toLocaleString()}</p>
-                      <Badge variant="outline" className="text-green-700 border-green-200">
+                      <p className="font-bold text-gray-900">{formatCurrency(item.amount)}</p>
+                      <Badge
+                        variant="outline"
+                        className={
+                          item.status === 'completed'
+                            ? 'text-green-700 border-green-200 bg-green-50'
+                            : item.status === 'processing'
+                              ? 'text-blue-700 border-blue-200 bg-blue-50'
+                              : item.status === 'failed'
+                                ? 'text-red-700 border-red-200 bg-red-50'
+                                : 'text-yellow-700 border-yellow-200 bg-yellow-50'
+                        }
+                      >
                         {item.status}
                       </Badge>
                     </div>
@@ -403,47 +419,31 @@ export default function GivingPage() {
                 ))}
               </div>
 
-              {givingData.givingHistory.length === 0 ? (
+              {history?.length === 0 ? (
                 <div className="text-center py-12">
                   <DollarSign className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900">No Giving History Yet</h3>
                   <p className="text-gray-500 mt-1">Your giving history will appear here</p>
                 </div>
               ) : (
-                // Pagination Controls for History
                 totalHistoryPages > 1 && (
                   <div className="pt-6 border-t border-gray-200">
-                    {/* Page Info */}
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="text-sm text-gray-500">
-                        Showing {currentHistoryPage * historyPerPage + 1} -{' '}
-                        {Math.min(
-                          (currentHistoryPage + 1) * historyPerPage,
-                          givingData.givingHistory.length
-                        )}{' '}
-                        of {givingData.givingHistory.length} transactions
-                      </p>
-                    </div>
-
-                    {/* Pagination Buttons */}
                     <div className="flex items-center justify-between">
-                      {/* Previous Button */}
                       <button
                         onClick={prevHistoryPage}
                         disabled={currentHistoryPage === 0}
-                        className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <ChevronLeft className="h-4 w-4 mr-1" />
                         Previous
                       </button>
 
-                      {/* Page Numbers */}
                       <div className="flex items-center space-x-2">
                         {Array.from({ length: totalHistoryPages }, (_, i) => (
                           <button
                             key={i}
                             onClick={() => goToHistoryPage(i)}
-                            className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                            className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium ${
                               currentHistoryPage === i
                                 ? 'bg-purple-600 text-white'
                                 : 'text-gray-700 hover:bg-gray-100'
@@ -454,11 +454,10 @@ export default function GivingPage() {
                         ))}
                       </div>
 
-                      {/* Next Button */}
                       <button
                         onClick={nextHistoryPage}
                         disabled={currentHistoryPage === totalHistoryPages - 1}
-                        className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Next
                         <ChevronRight className="h-4 w-4 ml-1" />
@@ -469,83 +468,88 @@ export default function GivingPage() {
               )}
             </TabsContent>
 
-            {/* Scheduled Tab Content */}
+            {/* Scheduled Tab */}
             <TabsContent value="scheduled" className="space-y-6 mt-6">
-              {/* Schedule New Giving Button */}
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleNewScheduleClick}
-                  className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Schedule New Giving
-                </Button>
-              </div>
-
-              {/* Scheduled Payments List */}
               <div className="rounded-lg border">
-                {givingData.upcomingPayments.length > 0 ? (
-                  givingData.upcomingPayments.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between p-4 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="p-2 rounded-lg bg-blue-100">
-                          <Calendar className="h-5 w-5 text-blue-600" />
+                {scheduledGivings?.filter((s) => s.status === 'active').length > 0 ? (
+                  scheduledGivings
+                    .filter((s) => s.status === 'active')
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-start justify-between p-4 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-start space-x-4">
+                          <div className="p-2 rounded-lg bg-blue-100">
+                            <Calendar className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-lg font-bold text-gray-900">{item.title}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Next Payment:{' '}
+                              <span className="font-medium">
+                                {formatDate(item.next_payment_date)}
+                              </span>
+                            </p>
+
+                            {item.days_until_next !== null && item.days_until_next > 0 && (
+                              <p className="text-xs text-gray-500">
+                                in {item.days_until_next} days
+                              </p>
+                            )}
+
+                            <Badge
+                              variant="outline"
+                              className="mt-2 text-xs text-yellow-700 border-yellow-200 bg-yellow-50"
+                            >
+                              {item.status}
+                            </Badge>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{item.type}</p>
-                          <p className="text-sm text-gray-500">Due {item.dueDate}</p>
-                          <p className="text-xs text-gray-400 capitalize">
-                            {item.frequency} •{' '}
-                            {item.paymentMethod?.replace('-', ' ') || 'mobile money'}
+                        <div className="flex flex-col items-end space-y-2">
+                          <p className="text-lg font-semibold text-gray-900">
+                            {formatCurrency(Number(item.amount))}
                           </p>
-                          <Badge
-                            variant="outline"
-                            className={`mt-1 text-xs ${
-                              item.status === 'pending'
-                                ? 'text-yellow-700 border-yellow-200 bg-yellow-50'
-                                : item.status === 'processing'
-                                  ? 'text-blue-700 border-blue-200 bg-blue-50'
-                                  : 'text-gray-700 border-gray-200 bg-gray-50'
-                            }`}
-                          >
-                            {item.status}
-                          </Badge>
+
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs px-2 py-1"
+                              onClick={() => handleEditClick(item)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="text-xs px-2 py-1"
+                              onClick={() => handleCancelSchedule(item.id)}
+                            >
+                              Delete
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
+                              onClick={() => handlePayNow(item.id)}
+                            >
+                              Pay Now
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <p className="font-bold text-gray-900">
-                            UGX {item.amount.toLocaleString()}
-                          </p>
-                          <Badge variant="outline" className="text-blue-700 border-blue-200">
-                            Upcoming
-                          </Badge>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline" onClick={() => handleEditClick(item)}>
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
-                            onClick={() => handlePayNow(item.id)}
-                          >
-                            Pay Now
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
+                    ))
                 ) : (
                   <div className="text-center py-12">
                     <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900">No Scheduled Payments</h3>
                     <p className="text-gray-500 mt-1 mb-4">You don't have any scheduled payments</p>
                     <Button
-                      onClick={handleNewScheduleClick}
+                      onClick={() => {
+                        setEditingPayment(null);
+                        setIsEditing(false);
+                        setShowScheduleModal(true);
+                      }}
                       variant="outline"
                       className="border-purple-600 text-purple-600 hover:bg-purple-50"
                     >
@@ -559,12 +563,12 @@ export default function GivingPage() {
               {/* Help Text */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start">
-                  <Calendar className="h-5 w-5 text-blue-600 mt-0.5 mr-3" />
                   <div>
-                    <h4 className="font-medium text-blue-900">About Scheduled Giving</h4>
+                    <h4 className="font-medium text-blue-900">Psalm 50:14-15</h4>
                     <p className="text-sm text-blue-700 mt-1">
-                      Scheduled payments will be processed automatically on their due dates. You can
-                      edit or cancel any scheduled payment up to 24 hours before the due date.
+                      Offer to God the sacriﬁce of thanksgiving, and pay your vows to the Most High,
+                      And call on Me in the day of trouble; I will deliver you, and you shall honor
+                      and glorify Me.
                     </p>
                   </div>
                 </div>
@@ -573,30 +577,19 @@ export default function GivingPage() {
           </Tabs>
         </CardContent>
       </Card>
+
       {/* Giving Statements */}
-      <Card className="lg:col-span-2">
+      <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Giving Statements</CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-            >
-              <a href="/profile/statements">
-                <History className="h-4 w-4 mr-2" />
-                View All Statements
-              </a>
-            </Button>
+          <div className="flex font-bold items-center justify-center">
+            <CardTitle>Download Giving Statements</CardTitle>
           </div>
         </CardHeader>
-
         <CardContent>
           <div className="space-y-3">
-            {getLatestStatementsArray().map((statement, index) => (
+            {statements?.slice(0, 3).map((statement) => (
               <Button
-                key={index}
+                key={statement.id}
                 variant="outline"
                 className="w-full justify-start hover:bg-gray-50 transition-colors group"
                 onClick={() => handleDownloadStatement(statement)}
@@ -604,32 +597,31 @@ export default function GivingPage() {
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
                     <Download className="h-4 w-4 mr-3 text-gray-400 group-hover:text-purple-600 transition-colors" />
-                    <span>{statement.label}</span>
+                    <span>{statement.period_display}</span>
                   </div>
                   <Badge variant="outline" className="text-xs text-gray-500 border-gray-200">
-                    Most Recent
+                    {formatCurrency(statement.total_amount)}
                   </Badge>
                 </div>
               </Button>
             ))}
 
-            <Button
-              variant="outline"
-              className="w-full justify-start hover:border-purple-300 hover:bg-purple-50 transition-colors group"
-              onClick={() => setShowDatePicker(true)}
-            >
-              <Calendar className="h-4 w-4 mr-3 text-gray-400 group-hover:text-purple-600 transition-colors" />
-              <span className="text-gray-700 group-hover:text-purple-700">Custom Date Range</span>
-            </Button>
+            {/* Center this button */}
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                className="inline-flex items-center justify-center px-4 py-2 hover:border-purple-300 hover:bg-purple-50 transition-colors group"
+                onClick={() => setShowDatePicker(true)}
+              >
+                <Calendar className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                <span className="text-gray-700 group-hover:text-purple-700">Enter Date Range</span>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
-      <StatementDatePicker
-        isOpen={showDatePicker}
-        onClose={() => setShowDatePicker(false)}
-        onDownload={handleCustomDownload}
-      />
-      {/* Schedule New Giving Modal */}
+
+      {/* Schedule Giving Modal */}
       <ScheduleGivingModal
         isOpen={showScheduleModal}
         onClose={() => {
@@ -641,17 +633,24 @@ export default function GivingPage() {
         initialData={editingPayment}
         isEditing={isEditing}
       />
+
+      {/* Add Giving Modal */}
+      <AddGivingModal
+        isOpen={showAddGivingModal}
+        onClose={() => setShowAddGivingModal(false)}
+        onSubmit={handleAddGiving}
+      />
+
+      {/* Custom Date Picker Dialog */}
       <Dialog open={showDatePicker} onOpenChange={setShowDatePicker}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <Calendar className="h-5 w-5 mr-2" />
-              Custom Statement Download
+              Giving Statement Download
             </DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4 py-4">
-            {/* Simple date range picker */}
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Select Date Range</h4>
               <div className="grid grid-cols-2 gap-4">
@@ -659,7 +658,8 @@ export default function GivingPage() {
                   <label className="block text-xs text-gray-500 mb-1">From Date</label>
                   <input
                     type="date"
-                    className="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full p-2 border rounded-lg text-sm"
+                    value={customStartDate}
                     onChange={(e) => setCustomStartDate(e.target.value)}
                   />
                 </div>
@@ -667,40 +667,24 @@ export default function GivingPage() {
                   <label className="block text-xs text-gray-500 mb-1">To Date</label>
                   <input
                     type="date"
-                    className="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full p-2 border rounded-lg text-sm"
+                    value={customEndDate}
                     onChange={(e) => setCustomEndDate(e.target.value)}
                   />
                 </div>
               </div>
             </div>
-
-            {/* Quick select buttons */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Quick Select</h4>
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleQuickRange('last30')}>
-                  Last 30 Days
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleQuickRange('lastQuarter')}>
-                  Last Quarter
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleQuickRange('last6Months')}>
-                  Last 6 Months
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleQuickRange('yearToDate')}>
-                  Year to Date
-                </Button>
-              </div>
-            </div>
-
-            {/* Actions */}
             <div className="flex space-x-3 pt-4">
               <Button variant="outline" className="flex-1" onClick={() => setShowDatePicker(false)}>
                 Cancel
               </Button>
               <Button
                 className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930]"
-                onClick={handleCustomDateRangeSubmit}
+                onClick={() => {
+                  if (customStartDate && customEndDate) {
+                    handleCustomDownload(new Date(customStartDate), new Date(customEndDate));
+                  }
+                }}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Generate Statement

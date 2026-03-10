@@ -1,4 +1,4 @@
-// app/api/partner/validate-token/route.ts
+// app/api/partnership/validate-token/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

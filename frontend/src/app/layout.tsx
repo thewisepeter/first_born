@@ -1,3 +1,4 @@
+//src/app/layout.tsx
 import './globals.css';
 import { Navigation } from './components/Navigation';
 import { FloatingContact } from './components/FloatingContact';

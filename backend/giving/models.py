@@ -17,13 +17,12 @@ class Giving(models.Model):
     
     TYPE_CHOICES = [
         ('weekly-partnership', 'Weekly Partnership'),
-        ('radio-broadcast', 'Radio Broadcast Support'),
-        ('youth-camp', 'Youth Camp Support'),
-        ('bible-distribution', 'Bible Distribution'),
-        ('fellowship', 'Fellowship Support'),
-        ('ministry-support', 'General Ministry Support'),
-        ('drive-contribution', 'Drive Contribution'),
-        ('other', 'Other'),
+        ('spirit-world', 'Spirit World'),
+        ('saturday-fellowship', 'Saturday Fellowship'),
+        ('office-rent', 'Office Rent'),
+        ('drive', 'Drive'),
+        ('prophetic-offering', 'Prophetic Offering'),
+        ('love-offering', 'Love Offering'),
     ]
     
     STATUS_CHOICES = [
@@ -34,13 +33,6 @@ class Giving(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
-    PAYMENT_METHOD_CHOICES = [
-        ('mobile-money', 'Mobile Money'),
-        ('bank-transfer', 'Bank Transfer'),
-        ('credit-card', 'Credit Card'),
-        ('cash', 'Cash'),
-        ('cheque', 'Cheque'),
-    ]
     
     FREQUENCY_CHOICES = [
         ('one-time', 'One Time'),
@@ -48,8 +40,16 @@ class Giving(models.Model):
         ('bi-weekly', 'Bi-Weekly'),
         ('monthly', 'Monthly'),
         ('quarterly', 'Quarterly'),
-        ('annual', 'Annual'),
     ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ('mobile-money', 'Mobile Money'),
+        ('bank-transfer', 'Bank Transfer'),
+        ('debit-card', 'Debit Card'),
+        ('cash', 'Cash'),
+        ('cheque', 'Cheque')
+    ]
+    
     
     # Basic Information
     partner = models.ForeignKey(
@@ -75,12 +75,15 @@ class Giving(models.Model):
     giving_type = models.CharField(
         max_length=50, 
         choices=TYPE_CHOICES, 
-        default='ministry-support'
+        default='weekly-partnership'
+    )
+
+    payment_method = models.CharField(
+        max_length=50, 
+        choices=PAYMENT_METHOD_CHOICES, 
+        default='mobile-money'
     )
     
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    notes = models.TextField(blank=True)
     
     # Status & Dates
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed')
@@ -88,12 +91,6 @@ class Giving(models.Model):
     recorded_at = models.DateTimeField(auto_now_add=True)
     processed_at = models.DateTimeField(null=True, blank=True)
     
-    # Payment Method
-    payment_method = models.CharField(
-        max_length=50, 
-        choices=PAYMENT_METHOD_CHOICES, 
-        default='mobile-money'
-    )
     
     # For scheduled/recurring giving
     is_scheduled = models.BooleanField(default=False)
@@ -275,12 +272,9 @@ class ScheduledGiving(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     giving_type = models.CharField(max_length=50, choices=Giving.TYPE_CHOICES)
     title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    notes = models.TextField(blank=True)
     
     # Schedule details
     frequency = models.CharField(max_length=50, choices=Giving.FREQUENCY_CHOICES)
-    payment_method = models.CharField(max_length=50, choices=Giving.PAYMENT_METHOD_CHOICES)
     
     start_date = models.DateField()
     next_payment_date = models.DateField()
@@ -323,9 +317,6 @@ class ScheduledGiving(models.Model):
             amount=self.amount,
             giving_type=self.giving_type,
             title=f"Scheduled: {self.title}",
-            description=self.description,
-            notes=self.notes,
-            payment_method=self.payment_method,
             is_scheduled=True,
             frequency=self.frequency,
             status='processing',

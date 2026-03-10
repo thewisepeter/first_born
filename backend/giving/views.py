@@ -2,11 +2,27 @@
 from rest_framework import viewsets, generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
+
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Count, Q
 from django.utils import timezone
-from datetime import date, timedelta
+from django.http import FileResponse
+from django.conf import settings
+from django.core.files.base import ContentFile
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+
+from io import BytesIO
+
+from datetime import datetime, date, timedelta
 import calendar
+import os
 
 from partners.models import Partner
 from .models import Giving, GivingGoal, GivingStatement, ScheduledGiving
@@ -64,13 +80,40 @@ class GivingViewSet(viewsets.ModelViewSet):
         return GivingSerializer
     
     def create(self, request, *args, **kwargs):
-        """Only admin can create giving records directly"""
-        if not request.user.is_staff:
+        """Allow partners to create their own giving records"""
+        try:
+            # Check if user has a partner profile
+            partner = request.user.partner_profile
+            
+            # Add the partner to the request data
+            mutable_data = request.data.copy()
+            mutable_data['partner'] = partner.id
+            
+            serializer = self.get_serializer(data=mutable_data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            
+            headers = self.get_success_headers(serializer.data)
             return Response(
-                {'error': 'Only administrators can create giving records directly.'},
-                status=status.HTTP_403_FORBIDDEN
+                serializer.data, 
+                status=status.HTTP_201_CREATED, 
+                headers=headers
             )
-        return super().create(request, *args, **kwargs)
+            
+        except Partner.DoesNotExist:
+            return Response(
+                {'error': 'Partner profile not found.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    def perform_create(self, serializer):
+        """Save with the current user's partner profile"""
+        serializer.save()
     
     def update(self, request, *args, **kwargs):
         """Only admin can update giving records"""
@@ -284,19 +327,213 @@ class GivingStatementViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['post'])
     def generate(self, request):
-        """Generate a new statement (admin only)"""
-        if not request.user.is_staff:
+        """Generate a custom statement PDF"""
+        try:
+            partner = request.user.partner_profile
+        except Partner.DoesNotExist:
             return Response(
-                {'error': 'Only administrators can generate statements.'},
-                status=status.HTTP_403_FORBIDDEN
+                {'error': 'Partner profile not found.'},
+                status=status.HTTP_400_BAD_REQUEST
             )
         
-        # This would typically call a statement generation service
-        # For now, return a placeholder
+        period_start = request.data.get('period_start')
+        period_end = request.data.get('period_end')
+        statement_type = request.data.get('statement_type', 'custom')
+        
+        if not period_start or not period_end:
+            return Response(
+                {'error': 'Period start and end dates are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate dates
+        if period_start > period_end:
+            return Response(
+                {'error': 'Start date must be before end date.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 1. Fetch giving data for this period
+        giving_records = Giving.objects.filter(
+            partner=partner,
+            status='completed',
+            date__gte=period_start,
+            date__lte=period_end
+        ).order_by('-date')
+
+    
+        
+        # 2. Calculate totals
+        total_amount = giving_records.aggregate(total=Sum('amount'))['total'] or 0
+        transaction_count = giving_records.count()
+        
+        # 3. Generate PDF in memory
+        pdf_buffer = self._generate_pdf(
+            partner, 
+            giving_records, 
+            period_start, 
+            period_end, 
+            total_amount
+        )
+        
+        # 4. Create filename
+        filename = f"statement_{partner.id}_{period_start}_{period_end}.pdf"
+
+        records_data = []
+        for record in giving_records:
+            records_data.append({
+                'date': record.date.isoformat(),  # Convert date to string
+                'amount': str(record.amount),
+                'giving_type': record.giving_type
+            })
+
+        summary_data = {
+            'records': records_data,
+            'total': str(total_amount),
+            'count': transaction_count
+        }
+        
+        # 5. Create the database record with the file
+        statement = GivingStatement(
+            partner=partner,
+            statement_type=statement_type,
+            period_start=period_start,
+            period_end=period_end,
+            total_amount=total_amount,
+            transaction_count=transaction_count,
+            generated_by=request.user,
+            summary_data=summary_data
+        )
+        
+        # Save the PDF to the file field
+        statement.file.save(filename, ContentFile(pdf_buffer.getvalue()), save=True)
+        
+        # 6. Build absolute URL
+        file_url = request.build_absolute_uri(statement.file.url)
+        
         return Response({
-            'message': 'Statement generation request received',
-            'note': 'This would typically generate a PDF and store it'
-        })
+            'message': 'Statement generated successfully',
+            'file_url': file_url,
+            'statement_id': statement.id,
+            'period_start': period_start,
+            'period_end': period_end,
+            'total_amount': str(total_amount),
+            'transaction_count': transaction_count
+        }, status=status.HTTP_201_CREATED)
+    
+    def _generate_pdf(self, partner, giving_records, start_date, end_date, total_amount):
+        """Helper method to generate PDF and return BytesIO buffer"""
+        
+        # Create a buffer for the PDF
+        buffer = BytesIO()
+        
+        # Create the PDF document
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        elements = []
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            alignment=TA_CENTER,
+            fontSize=18,
+            spaceAfter=30
+        )
+        elements.append(Paragraph(f"Giving Statement", title_style))
+        
+        # Partner info
+        info_style = ParagraphStyle(
+            'Info',
+            parent=styles['Normal'],
+            fontSize=12,
+            spaceAfter=10
+        )
+        elements.append(Paragraph(f"Partner: {partner.user.get_full_name()}", info_style))
+        elements.append(Paragraph(f"Email: {partner.user.email}", info_style))
+        elements.append(Paragraph(f"Period: {start_date} to {end_date}", info_style))
+        elements.append(Spacer(1, 20))
+        
+        # Summary
+        summary_style = ParagraphStyle(
+            'Summary',
+            parent=styles['Normal'],
+            fontSize=14,
+            spaceAfter=5
+        )
+        elements.append(Paragraph(f"Total Given: UGX {total_amount:,.2f}", summary_style))
+        elements.append(Paragraph(f"Number of Transactions: {giving_records.count()}", summary_style))
+        elements.append(Spacer(1, 20))
+        
+        # Transactions table
+        if giving_records.exists():
+            data = [['Date', 'Transaction ID', 'Type', 'Amount (UGX)']]
+            for record in giving_records:
+                giving_type_display = record.giving_type.replace('_', ' ').title()
+                data.append([
+                    record.date.strftime('%Y-%m-%d'),
+                    record.transaction_id,
+                    giving_type_display,
+                    f"{record.amount:,.2f}"
+                ])
+            
+            # Add total row
+            data.append(['', '', 'TOTAL', f"{total_amount:,.2f}"])
+            
+            table = Table(data, colWidths=[80, 150, 100, 100])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -2), colors.beige),
+                ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
+                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            elements.append(table)
+        
+        # Footer
+        elements.append(Spacer(1, 30))
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=10,
+            alignment=TA_CENTER,
+            textColor=colors.grey
+        )
+        elements.append(Paragraph(f"Generated on {timezone.now().strftime('%Y-%m-%d %H:%M')}", footer_style))
+        
+        # Build PDF
+        doc.build(elements)
+        
+        # Reset buffer position to the beginning
+        buffer.seek(0)
+        
+        return buffer
+    
+    @action(detail=True, methods=['post'])
+    def download(self, request, pk=None):
+        """Record a download and return the file"""
+        statement = self.get_object()
+        
+        # Increment download count
+        statement.increment_download()
+        
+        # Return the file
+        if statement.file:
+            return Response({
+                'message': 'Download recorded',
+                'download_count': statement.downloaded_count,
+                'file_url': request.build_absolute_uri(statement.file.url)
+            })
+        else:
+            return Response(
+                {'error': 'File not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class ScheduledGivingViewSet(viewsets.ModelViewSet):

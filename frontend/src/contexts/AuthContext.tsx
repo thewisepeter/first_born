@@ -11,6 +11,24 @@ interface User {
   lastName: string;
   isPartner: boolean;
   phone?: string;
+  partnerType?: 'individual' | 'company';
+  community?: 'working' | 'business';
+  communityType?: 'working-class' | 'business-class';
+
+  partner_profile?: {
+    id: number;
+    partner_type: 'individual' | 'company';
+    community: 'working' | 'business';
+    bio: string | null;
+    location: string | null;
+    organization: string | null;
+    total_given: string;
+    months_active: number;
+    joined_at: string;
+    member_since: string;
+    last_active: string;
+    is_active: boolean;
+  };
 }
 
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
@@ -46,7 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  // contexts/AuthContext.tsx - Update checkAuth function
   const checkAuth = async () => {
     setAuthStatus('loading');
 
@@ -56,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           Accept: 'application/json',
         },
-        credentials: 'include', // Important: send cookies
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -68,14 +85,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (data.authenticated && data.user) {
+        const userData = data.user;
+
         setUser({
-          id: String(data.user.id),
-          email: data.user.email,
-          firstName: data.user.firstName || data.user.first_name,
-          lastName: data.user.lastName || data.user.last_name,
-          isPartner: true, // You might want to check this from Django
-          phone: data.user.phone,
+          id: String(userData.id),
+          email: userData.email,
+          firstName: userData.first_name || '',
+          lastName: userData.last_name || '',
+          isPartner: userData.is_partner === true,
+          phone: userData.partner_profile?.phone, // Get phone from partner_profile
+          partnerType: userData.partner_profile?.partner_type,
+          community: userData.partner_profile?.community,
+          communityType:
+            userData.partner_profile?.community === 'business' ? 'business-class' : 'working-class',
+
+          // ✅ STORE THE ENTIRE PARTNER PROFILE
+          partner_profile: userData.partner_profile,
         });
+
         setAuthStatus('authenticated');
       } else {
         setUser(null);

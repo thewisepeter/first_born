@@ -1,82 +1,67 @@
-// src/app/partnership/(dashboard)/drives/page.tsx
-
 'use client';
 
 import { useAuth } from '../../../../contexts/AuthContext';
-import { useState, useEffect } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Calendar, Sparkles, Heart } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Calendar, AlertCircle } from 'lucide-react';
 import { DashboardSkeleton } from './../components/Skeletons';
 import { DriveCard } from './../components/DriveCard';
 import { StatsCard } from './../components/StatsCard';
-import {
-  generateMockStats,
-  generateMockDrives,
-  generateMockActivities,
-  generateMockAnnouncements,
-  generateWeeklyBudget,
-  type DashboardStats,
-  type Drive,
-  type Activity,
-  type Announcement,
-} from './../data/mockData';
+import { useDrives } from '../../../../hooks/useDrives';
+import { Button } from '../../../components/ui/button';
 
-export default function PartnershipDashboard() {
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-UG', {
+    style: 'currency',
+    currency: 'UGX',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+export default function DrivesPage() {
   const { user, isLoading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [drives, setDrives] = useState<Drive[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [weeklyBudget, setWeeklyBudget] = useState<any>(null);
+  const {
+    loading,
+    error,
+    drives,
+    paginatedData,
+    stats,
+    currentPage,
+    totalPages,
+    goToPage,
+    nextPage,
+    prevPage,
+    refresh,
+  } = useDrives();
 
-  // Pagination state for drives
-  const [currentDrivePage, setCurrentDrivePage] = useState(0);
-  const drivesPerPage = 2;
-  const totalDrivePages = Math.ceil(drives.length / drivesPerPage);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const loadData = () => {
-      setLoading(true);
-      setTimeout(() => {
-        setStats(generateMockStats());
-        setDrives(generateMockDrives());
-        setActivities(generateMockActivities());
-        setAnnouncements(generateMockAnnouncements());
-        setWeeklyBudget(generateWeeklyBudget());
-        setLoading(false);
-      }, 800);
-    };
-
-    loadData();
-  }, [user]);
-
-  // Pagination handlers for drives
-  const nextDrivePage = () => {
-    setCurrentDrivePage((prev) => (prev + 1) % totalDrivePages);
-  };
-
-  const prevDrivePage = () => {
-    setCurrentDrivePage((prev) => (prev - 1 + totalDrivePages) % totalDrivePages);
-  };
-
-  const goToDrivePage = (page: number) => {
-    setCurrentDrivePage(page);
-  };
-
-  // Get current page drives
-  const getCurrentDrives = () => {
-    const startIndex = currentDrivePage * drivesPerPage;
-    return drives.slice(startIndex, startIndex + drivesPerPage);
-  };
+  // Remove the old getCurrentDrives function - it's not needed anymore
+  // The drives are already the current page from the hook
 
   if (authLoading || loading) return <DashboardSkeleton />;
   if (!user) return null;
 
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div className="flex items-center space-x-3">
+          <AlertCircle className="h-6 w-6 text-red-600" />
+          <div>
+            <h3 className="font-semibold text-red-800">Unable to Load Drives</h3>
+            <p className="text-red-700 mt-1">{error}</p>
+            <Button
+              onClick={refresh}
+              variant="outline"
+              className="mt-4 border-red-300 text-red-700 hover:bg-red-100"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -84,19 +69,51 @@ export default function PartnershipDashboard() {
             <div className="flex items-center gap-3 mb-3">
               <h1 className="text-xl md:text-xl font-bold text-gray-900">Drives</h1>
             </div>
-            <p className="text-gray-600 mt-1">
-              Browse through various job openings, tenders,and contracts
-            </p>
+            <p className="text-gray-600 mt-1">Support ongoing ministry projects and campaigns</p>
           </div>
 
           <div className="bg-white p-4 rounded-xl border shadow-sm">
             <div className="text-center">
               <div className="text-sm text-gray-500 mb-1">Active Drives</div>
-              <div className="text-4xl font-bold text-purple-600 mb-2">{drives.length}</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">
+                {stats?.active_drives || drives.length}
+              </div>
+              {stats && (
+                <div className="text-xs text-gray-500">
+                  Total Goal: {formatCurrency(stats.total_goal)}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Stats Cards */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatsCard
+            title="Total Drives"
+            value={stats.total_drives.toString()}
+            description="All time drives"
+            icon={Calendar}
+            color="blue"
+          />
+          <StatsCard
+            title="Total Goal"
+            value={formatCurrency(stats.total_goal)}
+            description="Combined target amount"
+            icon={ArrowRight}
+            color="purple"
+          />
+          <StatsCard
+            title="Total Raised"
+            value={formatCurrency(stats.total_raised)}
+            description={`${stats.total_drives > 0 ? Math.round((stats.total_raised / stats.total_goal) * 100) : 0}% of goal`}
+            icon={ArrowRight}
+            color="green"
+          />
+        </div>
+      )}
 
       {/* Drives Section with Pagination */}
       <section className="space-y-6">
@@ -108,63 +125,71 @@ export default function PartnershipDashboard() {
         </div>
 
         {/* Drives List */}
-        <div className="grid grid-cols-1 gap-6">
-          {getCurrentDrives().map((drive) => (
-            <DriveCard key={drive.id} drive={drive} />
-          ))}
-        </div>
-
-        {/* Pagination Controls for Drives */}
-        {totalDrivePages > 1 && (
-          <div className="pt-6 border-t border-gray-200">
-            {/* Page Info */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-gray-500">
-                Showing {currentDrivePage * drivesPerPage + 1} -{' '}
-                {Math.min((currentDrivePage + 1) * drivesPerPage, drives.length)} of {drives.length}{' '}
-                drives
-              </p>
+        {drives.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 gap-6">
+              {drives.map((drive) => (
+                <DriveCard key={drive.id} drive={drive} />
+              ))}
             </div>
 
-            {/* Pagination Buttons */}
-            <div className="flex items-center justify-between">
-              {/* Previous Button */}
-              <button
-                onClick={prevDrivePage}
-                disabled={currentDrivePage === 0}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
-              </button>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-gray-500">
+                    Showing {(currentPage - 1) * (paginatedData?.results.length || 0) + 1} -{' '}
+                    {Math.min(
+                      currentPage * (paginatedData?.results.length || 0),
+                      paginatedData?.count || 0
+                    )}{' '}
+                    of {paginatedData?.count} drives
+                  </p>
+                </div>
 
-              {/* Page Numbers */}
-              <div className="flex items-center space-x-2">
-                {Array.from({ length: totalDrivePages }, (_, i) => (
+                <div className="flex items-center justify-between">
                   <button
-                    key={i}
-                    onClick={() => goToDrivePage(i)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                      currentDrivePage === i
-                        ? 'bg-purple-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    onClick={prevPage}
+                    disabled={!paginatedData?.previous}
+                    className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {i + 1}
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
                   </button>
-                ))}
-              </div>
 
-              {/* Next Button */}
-              <button
-                onClick={nextDrivePage}
-                disabled={currentDrivePage === totalDrivePages - 1}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </button>
-            </div>
+                  <div className="flex items-center space-x-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                          currentPage === page
+                            ? 'bg-purple-600 text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={nextPage}
+                    disabled={!paginatedData?.next}
+                    className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-xl border">
+            <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900">No Active Drives</h3>
+            <p className="text-gray-500 mt-1">There are no active drives at the moment</p>
           </div>
         )}
       </section>

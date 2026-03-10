@@ -24,7 +24,9 @@ User = get_user_model()
 @permission_classes([IsAuthenticated])
 def current_user(request):
     user = request.user
-    return Response({
+
+    # Base user data
+    user_data = {
         'id': user.id,
         'email': user.email,
         'first_name': user.first_name,
@@ -32,7 +34,38 @@ def current_user(request):
         'is_staff': user.is_staff,
         'is_superuser': user.is_superuser,
         'date_joined': user.date_joined,
-    })
+        'is_partner': False,  # Default to False
+    }
+    # Check if user has a partner profile
+    try:
+        if hasattr(user, 'partner_profile') and user.partner_profile:
+            partner = user.partner_profile
+            user_data.update({
+                'is_partner': True,
+                'phone': partner.phone,
+                'partner_profile': {
+                    'id': partner.id,
+                    'partner_type': partner.partner_type,
+                    'community': partner.community,
+                    'bio': partner.bio,
+                    'location': partner.location,
+                    'organization': partner.organization,
+                    'total_given': str(partner.total_given),
+                    'months_active': partner.months_active,
+                    'joined_at': partner.joined_at,
+                    'member_since': partner.member_since,
+                    'last_active': partner.last_active,
+                    'is_active': partner.is_active,
+                }
+            })
+    except Exception as e:
+        # User doesn't have a partner profile or error accessing it
+        print(f"Error fetching partner profile: {e}")
+        pass
+    
+    return Response(user_data)
+
+# core/views.py - Update the login_view
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -57,15 +90,41 @@ def login_view(request):
         
         if user is not None:
             auth_login(request, user)
+            
+            # Base user response
+            user_response = {
+                "id": user.id,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "is_staff": user.is_staff,
+                "is_superuser": user.is_superuser,
+                "is_partner": False,
+            }
+            
+            # Add partner data if it exists
+            try:
+                if hasattr(user, 'partner_profile') and user.partner_profile:
+                    partner = user.partner_profile
+                    user_response.update({
+                        "is_partner": True,
+                        "phone": partner.phone,
+                        "partner_profile": {
+                            "id": partner.id,
+                            "partner_type": partner.partner_type,
+                            "community": partner.community,
+                            "bio": partner.bio,
+                            "location": partner.location,
+                            "organization": partner.organization,
+                            "total_given": str(partner.total_given),
+                            "months_active": partner.months_active,
+                        }
+                    })
+            except Exception:
+                pass
+            
             return Response({
-                "user": {
-                    "id": user.id,
-                    "email": user.email,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "is_staff": user.is_staff,
-                    "is_superuser": user.is_superuser,
-                }
+                "user": user_response
             })
         else:
             return Response(
@@ -82,7 +141,6 @@ def login_view(request):
             {"detail": "Login failed"},
             status=500
         )
-
 
 @csrf_exempt
 def session_logout(request):

@@ -1,3 +1,4 @@
+// src/app/partnership/(dashboard)/components/ScheduleGivingModal.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,11 +13,9 @@ import { Calendar, DollarSign, Building, CreditCard, Pencil } from 'lucide-react
 export interface ScheduleFormData {
   id?: string | number; // Optional: For editing existing items
   amount: string;
-  frequency: 'weekly' | 'monthly' | 'quarterly' | 'one-time'; // Added 'one-time'
+  frequency: 'one-time' | 'weekly' | 'bi-weekly' | 'monthly' | 'quarterly';
   startDate: string;
-  paymentMethod: 'mobile-money' | 'bank-transfer' | 'credit-card';
   purpose: string;
-  notes: string;
   title?: string; // Optional: For display purposes
 }
 
@@ -41,9 +40,7 @@ export function ScheduleGivingModal({
     amount: '',
     frequency: 'weekly',
     startDate: getNextMonday(),
-    paymentMethod: 'mobile-money',
     purpose: '',
-    notes: '',
   });
 
   // Initialize form with initialData when modal opens or initialData changes
@@ -56,9 +53,7 @@ export function ScheduleGivingModal({
         amount: '',
         frequency: 'weekly',
         startDate: getNextMonday(),
-        paymentMethod: 'mobile-money',
         purpose: '',
-        notes: '',
       });
     }
   }, [initialData, isOpen]);
@@ -72,7 +67,24 @@ export function ScheduleGivingModal({
   }
 
   const handleChange = (field: keyof ScheduleFormData, value: string) => {
+    if (field === 'amount') {
+      // Remove anything that is not a digit
+      const numericValue = value.replace(/\D/g, '');
+
+      setScheduleForm((prev) => ({
+        ...prev,
+        amount: numericValue,
+      }));
+
+      if (formErrors.amount) {
+        setFormErrors((prev) => ({ ...prev, amount: undefined }));
+      }
+
+      return;
+    }
+
     setScheduleForm((prev) => ({ ...prev, [field]: value }));
+
     if (formErrors[field]) {
       setFormErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -126,9 +138,7 @@ export function ScheduleGivingModal({
         amount: '',
         frequency: 'weekly',
         startDate: getNextMonday(),
-        paymentMethod: 'mobile-money',
         purpose: '',
-        notes: '',
       });
       setFormErrors({});
       onClose();
@@ -148,6 +158,8 @@ export function ScheduleGivingModal({
     switch (freq) {
       case 'weekly':
         return 'Weekly';
+      case 'bi-weekly':
+        return 'Bi-Weekly';
       case 'monthly':
         return 'Monthly';
       case 'quarterly':
@@ -191,8 +203,21 @@ export function ScheduleGivingModal({
               <Input
                 id="amount"
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={scheduleForm.amount}
                 onChange={(e) => handleChange('amount', e.target.value)}
+                onKeyDown={(e) => {
+                  // Allow: backspace, delete, arrows, tab
+                  if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+                    return;
+                  }
+
+                  // Block non-numeric keys
+                  if (!/^\d$/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
                 placeholder="100000"
                 className={`pl-14 ${formErrors.amount ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                 disabled={isSubmitting}
@@ -207,7 +232,7 @@ export function ScheduleGivingModal({
               Frequency
             </Label>
             <div className="grid grid-cols-4 gap-2 mt-1">
-              {['weekly', 'monthly', 'quarterly', 'one-time'].map((freq) => (
+              {['one-time', 'weekly', 'monthly', 'quarterly'].map((freq) => (
                 <button
                   key={freq}
                   type="button"
@@ -241,44 +266,6 @@ export function ScheduleGivingModal({
             {formErrors.startDate && <p className="text-xs text-red-600">{formErrors.startDate}</p>}
           </div>
 
-          {/* Payment Method */}
-          <div>
-            <Label htmlFor="paymentMethod" className="text-sm font-medium text-gray-700">
-              Payment Method
-            </Label>
-            <div className="grid grid-cols-3 gap-2 mt-1">
-              {[
-                {
-                  value: 'mobile-money',
-                  label: 'Mobile Money',
-                  icon: <DollarSign className="h-4 w-4" />,
-                },
-                {
-                  value: 'bank-transfer',
-                  label: 'Bank Transfer',
-                  icon: <Building className="h-4 w-4" />,
-                },
-                { value: 'credit-card', label: 'Card', icon: <CreditCard className="h-4 w-4" /> },
-              ].map((method) => (
-                <button
-                  key={method.value}
-                  type="button"
-                  onClick={() =>
-                    handleChange('paymentMethod', method.value as ScheduleFormData['paymentMethod'])
-                  }
-                  className={`p-3 rounded-lg border flex flex-col items-center gap-1 text-sm font-medium transition-colors ${
-                    scheduleForm.paymentMethod === method.value
-                      ? 'border-purple-600 bg-purple-50 text-purple-700'
-                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {method.icon}
-                  {method.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Purpose */}
           <div>
             <Label htmlFor="purpose" className="text-sm font-medium text-gray-700">
@@ -297,29 +284,12 @@ export function ScheduleGivingModal({
             >
               <option value="">Select purpose</option>
               <option value="weekly-partnership">Weekly Partnership</option>
-              <option value="radio-broadcast">Radio Broadcast Support</option>
-              <option value="youth-camp">Youth Camp Support</option>
-              <option value="bible-distribution">Bible Distribution</option>
-              <option value="fellowship">Fellowship Support</option>
-              <option value="general">General Ministry Support</option>
+              <option value="spirit-world">Spirit World Broadcast</option>
+              <option value="saturday-fellowship">Saturday Fellowship</option>
+              <option value="office-rent">Office Rent</option>
+              <option value="drive">Drive</option>
             </select>
             {formErrors.purpose && <p className="text-xs text-red-600">{formErrors.purpose}</p>}
-          </div>
-
-          {/* Notes */}
-          <div>
-            <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
-              Notes (Optional)
-            </Label>
-            <Textarea
-              id="notes"
-              rows={2}
-              value={scheduleForm.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
-              placeholder="Any special instructions or prayer requests..."
-              className="mt-1 resize-none"
-              disabled={isSubmitting}
-            />
           </div>
 
           {/* Summary */}

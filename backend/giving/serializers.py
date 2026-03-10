@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Giving, GivingGoal, GivingStatement, ScheduledGiving
 from partners.serializer import PartnerSerializer
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -14,9 +15,8 @@ class GivingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Giving
         fields = [
-            'id', 'transaction_id', 'amount', 'giving_type', 'title',
-            'description', 'notes', 'status', 'date', 'recorded_at',
-            'payment_method', 'is_scheduled', 'frequency',
+            'id', 'transaction_id', 'amount', 'giving_type', 'payment_method',
+             'status', 'date', 'recorded_at', 'is_scheduled', 'frequency',
             'partner_name', 'is_verified', 'receipt_sent'
         ]
         read_only_fields = [
@@ -30,15 +30,18 @@ class GivingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Giving
         fields = [
-            'partner', 'amount', 'giving_type', 'title',
-            'description', 'notes', 'date', 'payment_method',
-            'is_scheduled', 'frequency', 'next_payment_date',
+            'partner', 'amount', 'giving_type', 'payment_method',
+            'date', 'is_scheduled', 'frequency', 'next_payment_date',
             'schedule_end_date', 'drive'
         ]
+        extra_kwargs = {
+            'partner': {'required': True},  # Partner is now required
+            'status': {'required': False, 'default': 'completed'},
+        }
     
     def validate(self, data):
         # Validate date is not in future unless scheduled
-        from django.utils import timezone
+        
         if data['date'] > timezone.now().date() and not data.get('is_scheduled', False):
             raise serializers.ValidationError({
                 'date': 'Giving date cannot be in the future for non-scheduled payments.'
@@ -100,11 +103,13 @@ class ScheduledGivingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduledGiving
         fields = [
-            'id', 'amount', 'giving_type', 'title', 'description',
-            'notes', 'frequency', 'payment_method', 'start_date',
+            'id', 'amount', 'giving_type', 'title', 'frequency', 'start_date',
             'next_payment_date', 'end_date', 'status', 'drive',
             'days_until_next', 'created_at', 'updated_at'
         ]
+        extra_kwargs = {
+            'end_date': {'required': False, 'allow_null': True}
+        }
         read_only_fields = ['days_until_next', 'created_at', 'updated_at']
     
     def get_days_until_next(self, obj):
@@ -120,8 +125,7 @@ class ScheduledGivingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduledGiving
         fields = [
-            'amount', 'giving_type', 'title', 'description',
-            'notes', 'frequency', 'payment_method', 'start_date',
+            'amount', 'giving_type', 'title', 'frequency', 'start_date',
             'end_date', 'drive'
         ]
     

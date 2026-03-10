@@ -6,17 +6,17 @@ from .models import Giving, GivingGoal, GivingStatement, ScheduledGiving
 @admin.register(Giving)
 class GivingAdmin(admin.ModelAdmin):
     list_display = ['transaction_id', 'partner', 'amount', 'giving_type', 
-                   'date', 'status', 'payment_method', 'is_verified']
-    list_filter = ['status', 'giving_type', 'payment_method', 'is_verified', 'is_scheduled']
-    search_fields = ['transaction_id', 'partner__user__email', 'title', 'description']
+                   'date', 'status', 'is_verified']
+    list_filter = ['status', 'giving_type', 'is_verified', 'is_scheduled']
+    search_fields = ['transaction_id', 'partner__user__email', 'title']
     readonly_fields = ['transaction_id', 'recorded_at']
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('partner', 'transaction_id', 'amount', 'giving_type', 'title')
+            'fields': ('partner', 'transaction_id', 'amount', 'giving_type')
         }),
         ('Details', {
-            'fields': ('description', 'notes', 'date', 'status', 'payment_method')
+            'fields': ('date', 'status')
         }),
         ('Scheduling', {
             'fields': ('is_scheduled', 'frequency', 'next_payment_date', 'schedule_end_date'),
@@ -67,6 +67,6 @@ class GivingStatementAdmin(admin.ModelAdmin):
 @admin.register(ScheduledGiving)
 class ScheduledGivingAdmin(admin.ModelAdmin):
     list_display = ['partner', 'title', 'amount', 'frequency', 'next_payment_date',
-                   'status', 'payment_method']
-    list_filter = ['status', 'frequency', 'payment_method']
+                   'status']
+    list_filter = ['status', 'frequency']
     search_fields = ['partner__user__email', 'title', 'description']
