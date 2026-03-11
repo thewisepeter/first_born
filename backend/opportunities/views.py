@@ -1,5 +1,6 @@
 # opportunities/views.py
 from rest_framework import viewsets, generics, status, permissions
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -14,6 +15,12 @@ from .serializers import (
     OpportunityCreateUpdateSerializer,
 )
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+    page_query_param = 'page'
+
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     """
@@ -21,6 +28,8 @@ class OpportunityViewSet(viewsets.ModelViewSet):
     Admin can create/edit, all partners can view.
     """
     permission_classes = [permissions.IsAuthenticated]
+
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         """Get opportunities based on filters"""
@@ -108,23 +117,16 @@ class OpportunityViewSet(viewsets.ModelViewSet):
     def stats(self, request):
         """Get opportunities statistics"""
         today = date.today()
+
+        queryset = self.get_queryset()
         
-        total_opportunities = Opportunity.objects.filter(
-            status='active',
-            deadline__gte=today
-        ).count()
+        total_opportunities = queryset.count()
         
         # Count by type
-        by_type = Opportunity.objects.filter(
-            status='active',
-            deadline__gte=today
-        ).values('opportunity_type').annotate(count=Count('id'))
+        by_type = queryset.values('opportunity_type').annotate(count=Count('id'))
         
         # Count by community
-        by_community = Opportunity.objects.filter(
-            status='active',
-            deadline__gte=today
-        ).values('community').annotate(count=Count('id'))
+        by_community = queryset.values('community').annotate(count=Count('id'))
         
         return Response({
             'total_opportunities': total_opportunities,

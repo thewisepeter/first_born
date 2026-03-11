@@ -131,7 +131,7 @@ export function calculateDriveStats(drives: Drive[]): DriveStats {
   return {
     total_drives: drives.length,
     active_drives: activeDrives.length,
-    total_goal: totalGoal,
+    total_goal: totalGoal, // ✅ This should be here
     total_raised: totalRaised,
   };
 }

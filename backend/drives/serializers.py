@@ -48,7 +48,7 @@ class DriveListSerializer(serializers.ModelSerializer):
             'goal_amount', 'start_date', 'end_date',
             'color_scheme', 'is_featured', 'is_urgent',
             'is_published', 'progress_percentage', 
-            'days_remaining', 'contributions_count'  # Added missing fields
+            'days_remaining', 'contributions_count'
         ]
 
     def get_progress_percentage(self, obj):

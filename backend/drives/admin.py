@@ -10,7 +10,7 @@ class DriveAdmin(admin.ModelAdmin):
                     'is_featured', 'created_at']
     list_filter = ['status', 'category', 'is_featured', 'is_urgent', 'is_published']
     search_fields = ['title', 'description']
-    readonly_fields = ['current_amount', 'contributions_count', 'views_count', 
+    readonly_fields = [ 'contributions_count', 'views_count', 
                       'get_progress_percentage', 'get_days_remaining']
     
     # Define custom method for list display

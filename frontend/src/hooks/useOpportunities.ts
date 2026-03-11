@@ -1,23 +1,21 @@
-// src/hooks/useDrives.ts
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import * as drivesService from '../services/drives';
+import * as opportunitiesService from '../services/opportunities';
 
-export function useDrives(initialPageSize: number = 10) {
+export function useOpportunities(initialPageSize: number = 5) {
   const { user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [drives, setDrives] = useState<drivesService.Drive[]>([]);
+  const [opportunities, setOpportunities] = useState<opportunitiesService.Opportunity[]>([]);
   const [paginatedData, setPaginatedData] =
-    useState<drivesService.PaginatedResponse<drivesService.Drive> | null>(null);
-  const [stats, setStats] = useState<drivesService.DriveStats | null>(null);
+    useState<opportunitiesService.PaginatedResponse<opportunitiesService.Opportunity> | null>(null);
+  const [stats, setStats] = useState<opportunitiesService.OpportunityStats | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(initialPageSize);
 
-  const fetchDrives = async (page: number = currentPage) => {
+  const fetchOpportunities = async (page: number = currentPage) => {
     if (!isAuthenticated) {
       setLoading(false);
       return;
@@ -27,22 +25,20 @@ export function useDrives(initialPageSize: number = 10) {
     setError(null);
 
     try {
-      console.log('📡 Fetching drives page:', page);
-      const data = await drivesService.getDrives(page, pageSize, true);
-      console.log('✅ Drives loaded:', data);
+      console.log('📡 Fetching opportunities page:', page);
+      const data = await opportunitiesService.getOpportunities(page, pageSize, true);
+      console.log('✅ Opportunities loaded:', data);
 
       setPaginatedData(data);
-      setDrives(data.results);
+      setOpportunities(data.results);
 
-      // Calculate stats from all drives (you might want to fetch all pages for accurate stats)
-      const allDrives = await drivesService.getAllDrives(true);
-      const calculatedStats = drivesService.calculateDriveStats(allDrives);
-
-      console.log('📊 Calculated stats:', calculatedStats);
+      // Calculate stats from all opportunities
+      const allOpportunities = await opportunitiesService.getAllOpportunities(true);
+      const calculatedStats = opportunitiesService.calculateOpportunityStats(allOpportunities);
       setStats(calculatedStats);
     } catch (err) {
-      console.error('Error fetching drives:', err);
-      setError('Failed to load drives');
+      console.error('Error fetching opportunities:', err);
+      setError('Failed to load opportunities');
     } finally {
       setLoading(false);
     }
@@ -50,7 +46,7 @@ export function useDrives(initialPageSize: number = 10) {
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    fetchDrives(page);
+    fetchOpportunities(page);
   };
 
   const nextPage = () => {
@@ -66,17 +62,17 @@ export function useDrives(initialPageSize: number = 10) {
   };
 
   const refresh = () => {
-    fetchDrives(currentPage);
+    fetchOpportunities(currentPage);
   };
 
   useEffect(() => {
-    fetchDrives();
+    fetchOpportunities();
   }, [isAuthenticated]);
 
   return {
     loading,
     error,
-    drives,
+    opportunities,
     paginatedData,
     stats,
     currentPage,
