@@ -1,4 +1,3 @@
-// src/app/partnership/(dashboard)/components/PostListingModal.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../../components/ui/select';
-import { Store, X, Image as ImageIcon, Tag, MapPin, DollarSign, Calendar } from 'lucide-react';
+import { Store, X, Image as ImageIcon, Tag, MapPin, DollarSign } from 'lucide-react';
+import { MarketplaceCategory } from '../../../../services/marketplace';
 
 export type ListingFormData = {
   id?: string;
@@ -28,10 +28,10 @@ export type ListingFormData = {
   title: string;
   description: string;
   price: string;
-  currency: 'UGX' | 'USD';
+  currency: 'UGX' | 'USD' | 'KES' | 'TZS';
   category: string;
   location: string;
-  contactMethod: 'message' | 'phone' | 'email' | 'whatsapp';
+  contactMethod: 'whatsapp' | 'phone' | 'email' | 'in_app';
   tags: string;
   imageUrl?: string;
 };
@@ -42,6 +42,7 @@ type PostListingModalProps = {
   onSubmit: (formData: ListingFormData) => Promise<void>;
   initialData?: ListingFormData | null;
   isEditing?: boolean;
+  categories?: MarketplaceCategory[]; // Add this prop
 };
 
 export function PostListingModal({
@@ -50,6 +51,7 @@ export function PostListingModal({
   onSubmit,
   initialData,
   isEditing = false,
+  categories = [], // Default to empty array
 }: PostListingModalProps) {
   const [formData, setFormData] = useState<ListingFormData>({
     type: 'product',
@@ -64,30 +66,13 @@ export function PostListingModal({
     imageUrl: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [customCategory, setCustomCategory] = useState('');
 
-  // Predefined categories
-  const categories = [
-    'Electronics',
-    'Vehicles',
-    'Real Estate',
-    'IT & Development',
-    'Finance',
-    'Design & Creative',
-    'Photography',
-    'Home & Garden',
-    'Fashion & Beauty',
-    'Health & Wellness',
-    'Education',
-    'Other',
-  ];
-
-  // Contact methods
+  // Contact methods - keep these as they are
   const contactMethods = [
     { value: 'whatsapp', label: 'WhatsApp' },
     { value: 'phone', label: 'Phone Call' },
     { value: 'email', label: 'Email' },
-    { value: 'message', label: 'In-App Message' },
+    { value: 'in_app', label: 'In-App Message' },
   ];
 
   useEffect(() => {
@@ -100,7 +85,7 @@ export function PostListingModal({
         description: '',
         price: '',
         currency: 'UGX',
-        category: '',
+        category: 'placeholder',
         location: '',
         contactMethod: 'whatsapp',
         tags: '',
@@ -139,7 +124,6 @@ export function PostListingModal({
           tags: '',
           imageUrl: '',
         });
-        setCustomCategory('');
       }
     } catch (error) {
       console.error('Error submitting listing:', error);
@@ -160,6 +144,11 @@ export function PostListingModal({
         return 'Listing';
     }
   };
+
+  // Filter categories by listing type
+  const filteredCategories = categories.filter(
+    (cat) => cat.listing_type === 'all' || cat.listing_type === formData.type
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -242,7 +231,9 @@ export function PostListingModal({
               <div className="flex gap-2">
                 <Select
                   value={formData.currency}
-                  onValueChange={(value) => handleSelectChange('currency', value)}
+                  onValueChange={(value) =>
+                    handleSelectChange('currency', value as 'UGX' | 'USD' | 'KES' | 'TZS')
+                  }
                 >
                   <SelectTrigger className="w-20">
                     <SelectValue />
@@ -250,6 +241,8 @@ export function PostListingModal({
                   <SelectContent>
                     <SelectItem value="UGX">UGX</SelectItem>
                     <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="KES">KES</SelectItem>
+                    <SelectItem value="TZS">TZS</SelectItem>
                   </SelectContent>
                 </Select>
                 <Input
@@ -277,29 +270,19 @@ export function PostListingModal({
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+                  {filteredCategories.length > 0 ? (
+                    filteredCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="placeholder" disabled>
+                      No categories available
                     </SelectItem>
-                  ))}
-                  <SelectItem value="custom">
-                    <div className="flex items-center">
-                      <span>Other (specify)</span>
-                    </div>
-                  </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
-              {formData.category === 'custom' && (
-                <Input
-                  placeholder="Enter custom category"
-                  value={customCategory}
-                  onChange={(e) => {
-                    setCustomCategory(e.target.value);
-                    handleSelectChange('category', e.target.value);
-                  }}
-                  className="mt-2"
-                />
-              )}
             </div>
 
             <div className="space-y-2">
@@ -355,7 +338,7 @@ export function PostListingModal({
               <Label htmlFor="contactMethod">Contact Method</Label>
               <Select
                 value={formData.contactMethod}
-                onValueChange={(value) => handleSelectChange('contactMethod', value)}
+                onValueChange={(value) => handleSelectChange('contactMethod', value as any)}
               >
                 <SelectTrigger>
                   <SelectValue />

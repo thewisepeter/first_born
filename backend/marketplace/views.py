@@ -1,5 +1,8 @@
 # marketplace/views.py
+
 from rest_framework import viewsets, generics, status, permissions
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -20,6 +23,14 @@ from .serializers import (
     MarketplaceInquirySerializer, MarketplaceInquiryCreateSerializer,
     MarketplaceReportSerializer, MarketplaceStatsSerializer
 )
+
+
+# 👈 Add this pagination class
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 12  # Good for grid layouts
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+    page_query_param = 'page'
 
 
 class IsPartnerOwnerOrAdmin(permissions.BasePermission):
@@ -54,6 +65,7 @@ class MarketplaceCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = MarketplaceCategory.objects.filter(is_active=True)
     serializer_class = MarketplaceCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+    # Categories usually don't need pagination
 
 
 class MarketplaceListingViewSet(viewsets.ModelViewSet):
@@ -62,6 +74,9 @@ class MarketplaceListingViewSet(viewsets.ModelViewSet):
     Partners can create/edit/delete their own, view all.
     """
     permission_classes = [permissions.IsAuthenticated, IsPartnerOwnerOrAdmin]
+    
+    # 👈 Add this line to enable pagination
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         """Get filtered listings"""
@@ -135,7 +150,7 @@ class MarketplaceListingViewSet(viewsets.ModelViewSet):
             partner = self.request.user.partner_profile
             serializer.save(partner=partner)
         except Partner.DoesNotExist:
-            raise serializer.ValidationError({
+            raise serializers.ValidationError({
                 'error': 'You need a partner profile to create listings.'
             })
     
@@ -230,62 +245,75 @@ class MarketplaceListingViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get marketplace statistics"""
-        total_listings = MarketplaceListing.objects.count()
-        active_listings = MarketplaceListing.objects.filter(
-            status__in=['available', 'pending']
-        ).count()
-        
-        # Count by type
-        total_products = MarketplaceListing.objects.filter(
-            listing_type='product',
-            status__in=['available', 'pending']
-        ).count()
-        
-        total_services = MarketplaceListing.objects.filter(
-            listing_type='service',
-            status__in=['available', 'pending']
-        ).count()
-        
-        total_needs = MarketplaceListing.objects.filter(
-            listing_type='need',
-            status__in=['available', 'pending']
-        ).count()
-        
-        # Count by category
-        by_category = MarketplaceCategory.objects.annotate(
-            count=Count('listings', filter=Q(listings__status__in=['available', 'pending']))
-        ).values('name', 'count')
-        
-        by_category_dict = {item['name']: item['count'] for item in by_category}
-        
-        # Get recent listings
-        recent_listings = MarketplaceListing.objects.filter(
-            status__in=['available', 'pending']
-        ).order_by('-posted_date')[:6]
-        
-        # Get featured listings
-        featured_listings = MarketplaceListing.objects.filter(
-            is_featured=True,
-            status__in=['available', 'pending']
-        ).order_by('-posted_date')[:3]
-        
-        stats = {
-            'total_listings': total_listings,
-            'active_listings': active_listings,
-            'total_products': total_products,
-            'total_services': total_services,
-            'total_needs': total_needs,
-            'by_category': by_category_dict,
-            'recent_listings': MarketplaceListingSerializer(
-                recent_listings, many=True, context={'request': request}
-            ).data,
-            'featured_listings': MarketplaceListingSerializer(
-                featured_listings, many=True, context={'request': request}
-            ).data,
-        }
-        
-        serializer = MarketplaceStatsSerializer(stats)
-        return Response(serializer.data)
+        try:
+            total_listings = MarketplaceListing.objects.count()
+            active_listings = MarketplaceListing.objects.filter(
+                status__in=['available', 'pending']
+            ).count()
+            
+            # Count by type
+            total_products = MarketplaceListing.objects.filter(
+                listing_type='product',
+                status__in=['available', 'pending']
+            ).count()
+            
+            total_services = MarketplaceListing.objects.filter(
+                listing_type='service',
+                status__in=['available', 'pending']
+            ).count()
+            
+            total_needs = MarketplaceListing.objects.filter(
+                listing_type='need',
+                status__in=['available', 'pending']
+            ).count()
+            
+            # Count by category - FIXED VERSION
+            from django.db.models import Count, Q
+            
+            categories = MarketplaceCategory.objects.filter(is_active=True)
+            by_category_dict = {}
+            
+            for category in categories:
+                count = MarketplaceListing.objects.filter(
+                    category=category,
+                    status__in=['available', 'pending']
+                ).count()
+                by_category_dict[category.name] = count
+            
+            # Get recent listings
+            recent_listings = MarketplaceListing.objects.filter(
+                status__in=['available', 'pending']
+            ).order_by('-posted_date')[:6]
+            
+            # Get featured listings
+            featured_listings = MarketplaceListing.objects.filter(
+                is_featured=True,
+                status__in=['available', 'pending']
+            ).order_by('-posted_date')[:3]
+            
+            # Prepare stats dictionary
+            stats_data = {
+                'total_listings': total_listings,
+                'active_listings': active_listings,
+                'total_products': total_products,
+                'total_services': total_services,
+                'total_needs': total_needs,
+                'by_category': by_category_dict,
+                'recent_listings': MarketplaceListingSerializer(
+                    recent_listings, many=True, context={'request': request}
+                ).data,
+                'featured_listings': MarketplaceListingSerializer(
+                    featured_listings, many=True, context={'request': request}
+                ).data,
+            }
+            
+            return Response(stats_data)
+        except Exception as e:
+            print(f"Error in stats endpoint: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class MarketplaceLikeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -293,13 +321,16 @@ class MarketplaceLikeViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MarketplaceLikeSerializer
     
+    # 👈 Add pagination for likes (if there could be many)
+    pagination_class = StandardResultsSetPagination
+    
     def get_queryset(self):
         """Get current partner's likes"""
         try:
             partner = self.request.user.partner_profile
             return MarketplaceLike.objects.filter(
                 partner=partner
-            ).select_related('listing')
+            ).select_related('listing').order_by('-created_at')
         except Partner.DoesNotExist:
             return MarketplaceLike.objects.none()
 
@@ -309,13 +340,16 @@ class MarketplaceSaveViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MarketplaceSaveSerializer
     
+    # 👈 Add pagination for saves
+    pagination_class = StandardResultsSetPagination
+    
     def get_queryset(self):
         """Get current partner's saves"""
         try:
             partner = self.request.user.partner_profile
             return MarketplaceSave.objects.filter(
                 partner=partner
-            ).select_related('listing')
+            ).select_related('listing').order_by('-created_at')
         except Partner.DoesNotExist:
             return MarketplaceSave.objects.none()
 
@@ -325,10 +359,13 @@ class MarketplaceInquiryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsPartnerOwnerOrAdmin]
     serializer_class = MarketplaceInquirySerializer
     
+    # 👈 Add pagination for inquiries
+    pagination_class = StandardResultsSetPagination
+    
     def get_queryset(self):
         """Filter inquiries based on user role"""
         if self.request.user.is_staff:
-            return MarketplaceInquiry.objects.all()
+            return MarketplaceInquiry.objects.all().order_by('-created_at')
         
         try:
             partner = self.request.user.partner_profile
@@ -336,7 +373,7 @@ class MarketplaceInquiryViewSet(viewsets.ModelViewSet):
             # Partners can see inquiries about their own listings AND their own inquiries
             return MarketplaceInquiry.objects.filter(
                 Q(listing__partner=partner) | Q(inquirer=partner)
-            ).select_related('listing', 'inquirer__user')
+            ).select_related('listing', 'inquirer__user').order_by('-created_at')
         except Partner.DoesNotExist:
             return MarketplaceInquiry.objects.none()
     
@@ -377,6 +414,9 @@ class MyListingsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MarketplaceListingSerializer
     
+    # 👈 Add pagination for my listings
+    pagination_class = StandardResultsSetPagination
+    
     def get_queryset(self):
         try:
             partner = self.request.user.partner_profile
@@ -388,11 +428,11 @@ class MyListingsView(generics.ListAPIView):
 
 
 class RecentListingsView(generics.ListAPIView):
-    """Get recent listings for dashboard"""
+    """Get recent listings for dashboard (limited, no pagination needed)"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MarketplaceListingSerializer
     
     def get_queryset(self):
         return MarketplaceListing.objects.filter(
             status__in=['available', 'pending']
-        ).order_by('-posted_date')[:6]
+        ).order_by('-posted_date')[:6]  # This is intentionally limited

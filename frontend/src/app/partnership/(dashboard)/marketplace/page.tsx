@@ -1,4 +1,5 @@
 // src/app/partnership/(dashboard)/marketplace/page.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,140 +18,227 @@ import {
   ChevronLeft,
   ChevronRight,
   Tag,
-  Users,
   Store,
-  Target,
   Trash2,
   Edit2,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../../../components/ui/card';
+import { Card, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Input } from '../../../components/ui/input';
 import { PostListingModal, type ListingFormData } from '../components/PostListingModal';
-import {
-  generateMarketplaceItems,
-  marketplaceCategories,
-  getMarketplaceTypeColor,
-  getMarketplaceStatusColor,
-  formatRelativeTime,
-  type MarketplaceItem,
-} from '../data/mockData';
-import Image from 'next/image';
+import { useMarketplace } from '../../../../hooks/useMarketplace';
+import { useAuth } from '../../../../contexts/AuthContext';
+import * as marketplaceService from '../../../../services/marketplace';
+
+// ========== STYLING HELPERS (from File 1) ==========
+const formatRelativeTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+// Color functions from File 1
+const getMarketplaceTypeColor = (type: string): string => {
+  const colors = {
+    product: 'bg-blue-100 text-blue-700',
+    service: 'bg-green-100 text-green-700',
+    need: 'bg-orange-100 text-orange-700',
+  };
+  return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-700';
+};
+
+const getMarketplaceStatusColor = (status: string): string => {
+  const colors = {
+    available: 'bg-green-100 text-green-700',
+    pending: 'bg-yellow-100 text-yellow-700',
+    sold: 'bg-gray-100 text-gray-700',
+    expired: 'bg-red-100 text-red-700',
+  };
+  return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-700';
+};
+
+// Contact icon from File 1
+const getContactIcon = (method: string) => {
+  switch (method) {
+    case 'phone':
+      return <Phone className="h-4 w-4" />;
+    case 'email':
+      return <Mail className="h-4 w-4" />;
+    case 'whatsapp':
+      return <MessageSquare className="h-4 w-4" />;
+    default:
+      return <MessageCircle className="h-4 w-4" />;
+  }
+};
+
+// ========== FUNCTIONALITY HELPERS (from File 2) ==========
+const formatCurrency = (amount: number, currency: string = 'UGX'): string => {
+  return new Intl.NumberFormat('en-UG', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const safeCurrency = (currency: string): 'UGX' | 'USD' | 'KES' | 'TZS' => {
+  const validCurrencies = ['UGX', 'USD', 'KES', 'TZS'];
+  return validCurrencies.includes(currency) ? (currency as any) : 'UGX';
+};
+
+const safeContactMethod = (method: string): 'whatsapp' | 'phone' | 'email' | 'in_app' => {
+  const validMethods = ['whatsapp', 'phone', 'email', 'in_app'];
+  return validMethods.includes(method) ? (method as any) : 'whatsapp';
+};
 
 export default function MarketplacePage() {
-  const [items, setItems] = useState<MarketplaceItem[]>([]);
-  const [filteredItems, setFilteredItems] = useState<MarketplaceItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const {
+    loading,
+    error,
+    listings,
+    categories,
+    stats,
+    paginatedData,
+    currentPage,
+    totalPages,
+    goToPage,
+    nextPage,
+    prevPage,
+    updateFilters,
+    refresh,
+  } = useMarketplace(6); // 6 items per page to match File 1's 2-column grid
+
+  // UI State (from File 1)
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [currentPage, setCurrentPage] = useState(0);
+  const [activeCategory, setActiveCategory] = useState<number | 'all'>('all');
+  const [activeType, setActiveType] = useState<string | 'all'>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
   const [editingListing, setEditingListing] = useState<ListingFormData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [likingId, setLikingId] = useState<number | null>(null);
 
-  const itemsPerPage = 6;
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  // Transform categories for the category buttons (from File 1 style)
+  const displayCategories = [
+    { id: 'all', name: 'All', count: paginatedData?.count || 0 },
+    ...categories.map((cat) => ({
+      id: cat.id.toString(),
+      name: cat.name,
+      count: stats?.by_category[cat.name] || 0,
+    })),
+  ];
 
-  // Load marketplace items
+  // Apply filters (from File 2)
   useEffect(() => {
-    const loadItems = () => {
-      setLoading(true);
-      setTimeout(() => {
-        const allItems = generateMarketplaceItems();
-        setItems(allItems);
-        setFilteredItems(allItems);
-        setLoading(false);
-      }, 800);
-    };
+    const filters: any = {};
 
-    loadItems();
-  }, []);
-
-  // Handle post listing submission
-  const handlePostListing = async (formData: ListingFormData) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    if (isEditing && editingListing) {
-      // Update existing listing
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === editingListing.id
-            ? {
-                ...item,
-                ...formData,
-                price: parseInt(formData.price),
-                tags: formData.tags
-                  .split(',')
-                  .map((tag) => tag.trim())
-                  .filter((tag) => tag),
-                postedDate: new Date().toISOString(),
-              }
-            : item
-        )
-      );
-      alert('Listing updated successfully!');
-    } else {
-      // Add new listing
-      const newListing: MarketplaceItem = {
-        id: `item-${Date.now()}`,
-        type: formData.type,
-        title: formData.title,
-        description: formData.description,
-        price: parseInt(formData.price),
-        currency: formData.currency,
-        category: formData.category,
-        postedBy: {
-          id: 'current-user',
-          name: 'You',
-          avatarColor: 'from-purple-600 to-purple-400',
-          community: 'working-class',
-          memberSince: '2024-01-01',
-        },
-        postedDate: new Date().toISOString(),
-        location: formData.location,
-        status: 'available',
-        tags: formData.tags
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter((tag) => tag),
-        contactMethod: formData.contactMethod,
-        imageUrl: formData.imageUrl || '',
-        views: 0,
-        likes: 0,
-        comments: 0,
-      };
-
-      setItems((prev) => [newListing, ...prev]);
-      alert('Listing posted successfully!');
+    if (searchQuery) {
+      filters.search = searchQuery;
     }
 
-    setEditingListing(null);
-    setIsEditing(false);
+    if (activeCategory !== 'all') {
+      filters.category = activeCategory;
+    }
+
+    if (activeType !== 'all') {
+      filters.type = activeType;
+    }
+
+    updateFilters(filters);
+  }, [searchQuery, activeCategory, activeType]);
+
+  // ========== FUNCTIONALITY HANDLERS (from File 2) ==========
+  const handleLike = async (id: number) => {
+    try {
+      setLikingId(id);
+      await marketplaceService.toggleLike(id);
+      refresh();
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    } finally {
+      setLikingId(null);
+    }
   };
 
-  // Handle edit button click
-  const handleEditClick = (item: MarketplaceItem) => {
+  const handleSave = async (id: number) => {
+    try {
+      await marketplaceService.toggleSave(id);
+      refresh();
+    } catch (err) {
+      console.error('Error toggling save:', err);
+    }
+  };
+
+  const handlePostListing = async (formData: ListingFormData) => {
+    try {
+      if (isEditing && editingListing?.id) {
+        await marketplaceService.updateListing(parseInt(editingListing.id as string), {
+          title: formData.title,
+          description: formData.description,
+          listing_type: formData.type,
+          category: parseInt(formData.category),
+          price: parseFloat(formData.price),
+          currency: formData.currency,
+          location: formData.location,
+          contact_method: formData.contactMethod,
+          tags: formData.tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => t),
+        });
+      } else {
+        await marketplaceService.createListing({
+          title: formData.title,
+          description: formData.description,
+          listing_type: formData.type,
+          category: parseInt(formData.category),
+          price: parseFloat(formData.price),
+          currency: formData.currency,
+          location: formData.location,
+          contact_method: formData.contactMethod,
+          tags: formData.tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => t),
+        });
+      }
+
+      refresh();
+      setShowPostModal(false);
+      setEditingListing(null);
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Error posting listing:', err);
+      alert(err instanceof Error ? err.message : 'Failed to post listing');
+    }
+  };
+
+  const handleEditClick = (item: marketplaceService.MarketplaceListing) => {
+    const category = categories.find((c) => c.name === item.category_name);
+
     const formData: ListingFormData = {
-      id: item.id,
-      type: item.type,
+      id: item.id.toString(),
+      type: item.listing_type,
       title: item.title,
       description: item.description,
       price: item.price.toString(),
-      currency: item.currency,
-      category: item.category,
+      currency: safeCurrency(item.currency),
+      category: category?.id.toString() || '',
       location: item.location,
-      contactMethod: item.contactMethod,
+      contactMethod: safeContactMethod(item.contact_method),
       tags: item.tags.join(', '),
-      imageUrl: item.imageUrl,
+      imageUrl: item.image_url,
     };
 
     setEditingListing(formData);
@@ -158,95 +246,55 @@ export default function MarketplacePage() {
     setShowPostModal(true);
   };
 
-  // Handle new listing button click
-  const handleNewListingClick = () => {
-    setEditingListing(null);
-    setIsEditing(false);
-    setShowPostModal(true);
-  };
-
-  // Handle delete listing
-  const handleDeleteListing = async (itemId: string) => {
+  const handleDeleteListing = async (id: number) => {
     if (confirm('Are you sure you want to delete this listing?')) {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setItems((prev) => prev.filter((item) => item.id !== itemId));
-      alert('Listing deleted successfully!');
-    }
-  };
-
-  // Apply filters when search or category changes
-  useEffect(() => {
-    let filtered = [...items];
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (item) =>
-          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          item.location.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply category filter
-    if (activeCategory !== 'all') {
-      const category = marketplaceCategories.find((c) => c.id === activeCategory);
-      if (category) {
-        if (
-          category.type === 'product' ||
-          category.type === 'service' ||
-          category.type === 'need'
-        ) {
-          filtered = filtered.filter((item) => item.type === category.type);
-        } else {
-          filtered = filtered.filter((item) => item.category === category.name);
-        }
+      try {
+        await marketplaceService.deleteListing(id);
+        refresh();
+      } catch (err) {
+        console.error('Error deleting listing:', err);
+        alert('Failed to delete listing');
       }
     }
-
-    setFilteredItems(filtered);
-    setCurrentPage(0); // Reset to first page when filters change
-  }, [searchQuery, activeCategory, items]);
-
-  // Get current page items
-  const getCurrentItems = () => {
-    const startIndex = currentPage * itemsPerPage;
-    return filteredItems.slice(startIndex, startIndex + itemsPerPage);
   };
 
-  // Pagination handlers
-  const nextPage = () => {
-    setCurrentPage((prev) => (prev + 1) % totalPages);
-  };
+  // ========== LOADING & ERROR STATES ==========
+  if (loading && !listings.length) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading marketplace...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const prevPage = () => {
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-  };
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div className="flex items-center space-x-3">
+          <AlertCircle className="h-6 w-6 text-red-600" />
+          <div>
+            <h3 className="font-semibold text-red-800">Unable to Load Marketplace</h3>
+            <p className="text-red-700 mt-1">{error}</p>
+            <Button
+              onClick={refresh}
+              variant="outline"
+              className="mt-4 border-red-300 text-red-700 hover:bg-red-100"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  // Contact icon based on method
-  const getContactIcon = (method: MarketplaceItem['contactMethod']) => {
-    switch (method) {
-      case 'phone':
-        return <Phone className="h-4 w-4" />;
-      case 'email':
-        return <Mail className="h-4 w-4" />;
-      case 'whatsapp':
-        return <MessageSquare className="h-4 w-4" />;
-      default:
-        return <MessageCircle className="h-4 w-4" />;
-    }
-  };
-
+  // ========== RENDER (File 1 styling + File 2 data) ==========
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header - File 1 style */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">Partner Marketplace</h1>
@@ -254,14 +302,18 @@ export default function MarketplacePage() {
 
         <Button
           className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828] w-full sm:w-auto"
-          onClick={handleNewListingClick}
+          onClick={() => {
+            setEditingListing(null);
+            setIsEditing(false);
+            setShowPostModal(true);
+          }}
         >
           <Plus className="h-4 w-4 mr-2" />
           Post Listing
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Guidelines - File 1 style */}
       <div className="flex-1">
         <p className="text-gray-600">
           This marketplace is exclusively for partners to buy, sell, or request products and
@@ -288,7 +340,7 @@ export default function MarketplacePage() {
         </ul>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search and Filters - File 1 style with File 2 data */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col lg:flex-row gap-4">
@@ -314,24 +366,23 @@ export default function MarketplacePage() {
             </Button>
           </div>
 
-          {/* Category Filters */}
+          {/* Category Filters - File 1 style with real data */}
           <div className="mt-6">
             <div className="flex items-center mb-3">
               <Tag className="h-4 w-4 text-gray-500 mr-2" />
               <h3 className="text-sm font-medium text-gray-700">Categories</h3>
             </div>
             <div className="flex flex-wrap gap-2">
-              {marketplaceCategories.map((category) => (
+              {displayCategories.map((category) => (
                 <button
                   key={category.id}
-                  onClick={() => setActiveCategory(category.id)}
+                  onClick={() => setActiveCategory(category.id as any)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center ${
                     activeCategory === category.id
                       ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <span className="mr-2">{category.icon}</span>
                   {category.name}
                   <span className="ml-2 text-xs opacity-80">({category.count})</span>
                 </button>
@@ -341,7 +392,7 @@ export default function MarketplacePage() {
         </CardContent>
       </Card>
 
-      {/* Marketplace Listings */}
+      {/* Listings Grid - File 1 compact style with File 2 data */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -349,32 +400,15 @@ export default function MarketplacePage() {
             <p className="text-gray-600 mt-1">
               {activeCategory === 'all'
                 ? 'All partner listings'
-                : `${marketplaceCategories.find((c) => c.id === activeCategory)?.name} in the community`}
+                : `${categories.find((c) => c.id === activeCategory)?.name || ''} in the community`}
             </p>
           </div>
           <div className="text-sm text-gray-500">
-            Showing {getCurrentItems().length} of {filteredItems.length} listings
+            Showing {listings.length} of {paginatedData?.count || 0} listings
           </div>
         </div>
 
-        {/* Listings Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[...Array(4)].map((_, index) => (
-              <Card key={index} className="animate-pulse">
-                <CardHeader className="pb-4">
-                  <div className="h-6 bg-gray-200 rounded mb-2 w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2 w-2/3"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : getCurrentItems().length === 0 ? (
+        {listings.length === 0 ? (
           <Card className="text-center py-12">
             <Store className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900">No listings found</h3>
@@ -386,6 +420,7 @@ export default function MarketplacePage() {
               onClick={() => {
                 setSearchQuery('');
                 setActiveCategory('all');
+                setActiveType('all');
               }}
             >
               Clear filters
@@ -393,20 +428,19 @@ export default function MarketplacePage() {
           </Card>
         ) : (
           <>
+            {/* 2-column grid - File 1 style */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {getCurrentItems().map((item) => {
-                const typeColor = getMarketplaceTypeColor(item.type);
-                const statusColor = getMarketplaceStatusColor(item.status);
+              {listings.map((item) => {
+                const typeColor = getMarketplaceTypeColor(item.listing_type);
+                const isOwner = item.partner_name === `${user?.firstName} ${user?.lastName}`;
 
                 return (
                   <Card key={item.id} className="hover:shadow-lg transition-shadow overflow-hidden">
-                    {/* Remove top border indicator if you want even more compact */}
-
-                    {/* Image - Very compact */}
+                    {/* Image - Compact height from File 1 */}
                     <div className="relative h-28 overflow-hidden bg-gray-100">
-                      {item.imageUrl ? (
+                      {item.image_url ? (
                         <img
-                          src={item.imageUrl}
+                          src={item.image_url}
                           alt={item.title}
                           className="w-full h-full object-cover"
                         />
@@ -417,20 +451,20 @@ export default function MarketplacePage() {
                       )}
                     </div>
 
-                    {/* Content - Very compact */}
+                    {/* Content - Compact spacing from File 1 */}
                     <div className="p-3 space-y-2">
-                      {/* Title only */}
+                      {/* Title */}
                       <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
                         {item.title}
                       </h3>
 
-                      {/* Price, Location, and Date in one line */}
+                      {/* Price and Location - One line from File 1 */}
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-baseline">
                           <span className="font-bold text-gray-900">
-                            {item.currency} {item.price.toLocaleString()}
+                            {formatCurrency(parseFloat(item.price), item.currency)}
                           </span>
-                          {item.type === 'service' && (
+                          {item.listing_type === 'service' && (
                             <span className="text-gray-500 ml-1">/proj</span>
                           )}
                         </div>
@@ -440,32 +474,48 @@ export default function MarketplacePage() {
                         </div>
                       </div>
 
-                      {/* Description - Very short */}
+                      {/* Description */}
                       <p className="text-xs text-gray-600 line-clamp-2">{item.description}</p>
 
-                      {/* Posted By and Contact - Compact single line */}
+                      {/* Views & Likes - From File 2 */}
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center space-x-2">
+                          <Eye className="h-3 w-3" />
+                          <span>{item.views_count}</span>
+                        </div>
+                        <button
+                          onClick={() => handleLike(item.id)}
+                          disabled={likingId === item.id}
+                          className="flex items-center space-x-1 hover:text-red-500 transition-colors"
+                        >
+                          <Heart
+                            className={`h-3 w-3 ${item.is_liked ? 'fill-red-500 text-red-500' : ''}`}
+                          />
+                          <span>{item.likes_count}</span>
+                        </button>
+                      </div>
+
+                      {/* Posted By and Contact - Compact single line from File 1 */}
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                         <div className="flex items-center min-w-0">
-                          <div
-                            className={`h-6 w-6 rounded-full ${item.postedBy.avatarColor} flex items-center justify-center text-white text-xs font-bold mr-2 flex-shrink-0`}
-                          >
-                            {item.postedBy.name
+                          <div className="h-6 w-6 rounded-full bg-gradient-to-r from-purple-600 to-purple-400 flex items-center justify-center text-white text-xs font-bold mr-2 flex-shrink-0">
+                            {item.partner_name
                               .split(' ')
                               .map((n) => n[0])
                               .join('')}
                           </div>
                           <p className="text-xs text-gray-700 truncate max-w-[100px]">
-                            {item.postedBy.name}
+                            {item.partner_name}
                           </p>
                         </div>
 
                         <div className="flex items-center text-xs text-gray-500">
                           <Clock className="h-3 w-3 mr-1" />
-                          <span>{formatRelativeTime(item.postedDate)}</span>
+                          <span>{formatRelativeTime(item.posted_date)}</span>
                         </div>
+
                         <div className="flex items-center space-x-1">
-                          {/* Show edit/delete only for current user's listings */}
-                          {item.postedBy.id === 'current-user' ? (
+                          {isOwner ? (
                             <>
                               <button
                                 onClick={() => handleEditClick(item)}
@@ -483,12 +533,23 @@ export default function MarketplacePage() {
                               </button>
                             </>
                           ) : (
-                            <button
+                            <a
+                              href={
+                                item.contact_method === 'whatsapp'
+                                  ? `https://wa.me/${item.contact_info.replace(/[^0-9]/g, '')}`
+                                  : item.contact_method === 'phone'
+                                    ? `tel:${item.contact_info}`
+                                    : item.contact_method === 'email'
+                                      ? `mailto:${item.contact_info}`
+                                      : '#'
+                              }
+                              target={item.contact_method === 'whatsapp' ? '_blank' : '_self'}
+                              rel="noopener noreferrer"
                               className="p-2 text-gray-400 hover:text-blue-500 transition-colors hover:bg-blue-50 rounded-lg flex-shrink-0"
-                              title={`Contact via ${item.contactMethod}`}
+                              title={`Contact via ${item.contact_method}`}
                             >
-                              {getContactIcon(item.contactMethod)}
-                            </button>
+                              {getContactIcon(item.contact_method)}
+                            </a>
                           )}
                         </div>
                       </div>
@@ -498,21 +559,21 @@ export default function MarketplacePage() {
               })}
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination - File 1 style with File 2 logic */}
             {totalPages > 1 && (
               <div className="pt-6 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm text-gray-500">
-                    Showing {currentPage * itemsPerPage + 1} -{' '}
-                    {Math.min((currentPage + 1) * itemsPerPage, filteredItems.length)} of{' '}
-                    {filteredItems.length} listings
+                    Showing {(currentPage - 1) * 6 + 1} -{' '}
+                    {Math.min(currentPage * 6, paginatedData?.count || 0)} of {paginatedData?.count}{' '}
+                    listings
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <Button
                     onClick={prevPage}
-                    disabled={currentPage === 0}
+                    disabled={!paginatedData?.previous}
                     variant="outline"
                     className="border-gray-300"
                   >
@@ -521,24 +582,37 @@ export default function MarketplacePage() {
                   </Button>
 
                   <div className="flex items-center space-x-2">
-                    {Array.from({ length: totalPages }, (_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => goToPage(i)}
-                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                          currentPage === i
-                            ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      let pageNum: number;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => goToPage(pageNum)}
+                          className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                            currentPage === pageNum
+                              ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
                   </div>
 
                   <Button
                     onClick={nextPage}
-                    disabled={currentPage === totalPages - 1}
+                    disabled={!paginatedData?.next}
                     variant="outline"
                     className="border-gray-300"
                   >
@@ -551,6 +625,8 @@ export default function MarketplacePage() {
           </>
         )}
       </div>
+
+      {/* Post Listing Modal */}
       <PostListingModal
         isOpen={showPostModal}
         onClose={() => {
@@ -561,6 +637,7 @@ export default function MarketplacePage() {
         onSubmit={handlePostListing}
         initialData={editingListing}
         isEditing={isEditing}
+        categories={categories}
       />
     </div>
   );
