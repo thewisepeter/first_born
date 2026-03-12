@@ -4,7 +4,7 @@ from .models import Audio, Video
 
 class AudioAdmin(admin.ModelAdmin):
     # Only show these fields in the form
-    fields = ('title', 'date', 'active', 'description', 'original_url')
+    fields = ('title', 'date', 'active', 'category', 'description', 'original_url')
 
     # If you want some fields readonly, add them here
     readonly_fields = ('date', 'speaker')  # optional

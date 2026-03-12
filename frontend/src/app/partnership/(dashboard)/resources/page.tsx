@@ -1,61 +1,53 @@
 // src/app/partnership/(dashboard)/resources/page.tsx
+
 'use client';
 
 import { useAuth } from '../../../../contexts/AuthContext';
-import { useState, useEffect } from 'react';
-import { Play, Headphones, FileText } from 'lucide-react';
+import { Play, Headphones, FileText, AlertCircle, Loader2 } from 'lucide-react';
 import { DashboardSkeleton } from '../components/Skeletons';
 import { VideoResourceCard } from '../components/VideoResourceCard';
 import { AudioResourceCard } from '../components/AudioResourceCard';
 import { ArticleResourceCard } from '../components/ArticleResourceCard';
-import {
-  generateResourcesData,
-  type Resource,
-  type VideoResource,
-  type AudioResource,
-  type ArticleResource,
-} from '../data/mockData';
+import { useResources } from '../../../../hooks/useResources';
+import { Button } from '../../../components/ui/button';
 
 export default function ResourcesPage() {
   const { user, isLoading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [allResources, setAllResources] = useState<Resource[]>([]);
-  const [videos, setVideos] = useState<VideoResource[]>([]);
-  const [audios, setAudios] = useState<AudioResource[]>([]);
-  const [articles, setArticles] = useState<ArticleResource[]>([]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const loadData = () => {
-      setLoading(true);
-      setTimeout(() => {
-        const data = generateResourcesData();
-        setAllResources(data);
-
-        // Filter by type
-        const videoResources = data.filter(
-          (resource) => resource.type === 'video'
-        ) as VideoResource[];
-        const audioResources = data.filter(
-          (resource) => resource.type === 'audio'
-        ) as AudioResource[];
-        const articleResources = data.filter(
-          (resource) => resource.type === 'article'
-        ) as ArticleResource[];
-
-        setVideos(videoResources);
-        setAudios(audioResources);
-        setArticles(articleResources);
-        setLoading(false);
-      }, 800);
-    };
-
-    loadData();
-  }, [user]);
+  const {
+    loading,
+    error,
+    videos,
+    audios,
+    articles,
+    videosCount,
+    audiosCount,
+    articlesCount,
+    refresh,
+  } = useResources();
 
   if (authLoading || loading) return <DashboardSkeleton />;
   if (!user) return null;
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div className="flex items-center space-x-3">
+          <AlertCircle className="h-6 w-6 text-red-600" />
+          <div>
+            <h3 className="font-semibold text-red-800">Unable to Load Resources</h3>
+            <p className="text-red-700 mt-1">{error}</p>
+            <Button
+              onClick={refresh}
+              variant="outline"
+              className="mt-4 border-red-300 text-red-700 hover:bg-red-100"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -70,36 +62,73 @@ export default function ResourcesPage() {
               Access videos, audio messages, and articles to strengthen your partnership journey
             </p>
           </div>
+
+          {/* Optional stats */}
+          <div className="flex gap-4">
+            <div className="bg-white p-3 rounded-lg border shadow-sm text-center min-w-[80px]">
+              <Play className="h-5 w-5 text-purple-600 mx-auto mb-1" />
+              <div className="text-xl font-bold text-gray-900">{videosCount}</div>
+              <div className="text-xs text-gray-500">Videos</div>
+            </div>
+            <div className="bg-white p-3 rounded-lg border shadow-sm text-center min-w-[80px]">
+              <Headphones className="h-5 w-5 text-blue-600 mx-auto mb-1" />
+              <div className="text-xl font-bold text-gray-900">{audiosCount}</div>
+              <div className="text-xs text-gray-500">Audios</div>
+            </div>
+            <div className="bg-white p-3 rounded-lg border shadow-sm text-center min-w-[80px]">
+              <FileText className="h-5 w-5 text-green-600 mx-auto mb-1" />
+              <div className="text-xl font-bold text-gray-900">{articlesCount}</div>
+              <div className="text-xs text-gray-500">Articles</div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main Content - Three Separate Resource Cards */}
       <div className="space-y-8">
         {/* Video Resources Card */}
-        {videos.length > 0 && (
+        {videos.length > 0 ? (
           <VideoResourceCard
             title="Video Teachings"
             description="Watch prophetic messages, teachings, and ministry updates from Prophet Namara"
             videos={videos}
           />
+        ) : (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+            <Play className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900">No Videos Available</h3>
+            <p className="text-gray-500 mt-1">Check back later for new video content</p>
+          </div>
         )}
 
         {/* Audio Resources Card */}
-        {audios.length > 0 && (
+        {audios.length > 0 ? (
           <AudioResourceCard
             title="Audio Messages"
             description="Listen to prayers, prophetic words, and audio teachings on the go"
             audios={audios}
           />
+        ) : (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+            <Headphones className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900">No Audio Available</h3>
+            <p className="text-gray-500 mt-1">Check back later for new audio messages</p>
+          </div>
         )}
 
         {/* Article Resources Card */}
-        {articles.length > 0 && (
+        {articles.length > 0 ? (
           <ArticleResourceCard
             title="Articles & Teachings"
             description="Read testimonies, teachings, and insights for deeper study and reflection"
             articles={articles}
           />
+        ) : (
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900">No Articles Available</h3>
+            <p className="text-gray-500 mt-1">Check back later for new articles and teachings</p>
+          </div>
         )}
       </div>
 

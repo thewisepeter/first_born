@@ -1,3 +1,5 @@
+# blog/serializer.py
+
 from rest_framework import serializers
 from .models import BlogPost, Article, Testimony, HeroSlide
 import re

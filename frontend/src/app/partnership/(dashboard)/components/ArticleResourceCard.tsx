@@ -13,7 +13,7 @@ import {
   X,
   ArrowLeft,
 } from 'lucide-react';
-import { ArticleResource } from '../data/mockData';
+import { ArticleResource } from '../../../../services/resources';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Dialog, DialogContent } from '../../../components/ui/dialog';
@@ -135,7 +135,7 @@ export function ArticleResourceCard({ title, description, articles }: ArticleRes
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{article.title}</h3>
                 <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                  {article.excerpt || article.description}
+                  {article.excerpt || article.excerpt}
                 </p>
 
                 {/* Tags */}
@@ -297,11 +297,16 @@ export function ArticleResourceCard({ title, description, articles }: ArticleRes
                 {/* Scrollable Content Container */}
                 <div className="flex-1 overflow-y-auto" ref={contentRef}>
                   {/* Hero Image (if available) */}
-                  {selectedArticle.image && (
+                  {selectedArticle.featured_image && (
                     <div className="relative h-64 md:h-72 bg-gradient-to-br from-green-50 to-green-100">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <FileText className="h-32 w-32 text-green-300" />
-                      </div>
+                      <img
+                        src={selectedArticle.featured_image}
+                        alt={selectedArticle.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
                     </div>
                   )}
@@ -322,32 +327,14 @@ export function ArticleResourceCard({ title, description, articles }: ArticleRes
                         <span>{selectedArticle.author}</span>
                       </div>
                       <span>•</span>
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>{formatDate(selectedArticle.publishDate)}</span>
-                      </div>
-                      <span>•</span>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2" />
-                        <span>{selectedArticle.readTime || '5 min read'}</span>
-                      </div>
                     </div>
-
-                    {/* Excerpt */}
-                    {selectedArticle.excerpt && (
-                      <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-8 rounded-r">
-                        <p className="text-green-800 font-medium italic">
-                          {selectedArticle.excerpt}
-                        </p>
-                      </div>
-                    )}
 
                     {/* Main Content */}
                     <article className="prose prose-lg max-w-none">
                       <div className="text-gray-700 leading-relaxed space-y-6">
                         {(() => {
                           const paragraphs = formatContent(
-                            selectedArticle.content || selectedArticle.description
+                            selectedArticle.content || selectedArticle.excerpt
                           );
                           return paragraphs.map((paragraph, index) => (
                             <p key={index}>{paragraph}</p>

@@ -13,7 +13,7 @@ import {
   Heart,
   Users,
 } from 'lucide-react';
-import { VideoResource } from '../data/mockData';
+import { VideoResource } from '../../../../services/resources';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Dialog, DialogContent } from '../../../components/ui/dialog';
@@ -41,11 +41,11 @@ export function VideoResourceCard({ title, description, videos }: VideoResourceC
   const prevPage = () => currentPage > 0 && setCurrentPage((prev) => prev - 1);
   const goToPage = (page: number) => setCurrentPage(page);
 
-  const formatDuration = (minutes: number) => {
-    if (minutes < 60) return `${minutes} min`;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins > 0 ? `${mins}m` : ''}`.trim();
+  // For duration display:
+  const formatDuration = (duration?: string) => {
+    if (!duration) return '5 min';
+    // Parse duration string from API if needed
+    return duration;
   };
 
   const formatDate = (dateString: string) => {
@@ -60,7 +60,7 @@ export function VideoResourceCard({ title, description, videos }: VideoResourceC
     if (video.embed_id) {
       return `https://img.youtube.com/vi/${video.embed_id}/maxresdefault.jpg`;
     }
-    return '';
+    return video.thumbnail_url || '';
   };
 
   const openVideoModal = (video: VideoResource) => {

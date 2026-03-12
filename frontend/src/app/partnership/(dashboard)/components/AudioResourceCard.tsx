@@ -13,7 +13,7 @@ import {
   Play,
   Pause,
 } from 'lucide-react';
-import { AudioResource } from '../data/mockData';
+import { AudioResource } from '../../../../services/resources';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Dialog, DialogContent } from '../../../components/ui/dialog';
@@ -44,11 +44,20 @@ export function AudioResourceCard({ title, description, audios }: AudioResourceC
   const prevPage = () => currentPage > 0 && setCurrentPage((prev) => prev - 1);
   const goToPage = (page: number) => setCurrentPage(page);
 
-  const formatDuration = (minutes: number) => {
-    if (minutes < 60) return `${minutes} min`;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins > 0 ? `${mins}m` : ''}`.trim();
+  // Format duration from API (might be in seconds or minutes)
+  const formatDuration = (duration?: string) => {
+    if (!duration) return '5 min';
+
+    // If duration is in seconds, convert to minutes
+    if (!isNaN(Number(duration))) {
+      const minutes = Math.floor(Number(duration) / 60);
+      if (minutes < 60) return `${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `${hours}h ${mins > 0 ? `${mins}m` : ''}`.trim();
+    }
+
+    return duration;
   };
 
   const formatDate = (dateString: string) => {
@@ -239,9 +248,7 @@ export function AudioResourceCard({ title, description, audios }: AudioResourceC
 
                     {/* Hidden audio element */}
                     <audio ref={audioRef} onEnded={() => setIsPlaying(false)} className="hidden">
-                      {selectedAudio.driveUrl && (
-                        <source src={selectedAudio.driveUrl} type="audio/mpeg" />
-                      )}
+                      <source src={selectedAudio.audio_url} type="audio/mpeg" />
                       Your browser does not support the audio element.
                     </audio>
                   </div>
