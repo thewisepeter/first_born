@@ -31,6 +31,16 @@ interface User {
   };
 }
 
+interface UpdateProfileData {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  organization?: string;
+  partnerType?: 'individual' | 'company';
+}
+
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 interface AuthContextType {
@@ -42,6 +52,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   register: (userData: RegisterData) => Promise<{ success: boolean; error?: string }>;
   checkAuth: () => Promise<void>;
+  updateProfile: (data: UpdateProfileData) => Promise<{ success: boolean; error?: string }>;
 }
 
 interface RegisterData {
@@ -150,6 +161,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateProfile = async (
+    data: UpdateProfileData
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Get the current user's partner ID
+      const partnerId = user?.partner_profile?.id;
+
+      if (!partnerId) {
+        return { success: false, error: 'Partner profile not found' };
+      }
+
+      const response = await fetch(`/api/partners/profile/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, error: error.error || 'Failed to update profile' };
+      }
+
+      const updatedProfile = await response.json();
+
+      // Update the user state with new data
+      if (user && user.partner_profile) {
+        setUser({
+          ...user,
+          firstName: updatedProfile.first_name || user.firstName,
+          lastName: updatedProfile.last_name || user.lastName,
+          phone: updatedProfile.phone || user.phone,
+          partnerType: updatedProfile.partner_type || user.partnerType,
+          community: updatedProfile.community || user.community,
+          partner_profile: {
+            ...user.partner_profile,
+            ...updatedProfile,
+          },
+        });
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Update profile error:', error);
+      return { success: false, error: 'Network error' };
+    }
+  };
+
   /**
    * TEMPORARY
    * This will be replaced by "request partnership" flow
@@ -185,6 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         register,
         checkAuth,
+        updateProfile,
       }}
     >
       {children}

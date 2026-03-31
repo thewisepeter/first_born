@@ -1,5 +1,5 @@
-# weekly_budget/views.py
 from rest_framework import viewsets, generics, status, permissions
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -21,6 +21,15 @@ from .serializers import (
 )
 
 
+# Pagination Class
+class StandardResultsSetPagination(PageNumberPagination):
+    """Standard pagination for weekly budget endpoints"""
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+    page_query_param = 'page'
+
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Permission: Admin can do everything, others can only read"""
     def has_permission(self, request, view):
@@ -34,6 +43,7 @@ class BudgetCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = BudgetCategory.objects.filter(is_active=True)
     serializer_class = BudgetCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = StandardResultsSetPagination  # Add pagination
 
 
 class WeeklyBudgetViewSet(viewsets.ModelViewSet):
@@ -42,25 +52,17 @@ class WeeklyBudgetViewSet(viewsets.ModelViewSet):
     Admin can create/edit, all partners can view.
     """
     permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
+    pagination_class = StandardResultsSetPagination  # Add pagination
+    filter_backends = []  # You can add DjangoFilterBackend if needed
     
     def get_queryset(self):
         """Get budgets based on filters"""
-        queryset = WeeklyBudget.objects.filter(is_published=True)
+        queryset = WeeklyBudget.objects.filter(is_published=True).select_related('created_by').prefetch_related('breakdown_items')
         
         # Filter by status
         status_filter = self.request.query_params.get('status', None)
         if status_filter:
             queryset = queryset.filter(status=status_filter)
-        
-        # Filter by year
-        year_filter = self.request.query_params.get('year', None)
-        if year_filter:
-            queryset = queryset.filter(year=year_filter)
-        
-        # Filter by week
-        week_filter = self.request.query_params.get('week', None)
-        if week_filter:
-            queryset = queryset.filter(week_number=week_filter)
         
         # Filter by date range
         start_date = self.request.query_params.get('start_date', None)
@@ -70,7 +72,7 @@ class WeeklyBudgetViewSet(viewsets.ModelViewSet):
         if end_date:
             queryset = queryset.filter(end_date__lte=end_date)
         
-        return queryset.select_related('created_by').prefetch_related('breakdown_items')
+        return queryset.order_by('-start_date')  # Order by start_date descending
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -131,39 +133,43 @@ class WeeklyBudgetViewSet(viewsets.ModelViewSet):
         
         # Year-to-date totals
         year_start = date(today.year, 1, 1)
-        ytd_totals = WeeklyBudget.objects.filter(
+        ytd_budgets = WeeklyBudget.objects.filter(
             start_date__gte=year_start,
             is_published=True
-        ).aggregate(
+        )
+        
+        ytd_totals = ytd_budgets.aggregate(
             total_target=Sum('target_amount'),
             total_raised=Sum('current_amount'),
             total_budgets=Count('id')
         )
         
         # Weekly averages
-        weekly_average = WeeklyBudget.objects.filter(
-            start_date__gte=year_start,
-            is_published=True
-        ).aggregate(
-            avg_target=Sum('target_amount') / Count('id'),
-            avg_raised=Sum('current_amount') / Count('id')
-        )
+        budgets_count = ytd_budgets.count()
+        if budgets_count > 0:
+            weekly_averages = {
+                'avg_target': (ytd_totals['total_target'] or 0) / budgets_count,
+                'avg_raised': (ytd_totals['total_raised'] or 0) / budgets_count,
+            }
+        else:
+            weekly_averages = {
+                'avg_target': 0,
+                'avg_raised': 0,
+            }
         
-        stats = {
+        stats_data = {
             'current_week': CurrentWeeklyBudgetSerializer(current_budget).data if current_budget else None,
             'previous_week': WeeklyBudgetSerializer(previous_budget).data if previous_budget else None,
             'year_to_date': {
                 'total_target': ytd_totals['total_target'] or 0,
                 'total_raised': ytd_totals['total_raised'] or 0,
                 'total_budgets': ytd_totals['total_budgets'] or 0,
+                'progress_percentage': ((ytd_totals['total_raised'] or 0) / (ytd_totals['total_target'] or 1)) * 100
             },
-            'weekly_averages': {
-                'avg_target': weekly_average['avg_target'] or 0,
-                'avg_raised': weekly_average['avg_raised'] or 0,
-            }
+            'weekly_averages': weekly_averages
         }
         
-        return Response(stats)
+        return Response(stats_data)
     
     @action(detail=True, methods=['post'])
     def contribute(self, request, pk=None):
@@ -210,6 +216,7 @@ class BudgetContributionViewSet(viewsets.ModelViewSet):
     """ViewSet for budget contributions"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = BudgetContributionSerializer
+    pagination_class = StandardResultsSetPagination  # Add pagination
     
     def get_queryset(self):
         """Get current partner's contributions"""
@@ -270,8 +277,8 @@ class WeeklyBudgetStatsView(generics.RetrieveAPIView):
         # Get current week's budget
         try:
             weekly_budget = WeeklyBudget.objects.get(
-                year=year,
-                week_number=week_number,
+                start_date__year=year,
+                start_date__week=week_number,
                 is_published=True
             )
             
@@ -296,20 +303,19 @@ class WeeklyBudgetStatsView(generics.RetrieveAPIView):
             
             # Previous week comparison
             last_week_start = date.today() - timedelta(days=7)
-            last_year, last_week, _ = last_week_start.isocalendar()
+            last_week_budget = WeeklyBudget.objects.filter(
+                start_date__lte=last_week_start,
+                end_date__gte=last_week_start,
+                is_published=True
+            ).first()
             
-            try:
-                last_week_budget = WeeklyBudget.objects.get(
-                    year=last_year,
-                    week_number=last_week,
-                    is_published=True
-                )
+            if last_week_budget:
                 stats.previous_week_total = last_week_budget.current_amount
                 if last_week_budget.current_amount > 0:
                     week_change = ((weekly_budget.current_amount - last_week_budget.current_amount) / 
                                   last_week_budget.current_amount) * 100
                     stats.week_over_week_change = week_change
-            except WeeklyBudget.DoesNotExist:
+            else:
                 stats.previous_week_total = 0
                 stats.week_over_week_change = 0
             

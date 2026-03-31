@@ -18,8 +18,6 @@ class WeeklyBudget(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('completed', 'Completed'),
-        ('upcoming', 'Upcoming'),
-        ('cancelled', 'Cancelled'),
     ]
     
     # Identification
@@ -32,8 +30,6 @@ class WeeklyBudget(models.Model):
     title = models.CharField(max_length=200, default="Ministry Weekly Budget")
     
     # Week Information
-    year = models.IntegerField()
-    week_number = models.IntegerField()  # ISO week number
     start_date = models.DateField()
     end_date = models.DateField()
     
@@ -53,10 +49,6 @@ class WeeklyBudget(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     is_published = models.BooleanField(default=True)
     
-    # Notes & Description
-    description = models.TextField(blank=True)
-    notes = models.TextField(blank=True)
-    
     # Created by admin
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -68,28 +60,45 @@ class WeeklyBudget(models.Model):
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    published_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
-        ordering = ['-year', '-week_number']
-        unique_together = ['year', 'week_number']
+        ordering = ['-start_date']
         verbose_name = 'Weekly Budget'
         verbose_name_plural = 'Weekly Budgets'
     
     def __str__(self):
-        return f"Week {self.week_number}, {self.year} - {self.budget_id}"
+        return f"{self.title} - {self.start_date} to {self.end_date}"
+    
+    def save(self, *args, **kwargs):
+        """Auto-calculate end_date from start_date if not provided"""
+        # If end_date is not set, set it to 7 days after start_date
+        if not self.end_date and self.start_date:
+            from datetime import timedelta
+            self.end_date = self.start_date + timedelta(days=6)  # Monday to Sunday (6 days later)
+        
+        # Also ensure end_date is 6 days after start_date if it's manually set incorrectly
+        if self.start_date and self.end_date:
+            from datetime import timedelta
+            expected_end = self.start_date + timedelta(days=6)
+            if self.end_date != expected_end:
+                self.end_date = expected_end
+        
+        super().save(*args, **kwargs)
     
     @property
     def balance(self):
         """Calculate remaining balance"""
-        return max(self.target_amount - self.current_amount, Decimal('0.00'))
+        target = self.target_amount or Decimal('0.00')
+        current = self.current_amount or Decimal('0.00')
+        return max(target - current, Decimal('0.00'))
     
     @property
     def progress_percentage(self):
         """Calculate progress percentage"""
-        if self.target_amount == 0:
+        target = self.target_amount or Decimal('0.00')
+        if target == 0:
             return 0
-        percentage = (self.current_amount / self.target_amount) * 100
+        percentage = (self.current_amount / target) * 100
         return min(percentage, 100)  # Cap at 100%
     
     @property

@@ -1,4 +1,3 @@
-# weekly_budget/serializers.py
 from rest_framework import serializers
 from .models import (
     WeeklyBudget, BudgetCategory, BudgetBreakdown,
@@ -43,15 +42,15 @@ class WeeklyBudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeeklyBudget
         fields = [
-            'id', 'budget_id', 'title', 'year', 'week_number',
+            'id', 'budget_id', 'title',
             'start_date', 'end_date', 'target_amount', 'current_amount',
             'balance', 'progress_percentage', 'status', 'is_published',
-            'is_current_week', 'days_remaining', 'description',
-            'breakdown_summary', 'created_at'
+            'is_current_week', 'days_remaining',
+            'breakdown_summary', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'budget_id', 'balance', 'progress_percentage',
-            'is_current_week', 'days_remaining', 'created_at'
+            'is_current_week', 'days_remaining', 'created_at', 'updated_at'
         ]
     
     def get_breakdown_summary(self, obj):
@@ -61,91 +60,62 @@ class WeeklyBudgetSerializer(serializers.ModelSerializer):
 
 
 class WeeklyBudgetDetailSerializer(WeeklyBudgetSerializer):
-    """Detailed serializer for weekly budget"""
+    """Detailed serializer for weekly budget with full breakdown"""
     breakdown_items = BudgetBreakdownSerializer(many=True, read_only=True)
     contributions_count = serializers.IntegerField(source='contributions.count', read_only=True)
     
     class Meta(WeeklyBudgetSerializer.Meta):
         fields = WeeklyBudgetSerializer.Meta.fields + [
-            'notes', 'breakdown_items', 'contributions_count',
-            'updated_at', 'published_at'
+            'breakdown_items', 'contributions_count'
         ]
 
 
 class WeeklyBudgetCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating weekly budgets"""
-    breakdown = BudgetBreakdownSerializer(many=True, required=False)
     
     class Meta:
         model = WeeklyBudget
         fields = [
-            'title', 'year', 'week_number', 'start_date', 'end_date',
-            'target_amount', 'description', 'notes', 'status',
-            'is_published', 'breakdown'
+            'title', 'start_date', 'target_amount',
+            'status', 'is_published'
         ]
     
     def validate(self, data):
-        # Validate date range is exactly 7 days
-        if data['end_date'] <= data['start_date']:
+        """Validate the budget data"""
+        from datetime import date, timedelta
+        
+        # Validate start_date is not in the past (optional)
+        if data['start_date'] < date.today():
             raise serializers.ValidationError({
-                'end_date': 'End date must be after start date'
+                'start_date': 'Start date cannot be in the past.'
             })
         
-        # Check if week duration is approximately 7 days
-        days_difference = (data['end_date'] - data['start_date']).days
-        if days_difference != 6:  # 7 days inclusive
-            raise serializers.ValidationError({
-                'end_date': 'Budget period should be exactly one week (7 days)'
-            })
-        
-        # Validate target amount
+        # Validate target_amount is positive
         if data['target_amount'] <= 0:
             raise serializers.ValidationError({
-                'target_amount': 'Target amount must be greater than 0'
+                'target_amount': 'Target amount must be greater than 0.'
             })
         
         return data
     
     def create(self, validated_data):
-        breakdown_data = validated_data.pop('breakdown', [])
-        request = self.context.get('request')
+        """Create with auto-calculated end_date"""
+        from datetime import timedelta
         
-        # Create weekly budget
-        weekly_budget = WeeklyBudget.objects.create(
-            **validated_data,
-            created_by=request.user if request else None
-        )
+        # Calculate end_date = start_date + 6 days (7-day week)
+        validated_data['end_date'] = validated_data['start_date'] + timedelta(days=6)
         
-        # Create breakdown items
-        for item_data in breakdown_data:
-            BudgetBreakdown.objects.create(
-                weekly_budget=weekly_budget,
-                **item_data
-            )
-        
-        return weekly_budget
+        return super().create(validated_data)
     
     def update(self, instance, validated_data):
-        breakdown_data = validated_data.pop('breakdown', None)
+        """Update with auto-calculated end_date if start_date changed"""
+        from datetime import timedelta
         
-        # Update weekly budget
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        # If start_date is being updated, recalculate end_date
+        if 'start_date' in validated_data:
+            validated_data['end_date'] = validated_data['start_date'] + timedelta(days=6)
         
-        # Update breakdown if provided
-        if breakdown_data is not None:
-            # Clear existing breakdown
-            instance.breakdown_items.all().delete()
-            
-            # Create new breakdown items
-            for item_data in breakdown_data:
-                BudgetBreakdown.objects.create(
-                    weekly_budget=instance,
-                    **item_data
-                )
-        
-        return instance
+        return super().update(instance, validated_data)
 
 
 class BudgetContributionSerializer(serializers.ModelSerializer):
@@ -168,8 +138,8 @@ class BudgetContributionSerializer(serializers.ModelSerializer):
     
     def get_weekly_budget_info(self, obj):
         return {
-            'week_number': obj.weekly_budget.week_number,
-            'year': obj.weekly_budget.year,
+            'start_date': obj.weekly_budget.start_date,
+            'end_date': obj.weekly_budget.end_date,
             'title': obj.weekly_budget.title
         }
 
@@ -265,7 +235,7 @@ class CurrentWeeklyBudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeeklyBudget
         fields = [
-            'id', 'budget_id', 'title', 'year', 'week_number',
+            'id', 'budget_id', 'title',
             'start_date', 'end_date', 'target_amount', 'current_amount',
             'balance', 'progress_percentage', 'days_remaining',
             'description', 'breakdown'

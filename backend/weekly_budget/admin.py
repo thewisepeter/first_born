@@ -8,11 +8,25 @@ from .models import (
 
 @admin.register(WeeklyBudget)
 class WeeklyBudgetAdmin(admin.ModelAdmin):
-    list_display = ['budget_id', 'year', 'week_number', 'start_date', 'end_date',
-                   'target_amount', 'current_amount', 'progress_bar', 'status', 'is_published']
-    list_filter = ['status', 'is_published', 'year']
-    search_fields = ['budget_id', 'title', 'description']
-    readonly_fields = ['budget_id', 'current_amount', 'created_at', 'updated_at']
+    list_display = [
+        'budget_id', 
+        'title',
+        'start_date',
+        'target_amount',
+        'current_amount',
+        'progress_percentage',
+        'status',
+        'is_current_week'
+    ]
+    list_filter = ['status', 'is_published', 'start_date']
+    search_fields = ['budget_id', 'title']
+    readonly_fields = ['budget_id', 'created_at', 'updated_at', 'balance', 'progress_percentage', 'is_current_week', 'days_remaining']
+    exclude = ['end_date']
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # editing existing object
+            return self.readonly_fields
+        return ['budget_id', 'created_at', 'updated_at']
     
     def progress_bar(self, obj):
         progress = obj.progress_percentage

@@ -189,15 +189,14 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
                   <MenuLink href="/partnership/resources" icon={<BookOpen className="h-4 w-4" />}>
                     Resources
                   </MenuLink>
-                  <MenuLink href="/partnership/group" icon={<Users className="h-4 w-4" />}>
+                  {/* <MenuLink href="/partnership/group" icon={<Users className="h-4 w-4" />}>
                     Group
                   </MenuLink>
-                  {/* Dynamic Community Link using consolidated community info */}
                   <MenuLink href={communityInfo.href} icon={communityInfo.icon}>
                     <div className="flex items-center justify-between w-full">
                       <span>{communityInfo.label}</span>
                     </div>
-                  </MenuLink>
+                  </MenuLink> */}
                   <MenuLink href="/partnership/profile" icon={<User className="h-4 w-4" />}>
                     Profile
                   </MenuLink>

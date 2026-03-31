@@ -6,6 +6,7 @@ from .views import (
     PartnerViewSet,
     PartnerRequestCreateView,
     PartnerSignupWithInviteView,
+    PartnerProfileView,
 )
 
 router = DefaultRouter()
@@ -15,5 +16,7 @@ urlpatterns = [
     path("requests/", PartnerRequestCreateView.as_view(), name="partner-request"),
     path("signup/<uuid:token>/", PartnerSignupWithInviteView.as_view(), name="partner-signup"),
     path("validate-token/<uuid:token>/", PartnerInviteValidateView.as_view(), name="validate-token"),
+    path("profile/", PartnerProfileView.as_view(), name="partner-profile"),
+    
     path("", include(router.urls)),
 ]
