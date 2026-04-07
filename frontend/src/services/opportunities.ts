@@ -57,8 +57,6 @@ export async function getOpportunities(
     url += '&is_active=true'; // Note: using is_active, not is_published
   }
 
-  console.log('📡 Fetching from Next.js API:', url);
-
   const response = await fetch(url, {
     credentials: 'include',
   });
@@ -68,12 +66,8 @@ export async function getOpportunities(
   }
 
   const data = await response.json();
-  console.log('📡 Raw API response:', data); // 👈 See exactly what comes back
 
   // Log the structure
-  console.log('📡 Response keys:', Object.keys(data));
-  console.log('📡 Has results array:', Array.isArray(data.results));
-  console.log('📡 Count value:', data.count);
 
   // Ensure numeric fields are properly typed
   if (data.results) {
@@ -94,7 +88,6 @@ export async function getAllOpportunities(activeOnly: boolean = true): Promise<O
 
   while (hasMore) {
     const response = await getOpportunities(page, 50, activeOnly);
-    console.log(`📊 Page ${page} response:`, response); // 👈 Debug each page
 
     if (response.results && response.results.length > 0) {
       allOpportunities = [...allOpportunities, ...response.results];

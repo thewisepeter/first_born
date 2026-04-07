@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  console.log('🔵 GET /api/giving/statements/ called');
-
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const cookies = request.headers.get('cookie') || '';
@@ -45,8 +43,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  console.log('🟢 POST /api/giving/statements/ called');
-
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const cookies = request.headers.get('cookie') || '';

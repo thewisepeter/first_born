@@ -53,7 +53,6 @@ export async function getDrives(
   }
 
   const data = await response.json();
-  console.log('📡 Drives API response:', data);
 
   // Convert string amounts to numbers and ensure numeric fields
   if (data.results) {

@@ -97,8 +97,6 @@ export async function getGivingHistory(
   next: string | null;
   previous: string | null;
 }> {
-  console.log('📡 Fetching giving history for page:', page);
-
   const response = await fetch(`${API_BASE}/giving/?page=${page}&page_size=${pageSize}`, {
     credentials: 'include',
   });
@@ -108,12 +106,10 @@ export async function getGivingHistory(
   }
 
   const data = await response.json();
-  console.log('📡 History API response:', data);
 
   // 🔴 FIX: Handle both array response and paginated response
   if (Array.isArray(data)) {
     // If API returns array directly, wrap it in pagination format
-    console.log('📡 API returned array, wrapping in pagination format');
     return {
       results: data.map((item: any) => ({
         ...item,
@@ -125,8 +121,6 @@ export async function getGivingHistory(
     };
   } else {
     // If API returns paginated response
-    console.log('📡 API returned paginated response');
-    console.log('📡 History results count:', data.results?.length);
 
     // Convert amount strings to numbers
     if (data.results) {

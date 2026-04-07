@@ -19,8 +19,6 @@ export function CsrfInitializer() {
         await fetch('/api/csrf/', {
           credentials: 'include',
         });
-
-        console.log('✅ CSRF token initialized for:', apiUrl);
       } catch (error) {
         console.error('Failed to initialize CSRF token:', error);
       }

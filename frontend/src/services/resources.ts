@@ -82,7 +82,6 @@ export async function getVideos(
   }
 
   const data = await response.json();
-  console.log('📡 Videos API response:', data);
 
   // Now it's paginated with count, next, previous, results
   return {
@@ -115,7 +114,6 @@ export async function getAudios(
   }
 
   const data = await response.json();
-  console.log('📡 Audio API response:', data);
 
   // 🔴 FIX: Return the transformed data
   return {
@@ -148,7 +146,6 @@ export async function getArticles(
   }
 
   const data = await response.json();
-  console.log('📡 Articles API response:', data);
 
   // 🔴 FIX: Return the transformed data
   return {

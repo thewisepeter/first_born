@@ -217,17 +217,11 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
             {/* RIGHT SIDEBAR */}
             <aside className="hidden lg:block lg:col-span-3 sticky top-[88px]">
               <div className="space-y-6">
-                <WeeklyBudgetCard
-                  onSupportClick={() => {
-                    // Handle support click - could open a modal or navigate
-                    console.log('Support clicked');
-                    // Example: router.push('/partnership/giving');
-                  }}
-                />
+                <WeeklyBudgetCard onSupportClick={() => {}} />
 
-                <RecentUpdatesCard
+                {/* <RecentUpdatesCard
                   maxItems={2} // Show only 2 updates in sidebar
-                />
+                /> */}
               </div>
             </aside>
           </div>

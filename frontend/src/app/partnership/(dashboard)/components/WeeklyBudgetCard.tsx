@@ -197,12 +197,18 @@ export function WeeklyBudgetCard({ onSupportClick }: WeeklyBudgetCardProps) {
       {/* Support Button (Optional) */}
       {onSupportClick && (
         <div className="mt-6">
-          <Button
-            onClick={onSupportClick}
-            className="w-full bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
+          <a
+            href="https://flutterwave.com/pay/prophetnamaraernesti69d"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Give
-          </Button>
+            <Button
+              variant="outline"
+              className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg"
+            >
+              Give
+            </Button>
+          </a>
         </div>
       )}
     </div>

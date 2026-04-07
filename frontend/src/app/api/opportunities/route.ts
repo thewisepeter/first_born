@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  console.log('🔵 GET /api/opportunities/ called');
-
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const cookies = request.headers.get('cookie') || '';
@@ -23,11 +21,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(
-      '📤 Fetching from Django:',
-      `${apiUrl}/api/opportunities/opportunities/?page=${page}&page_size=${pageSize}&is_published=${isPublished}`
-    );
-
     const response = await fetch(
       `${apiUrl}/api/opportunities/opportunities/?page=${page}&page_size=${pageSize}&is_published=${isPublished}`,
       {
@@ -41,8 +34,6 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    console.log('📥 Django response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
       console.error('🔴 Django error:', errorText);
@@ -53,7 +44,6 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('✅ Successfully fetched opportunities. Count:', data.count);
 
     return NextResponse.json(data);
   } catch (error) {

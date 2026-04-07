@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  console.log('🔵 GET /api/marketplace/listings/ called');
-
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const cookies = request.headers.get('cookie') || '';
@@ -12,7 +10,6 @@ export async function GET(request: NextRequest) {
     const queryString = searchParams.toString();
 
     const djangoUrl = `${apiUrl}/api/marketplace/listings/${queryString ? `?${queryString}` : ''}`;
-    console.log('📤 Fetching from Django:', djangoUrl);
 
     // Extract CSRF token
     const cookieArray = cookies.split('; ');
@@ -33,8 +30,6 @@ export async function GET(request: NextRequest) {
       },
       credentials: 'include',
     });
-
-    console.log('📥 Django response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();

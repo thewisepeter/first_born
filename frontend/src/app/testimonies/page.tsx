@@ -45,7 +45,6 @@ export default function Testimonies() {
         if (!response.ok) throw new Error('Failed to fetch videos');
 
         const data = await response.json();
-        console.log(data);
         setVideos(data);
         setLoading(false);
       } catch (err: any) {

@@ -213,7 +213,6 @@ export default function GivingPage() {
       const result = await downloadStatement(statement.id);
       if (result.success) {
         // Optional success message
-        console.log('Statement downloaded successfully');
       } else {
         alert(result.error);
       }
@@ -310,11 +309,10 @@ export default function GivingPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Button
           onClick={() => {
-            // You'll need to add state for this modal
             setShowAddGivingModal(true);
           }}
           variant="outline"
-          className="border-purple-600 text-purple-600 hover:bg-purple-50"
+          className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="h-4 w-4 mr-2" />
           Record Giving
@@ -326,7 +324,8 @@ export default function GivingPage() {
             setIsEditing(false);
             setShowScheduleModal(true);
           }}
-          className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
+          variant="outline"
+          className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="h-4 w-4 mr-2" />
           Schedule New Giving
@@ -610,11 +609,11 @@ export default function GivingPage() {
             <div className="flex justify-center">
               <Button
                 variant="outline"
-                className="inline-flex items-center justify-center px-4 py-2 hover:border-purple-300 hover:bg-purple-50 transition-colors group"
+                className=" border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => setShowDatePicker(true)}
               >
-                <Calendar className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-600 transition-colors" />
-                <span className="text-gray-700 group-hover:text-purple-700">Enter Date Range</span>
+                <Calendar />
+                <span>Enter Date Range</span>
               </Button>
             </div>
           </div>
@@ -644,7 +643,7 @@ export default function GivingPage() {
       {/* Custom Date Picker Dialog */}
       <Dialog open={showDatePicker} onOpenChange={setShowDatePicker}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+          <DialogHeader className="flex items-center justify-center text-center">
             <DialogTitle className="flex items-center">
               <Calendar className="h-5 w-5 mr-2" />
               Giving Statement Download
@@ -652,22 +651,21 @@ export default function GivingPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Select Date Range</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">From Date</label>
+                  <label className="block text-xs text-purple-500 mb-1">From Date</label>
                   <input
                     type="date"
-                    className="w-full p-2 border rounded-lg text-sm"
+                    className="w-full p-2 border border-purple-600 rounded-lg text-sm text-purple-500"
                     value={customStartDate}
                     onChange={(e) => setCustomStartDate(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">To Date</label>
+                  <label className="block text-xs text-purple-500 mb-1">To Date</label>
                   <input
                     type="date"
-                    className="w-full p-2 border rounded-lg text-sm"
+                    className="w-full p-2 border border-purple-600 rounded-lg text-sm text-purple-500"
                     value={customEndDate}
                     onChange={(e) => setCustomEndDate(e.target.value)}
                   />
@@ -679,7 +677,8 @@ export default function GivingPage() {
                 Cancel
               </Button>
               <Button
-                className="flex-1 bg-gradient-to-r from-purple-600 to-[#B28930]"
+                variant="outline"
+                className=" border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => {
                   if (customStartDate && customEndDate) {
                     handleCustomDownload(new Date(customStartDate), new Date(customEndDate));

@@ -59,7 +59,6 @@ export function useGiving() {
               setHistory(data.results);
               setHistoryCount(data.count);
             } else {
-              console.log('⚠️ No history data received');
               setHistory([]);
               setHistoryCount(0);
             }
@@ -73,7 +72,6 @@ export function useGiving() {
         givingService
           .getGivingStatements()
           .then((data) => {
-            console.log('✅ Statements loaded:', data);
             setStatements(data);
             return data;
           })
@@ -134,24 +132,16 @@ export function useGiving() {
     drive?: number | null;
   }) => {
     try {
-      console.log('📝 Creating schedule with data:', data);
       const newSchedule = await givingService.createScheduledGiving(data);
-      console.log('✅ Schedule created successfully:', newSchedule);
-
-      console.log('🔍 Current scheduledGivings before update:', scheduledGivings);
 
       // Check current state before update
       setScheduledGivings((prev) => {
-        console.log('📋 Current scheduledGivings before update:', prev);
         const updated = [...prev, newSchedule];
-        console.log('📋 Updated scheduledGivings:', updated);
-        console.log('📋 Updated length:', updated.length);
         return updated;
       });
 
       // Also update stats manually
       setStats((prev) => {
-        console.log('📊 Current stats before update:', prev);
         const updated = prev
           ? {
               ...prev,
@@ -159,7 +149,6 @@ export function useGiving() {
               active_schedules: [...(prev.active_schedules || []), newSchedule],
             }
           : null;
-        console.log('📊 Updated stats:', updated);
         return updated;
       });
 

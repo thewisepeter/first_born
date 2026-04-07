@@ -48,12 +48,6 @@ export function FloatingContact() {
     if (isOpen) {
       const token = getCsrfToken();
       setCsrfToken(token);
-
-      // For debugging - log token status
-      console.log('CSRF Token found:', token ? 'Yes' : 'No');
-      if (token) {
-        console.log('Token length:', token.length);
-      }
     }
   }, [isOpen]);
 
@@ -136,10 +130,7 @@ export function FloatingContact() {
           // CSRF token might be expired
           // Try to get a fresh one from cookie
           const freshToken = getCsrfToken();
-          if (freshToken && freshToken !== token) {
-            console.log('Retrying with fresh CSRF token');
-            // You could implement a retry logic here
-          }
+
           throw new Error('Session expired. Please refresh the page and try again.');
         }
 
@@ -232,7 +223,7 @@ export function FloatingContact() {
                 onClick={() => {
                   setShowForm(true);
                 }}
-                className="w-full mt-4 bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Send Email
@@ -335,7 +326,7 @@ export function FloatingContact() {
                 <Button
                   type="submit"
                   disabled={isSubmitting || !csrfToken}
-                  className="w-full bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#9A7328] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg"
                 >
                   {isSubmitting ? (
                     <>

@@ -77,15 +77,15 @@ export default function PartnershipLanding() {
               What Partners Are Saying
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-6 rounded-xl border border-purple-100">
+              <div className="to-[#F5F0E1] p-6 rounded-xl border border-purple-100">
                 <p className="text-gray-700 italic mb-4">
-                  "Since partnering with First Born Ministries, I've seen remarkable breakthroughs
-                  in my business and family life. There's a supernatural grace that comes with
-                  partnership."
+                  "Partnering with this anointing has got me in contact with the right people, the
+                  bafere (fake people) can't find me anymore. Places in my life that were once
+                  barren have become alive again. Surely its the Anointing that breaks the yoke."
                 </p>
-                <p className="text-sm text-gray-600 font-medium">— Sarah K., Partner since 2021</p>
+                <p className="text-sm text-gray-600 font-medium">— Felix Kaka</p>
               </div>
-              <div className="bg-gradient-to-r from-purple-50 to-[#F5F0E1] p-6 rounded-xl border border-purple-100">
+              <div className="to-[#F5F0E1] p-6 rounded-xl border border-purple-100">
                 <p className="text-gray-700 italic mb-4">
                   "The weekly teachings and Spirit World broadcasts have transformed my spiritual
                   walk. Partnering has been one of the best decisions I've made."

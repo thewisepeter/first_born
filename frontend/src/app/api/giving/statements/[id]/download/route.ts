@@ -3,8 +3,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  console.log(`🔵 POST /api/giving/statements/${params.id}/download called`);
-
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const cookies = request.headers.get('cookie') || '';

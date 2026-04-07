@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Signup request body:', body);
 
     // Required fields
     const requiredFields = [
@@ -46,8 +45,6 @@ export async function POST(request: NextRequest) {
 
     const djangoUrl = `${apiUrl}/api/partners/signup/${body.token}/`;
 
-    console.log('Calling Django URL:', djangoUrl);
-
     // Call Django signup endpoint
     const response = await fetch(djangoUrl, {
       method: 'POST',
@@ -64,11 +61,8 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    console.log('Django response status:', response.status);
-
     // Check content type before parsing JSON
     const contentType = response.headers.get('content-type');
-    console.log('Content-Type:', contentType);
 
     if (!contentType || !contentType.includes('application/json')) {
       const rawText = await response.text();

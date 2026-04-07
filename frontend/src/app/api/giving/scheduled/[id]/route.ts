@@ -109,8 +109,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const pathParts = url.pathname.split('/');
     const action = pathParts[pathParts.length - 1]; // 'pause', 'resume', or 'cancel'
 
-    console.log(`🔵 POST /api/giving/scheduled/${params.id}/${action} called`);
-
     const response = await fetch(`${apiUrl}/api/giving/scheduled/${params.id}/${action}/`, {
       method: 'POST',
       headers: {

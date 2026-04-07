@@ -8,6 +8,14 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.middleware.csrf import get_token
+
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+from .models import Activity
+from .serializers import ActivitySerializer
+
 import json
 
 @ensure_csrf_cookie
@@ -185,3 +193,57 @@ def get_csrf_token(request):
     Get CSRF token for forms
     """
     return Response({"csrfToken": get_token(request)})
+
+
+class ActivityPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+class ActivityViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for viewing activities"""
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ActivitySerializer
+    pagination_class = ActivityPagination
+    
+    def get_queryset(self):
+        """Get activities based on user type"""
+        user = self.request.user
+        
+        # Show public activities for dashboard
+        if self.action == 'recent_updates':
+            return Activity.objects.filter(
+                is_public=True
+            ).select_related('actor', 'recipient')[:10]
+        
+        # Show user's notifications
+        return Activity.objects.filter(
+            recipient=user
+        ).select_related('actor', 'recipient').order_by('-created_at')
+    
+    @action(detail=False, methods=['get'])
+    def recent_updates(self, request):
+        """Get recent public updates for dashboard"""
+        updates = Activity.objects.filter(
+            is_public=True
+        ).select_related('actor', 'recipient')[:10]
+        
+        serializer = self.get_serializer(updates, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def mark_read(self, request, pk=None):
+        """Mark a notification as read"""
+        activity = self.get_object()
+        activity.is_read = True
+        activity.save(update_fields=['is_read'])
+        return Response({'status': 'marked as read'})
+    
+    @action(detail=False, methods=['post'])
+    def mark_all_read(self, request):
+        """Mark all notifications as read"""
+        Activity.objects.filter(
+            recipient=request.user,
+            is_read=False
+        ).update(is_read=True)
+        return Response({'status': 'all notifications marked as read'})

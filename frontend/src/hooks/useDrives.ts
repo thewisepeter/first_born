@@ -27,9 +27,7 @@ export function useDrives(initialPageSize: number = 10) {
     setError(null);
 
     try {
-      console.log('📡 Fetching drives page:', page);
       const data = await drivesService.getDrives(page, pageSize, true);
-      console.log('✅ Drives loaded:', data);
 
       setPaginatedData(data);
       setDrives(data.results);
@@ -38,7 +36,6 @@ export function useDrives(initialPageSize: number = 10) {
       const allDrives = await drivesService.getAllDrives(true);
       const calculatedStats = drivesService.calculateDriveStats(allDrives);
 
-      console.log('📊 Calculated stats:', calculatedStats);
       setStats(calculatedStats);
     } catch (err) {
       console.error('Error fetching drives:', err);

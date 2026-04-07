@@ -16,9 +16,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       }
     }
 
-    console.log(`🔵 PATCH /api/partners/partners/${params.id}/ called`);
-    console.log('📦 Request body:', body);
-
     const response = await fetch(`${apiUrl}/api/partners/partners/${params.id}/`, {
       method: 'PATCH',
       headers: {
@@ -40,7 +37,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       );
     }
 
-    console.log('✅ Successfully updated partner profile');
     return NextResponse.json(data);
   } catch (error) {
     console.error('🔴 Partner update error:', error);

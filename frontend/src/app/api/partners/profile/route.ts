@@ -62,9 +62,6 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    console.log('🔵 PATCH /api/partners/profile/ called');
-    console.log('📦 Request body:', body);
-
     const response = await fetch(`${apiUrl}/api/partners/profile/`, {
       method: 'PATCH',
       headers: {
@@ -86,7 +83,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    console.log('✅ Successfully updated partner profile');
     return NextResponse.json(data);
   } catch (error) {
     console.error('🔴 Partner profile update error:', error);

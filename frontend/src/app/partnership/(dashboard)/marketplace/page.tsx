@@ -301,7 +301,8 @@ export default function MarketplacePage() {
         </div>
 
         <Button
-          className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828] w-full sm:w-auto"
+          variant="outline"
+          className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg"
           onClick={() => {
             setEditingListing(null);
             setIsEditing(false);
@@ -317,8 +318,11 @@ export default function MarketplacePage() {
       <div className="flex-1">
         <p className="text-gray-600">
           This marketplace is exclusively for partners to buy, sell, or request products and
-          services within our community. All transactions should be conducted with integrity and in
-          the spirit of partnership.
+          services within our community.
+        </p>
+
+        <p className="text-gray-600">
+          All transactions should be conducted with integrity and in the spirit of partnership.
         </p>
         <ul className="mt-4 space-y-2 text-sm text-gray-600">
           <li className="flex items-center">
@@ -379,7 +383,7 @@ export default function MarketplacePage() {
                   onClick={() => setActiveCategory(category.id as any)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center ${
                     activeCategory === category.id
-                      ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white'
+                      ? ' bg-purple-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -477,26 +481,8 @@ export default function MarketplacePage() {
                       {/* Description */}
                       <p className="text-xs text-gray-600 line-clamp-2">{item.description}</p>
 
-                      {/* Views & Likes - From File 2 */}
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center space-x-2">
-                          <Eye className="h-3 w-3" />
-                          <span>{item.views_count}</span>
-                        </div>
-                        <button
-                          onClick={() => handleLike(item.id)}
-                          disabled={likingId === item.id}
-                          className="flex items-center space-x-1 hover:text-red-500 transition-colors"
-                        >
-                          <Heart
-                            className={`h-3 w-3 ${item.is_liked ? 'fill-red-500 text-red-500' : ''}`}
-                          />
-                          <span>{item.likes_count}</span>
-                        </button>
-                      </div>
-
                       {/* Posted By and Contact - Compact single line from File 1 */}
-                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                      <div className=" items-center justify-between pt-2 border-t border-gray-100">
                         <div className="flex items-center min-w-0">
                           <div className="h-6 w-6 rounded-full bg-gradient-to-r from-purple-600 to-purple-400 flex items-center justify-center text-white text-xs font-bold mr-2 flex-shrink-0">
                             {item.partner_name
@@ -508,49 +494,50 @@ export default function MarketplacePage() {
                             {item.partner_name}
                           </p>
                         </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{formatRelativeTime(item.posted_date)}</span>
+                          </div>
 
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Clock className="h-3 w-3 mr-1" />
-                          <span>{formatRelativeTime(item.posted_date)}</span>
-                        </div>
-
-                        <div className="flex items-center space-x-1">
-                          {isOwner ? (
-                            <>
-                              <button
-                                onClick={() => handleEditClick(item)}
-                                className="p-1 text-gray-400 hover:text-blue-500 transition-colors rounded hover:bg-blue-50"
-                                title="Edit"
+                          <div className="items-center space-x-1">
+                            {isOwner ? (
+                              <>
+                                <button
+                                  onClick={() => handleEditClick(item)}
+                                  className="p-1 text-gray-400 hover:text-blue-500 transition-colors rounded hover:bg-blue-50"
+                                  title="Edit"
+                                >
+                                  <Edit2 className="h-3 w-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteListing(item.id)}
+                                  className="p-1 text-gray-400 hover:text-red-500 transition-colors rounded hover:bg-red-50"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </>
+                            ) : (
+                              <a
+                                href={
+                                  item.contact_method === 'whatsapp'
+                                    ? `https://wa.me/${item.contact_info.replace(/[^0-9]/g, '')}`
+                                    : item.contact_method === 'phone'
+                                      ? `tel:${item.contact_info}`
+                                      : item.contact_method === 'email'
+                                        ? `mailto:${item.contact_info}`
+                                        : '#'
+                                }
+                                target={item.contact_method === 'whatsapp' ? '_blank' : '_self'}
+                                rel="noopener noreferrer"
+                                className="p-2 text-gray-400 hover:text-blue-500 transition-colors hover:bg-blue-50 rounded-lg flex-shrink-0"
+                                title={`Contact via ${item.contact_method}`}
                               >
-                                <Edit2 className="h-3 w-3" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteListing(item.id)}
-                                className="p-1 text-gray-400 hover:text-red-500 transition-colors rounded hover:bg-red-50"
-                                title="Delete"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </button>
-                            </>
-                          ) : (
-                            <a
-                              href={
-                                item.contact_method === 'whatsapp'
-                                  ? `https://wa.me/${item.contact_info.replace(/[^0-9]/g, '')}`
-                                  : item.contact_method === 'phone'
-                                    ? `tel:${item.contact_info}`
-                                    : item.contact_method === 'email'
-                                      ? `mailto:${item.contact_info}`
-                                      : '#'
-                              }
-                              target={item.contact_method === 'whatsapp' ? '_blank' : '_self'}
-                              rel="noopener noreferrer"
-                              className="p-2 text-gray-400 hover:text-blue-500 transition-colors hover:bg-blue-50 rounded-lg flex-shrink-0"
-                              title={`Contact via ${item.contact_method}`}
-                            >
-                              {getContactIcon(item.contact_method)}
-                            </a>
-                          )}
+                                {getContactIcon(item.contact_method)}
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -575,7 +562,7 @@ export default function MarketplacePage() {
                     onClick={prevPage}
                     disabled={!paginatedData?.previous}
                     variant="outline"
-                    className="border-gray-300"
+                    className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="h-4 w-4 mr-1" />
                     Previous
@@ -614,7 +601,7 @@ export default function MarketplacePage() {
                     onClick={nextPage}
                     disabled={!paginatedData?.next}
                     variant="outline"
-                    className="border-gray-300"
+                    className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next
                     <ChevronRight className="h-4 w-4 ml-1" />

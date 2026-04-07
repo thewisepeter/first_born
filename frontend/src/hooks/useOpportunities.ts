@@ -25,9 +25,7 @@ export function useOpportunities(initialPageSize: number = 5) {
     setError(null);
 
     try {
-      console.log('📡 Fetching opportunities page:', page);
       const data = await opportunitiesService.getOpportunities(page, pageSize, true);
-      console.log('✅ Opportunities loaded:', data);
 
       setPaginatedData(data);
       setOpportunities(data.results);

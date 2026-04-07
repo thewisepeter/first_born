@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  console.log('🟢 POST /api/giving/statements/generate/ called');
-
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const cookies = request.headers.get('cookie') || '';
@@ -18,9 +16,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('📦 Request body:', body);
-    console.log('🔑 CSRF Token present:', !!csrfToken);
-
     // Forward to Django
     const response = await fetch(`${apiUrl}/api/giving/statements/generate/`, {
       method: 'POST',
@@ -34,8 +29,6 @@ export async function POST(request: NextRequest) {
     });
 
     const responseText = await response.text();
-    console.log('📥 Django response status:', response.status);
-    console.log('📥 Django response body:', responseText);
 
     if (!response.ok) {
       try {

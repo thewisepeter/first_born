@@ -144,7 +144,8 @@ export default function ProfilePage() {
               <Button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
+                variant="outline"
+                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg"
               >
                 {isLoading ? (
                   <>
@@ -162,7 +163,8 @@ export default function ProfilePage() {
           ) : (
             <Button
               onClick={() => setIsEditing(true)}
-              className="bg-gradient-to-r from-purple-600 to-[#B28930] hover:from-purple-700 hover:to-[#A07828]"
+              variant="outline"
+              className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-3 rounded-lg"
             >
               <Edit2 className="h-4 w-4 mr-2" />
               Edit Profile

@@ -28,6 +28,7 @@ from core.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('core.urls')), 
     path('api/csrf/', csrf, name='csrf_token'),
     path('api/auth/me/', current_user, name='current-user'),
     path('api/auth/login/', login_view, name='login'),  

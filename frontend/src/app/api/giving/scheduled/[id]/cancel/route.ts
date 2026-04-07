@@ -17,8 +17,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       }
     }
 
-    console.log(`🔵 POST /api/giving/scheduled/${params.id}/cancel called`);
-
     const response = await fetch(`${apiUrl}/api/giving/scheduled/${params.id}/cancel/`, {
       method: 'POST',
       headers: {

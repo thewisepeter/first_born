@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  console.log('🔵 GET /api/mediafiles/video/ called');
-
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const cookies = request.headers.get('cookie') || '';
@@ -24,7 +22,6 @@ export async function GET(request: NextRequest) {
     }
 
     const djangoUrl = `${apiUrl}/api/mediafiles/video/?category=${encodeURIComponent(category)}&page=${page}&page_size=${pageSize}`;
-    console.log('📤 Fetching from Django:', djangoUrl);
 
     const response = await fetch(djangoUrl, {
       method: 'GET',
