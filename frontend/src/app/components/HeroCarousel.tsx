@@ -153,7 +153,7 @@ export function HeroCarousel() {
             <div className="absolute inset-0 bg-black/40" />
             <div className="absolute inset-0 flex items-end justify-center pb-16">
               <div className="text-center text-white max-w-4xl px-4">
-                <h1 className="text-5xl md:text-6xl font-bold mb-4">{slide.title}</h1>
+                {/* <h1 className="text-5xl md:text-6xl font-bold mb-4">{slide.title}</h1> */}
                 <h2 className="text-2xl md:text-3xl text-white mb-6">{slide.subtitle}</h2>
                 <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">{slide.description}</p>
               </div>
