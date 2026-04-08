@@ -2,10 +2,75 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { generateRecentUpdates, formatRelativeTime, type RecentUpdate } from '../data/mockData';
+
+// Define the RecentUpdate type
+interface RecentUpdate {
+  id: string;
+  title: string;
+  description: string;
+  publishDate: Date | string;
+  type?: 'announcement' | 'update' | 'feature';
+}
 
 interface RecentUpdatesCardProps {
   maxItems?: number;
+}
+
+// Helper function to format relative time
+function formatRelativeTime(date: Date | string): string {
+  const now = new Date();
+  const updateDate = new Date(date);
+  const diffInSeconds = Math.floor((now.getTime() - updateDate.getTime()) / 1000);
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+
+  if (diffInSeconds < 60) {
+    return 'just now';
+  } else if (diffInMinutes < 60) {
+    return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+  } else if (diffInHours < 24) {
+    return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+  } else if (diffInDays < 7) {
+    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+  } else {
+    return updateDate.toLocaleDateString();
+  }
+}
+
+// Function to generate mock updates (replace with actual API call)
+function generateRecentUpdates(): RecentUpdate[] {
+  return [
+    {
+      id: '1',
+      title: 'New Partnership Tier Available',
+      description: "We've launched a new premium partnership tier with exclusive benefits.",
+      publishDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      type: 'announcement',
+    },
+    {
+      id: '2',
+      title: 'Monthly Report Ready',
+      description: 'Your partnership impact report for March is now available for download.',
+      publishDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+      type: 'update',
+    },
+    {
+      id: '3',
+      title: 'Upcoming Webinar',
+      description: 'Join us for a special webinar on maximizing your partnership impact.',
+      publishDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      type: 'feature',
+    },
+    {
+      id: '4',
+      title: 'System Maintenance',
+      description:
+        'Scheduled maintenance on April 15th. The dashboard may be temporarily unavailable.',
+      publishDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+      type: 'announcement',
+    },
+  ];
 }
 
 export function RecentUpdatesCard({ maxItems = 2 }: RecentUpdatesCardProps) {
@@ -15,6 +80,7 @@ export function RecentUpdatesCard({ maxItems = 2 }: RecentUpdatesCardProps) {
   useEffect(() => {
     const loadUpdates = () => {
       setLoading(true);
+      // Simulate API call
       setTimeout(() => {
         const allUpdates = generateRecentUpdates();
         const recentUpdates = allUpdates.slice(0, maxItems);
@@ -65,7 +131,7 @@ export function RecentUpdatesCard({ maxItems = 2 }: RecentUpdatesCardProps) {
   );
 }
 
-// Keep the same Announcement component structure
+// Announcement component
 function Announcement({
   title,
   time,

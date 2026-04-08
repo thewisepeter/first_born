@@ -16,11 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import Link from 'next/link';
 
-interface AboutProps {
-  setCurrentPage: (page: string) => void;
-}
-
-export default function About({ setCurrentPage }: AboutProps) {
+export default function About() {
   return (
     <div className="min-h-screen bg-white">
       {/* Prophet Hero Section */}
@@ -191,7 +187,6 @@ export default function About({ setCurrentPage }: AboutProps) {
                 <Link href="/audios">
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentPage('Audio')}
                     className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white transition-all duration-200"
                   >
                     <Music className="h-4 w-4 mr-2" />

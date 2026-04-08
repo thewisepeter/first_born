@@ -2,10 +2,10 @@
 'use client';
 
 import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
-import { VideoResource } from '../data/mockData';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { useState } from 'react';
+import { VideoResource } from '../../../../services/resources';
 
 interface ResourceCardProps {
   title: string;
@@ -15,15 +15,13 @@ interface ResourceCardProps {
 
 export function ResourceCard({ title, description, videos }: ResourceCardProps) {
   const [currentPage, setCurrentPage] = useState(0);
-  const videosPerPage = 2; // Always show exactly 2 videos side-by-side
+  const videosPerPage = 2;
   const totalPages = Math.ceil(videos.length / videosPerPage);
 
-  // Get current page videos (always exactly 2 or less)
   const getCurrentVideos = () => {
     const startIndex = currentPage * videosPerPage;
     const currentVideos = videos.slice(startIndex, startIndex + videosPerPage);
 
-    // Ensure we always have 2 video slots (even if one is empty)
     if (currentVideos.length < 2) {
       return [...currentVideos];
     }
@@ -31,7 +29,6 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
     return currentVideos;
   };
 
-  // Pagination handlers
   const nextPage = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage((prev) => prev + 1);
@@ -48,7 +45,6 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
     setCurrentPage(page);
   };
 
-  // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -57,18 +53,23 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
     });
   };
 
-  // Format duration
-  const formatDuration = (minutes: number) => {
-    if (minutes < 60) {
-      return `${minutes} min`;
+  // FIXED: Handle both string and number types for duration
+  const formatDuration = (minutes: string | number) => {
+    // Convert to number if it's a string
+    const mins = typeof minutes === 'string' ? parseInt(minutes, 10) : minutes;
+
+    // Handle invalid numbers
+    if (isNaN(mins)) return '0 min';
+
+    if (mins < 60) {
+      return `${mins} min`;
     } else {
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      return `${hours}h ${mins > 0 ? `${mins}m` : ''}`.trim();
+      const hours = Math.floor(mins / 60);
+      const remainingMins = mins % 60;
+      return `${hours}h ${remainingMins > 0 ? `${remainingMins}m` : ''}`.trim();
     }
   };
 
-  // Get thumbnail URL
   const getThumbnailUrl = (video: VideoResource) => {
     if (video.embed_id) {
       return `https://img.youtube.com/vi/${video.embed_id}/maxresdefault.jpg`;
@@ -76,7 +77,6 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
     return '';
   };
 
-  // Handle video play
   const handlePlay = (video: VideoResource) => {
     if (video.source_url) {
       window.open(video.source_url, '_blank');
@@ -87,20 +87,17 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
 
   return (
     <div className="border rounded-xl p-6 hover:shadow-md transition-all duration-300 bg-white">
-      {/* Section Header */}
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
         {description && <p className="text-gray-600">{description}</p>}
       </div>
 
-      {/* Two Videos Side-by-Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {currentVideos.map((video, index) => (
           <div
             key={`${video.id}-${currentPage}`}
             className="border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 h-full"
           >
-            {/* Video Thumbnail */}
             <div
               className="relative aspect-video bg-gray-100 cursor-pointer overflow-hidden"
               onClick={() => handlePlay(video)}
@@ -114,20 +111,17 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
                 }}
               />
 
-              {/* Play Button Overlay */}
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50">
                   <Play className="h-6 w-6 text-white ml-1" />
                 </div>
               </div>
 
-              {/* Duration Badge */}
               <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                {formatDuration(video.duration)}
+                {formatDuration(video.duration)} {/* Now works with string or number */}
               </div>
             </div>
 
-            {/* Video Info */}
             <div className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <Badge
@@ -161,17 +155,14 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
         ))}
       </div>
 
-      {/* Pagination Controls - Only show if there are more than 2 videos */}
       {totalPages > 1 && (
         <div className="border-t border-gray-100 pt-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Page Info */}
             <div className="text-sm text-gray-500">
               Showing {currentPage * videosPerPage + 1} -{' '}
               {Math.min((currentPage + 1) * videosPerPage, videos.length)} of {videos.length} videos
             </div>
 
-            {/* Pagination Buttons */}
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
@@ -184,7 +175,6 @@ export function ResourceCard({ title, description, videos }: ResourceCardProps) 
                 Previous
               </Button>
 
-              {/* Page Numbers */}
               <div className="flex items-center space-x-1">
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
