@@ -1,29 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Play,
-  Heart,
-  Users,
-  MessageSquare,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Swords,
-} from 'lucide-react';
+import { Play, Users, ChevronLeft, ChevronRight, X, Swords } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { Dialog, DialogContent } from '../components/ui/dialog';
 import { ShareStorySection } from '../components/ShareStorySection';
 
 interface VideoData {
-  id: string;
+  id: number;
   title: string;
   description: string;
   embed_id: string;
   source_url: string;
   date: string;
   category: string;
+}
+
+interface ApiResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: VideoData[];
 }
 
 export default function Testimonies() {
@@ -39,16 +37,25 @@ export default function Testimonies() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
+        setLoading(true);
         const response = await fetch(
           'https://prophetnamara.org/api/mediafiles/video/?category=Testimony'
         );
-        if (!response.ok) throw new Error('Failed to fetch videos');
 
-        const data = await response.json();
-        setVideos(data);
-        setLoading(false);
+        if (!response.ok) throw new Error('Failed to fetch testimonies');
+
+        const data: ApiResponse = await response.json();
+
+        // Extract the results array from the API response
+        const videosArray = data.results || [];
+
+        setVideos(videosArray);
+        setError(null);
       } catch (err: any) {
+        console.error('Fetch error:', err);
         setError(err.message || 'An error occurred');
+        setVideos([]);
+      } finally {
         setLoading(false);
       }
     };
@@ -57,15 +64,18 @@ export default function Testimonies() {
   }, []);
 
   const getCurrentVideos = () => {
+    if (!Array.isArray(videos) || videos.length === 0) return [];
     const startIndex = currentPage * videosPerPage;
     return videos.slice(startIndex, startIndex + videosPerPage);
   };
 
   const nextPage = () => {
+    if (totalPages === 0) return;
     setCurrentPage((prev) => (prev + 1) % totalPages);
   };
 
   const prevPage = () => {
+    if (totalPages === 0) return;
     setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
@@ -83,6 +93,51 @@ export default function Testimonies() {
     setIsDialogOpen(false);
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading testimonies...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="text-red-600 mb-4">
+            <svg
+              className="h-12 w-12 mx-auto"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load testimonies</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Videos Grid Section */}
@@ -91,7 +146,7 @@ export default function Testimonies() {
           {/* Page Title */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Testimonies</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mb-12 mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mb-6 mx-auto">
               There is nothing more powerful than a miracle testimony. People may argue with your
               doctrine, challenge what you believe, but they cannot argue with your testimony. A
               testimony declares "God said it, and it came to pass!". It is evidence of the workings
@@ -99,8 +154,8 @@ export default function Testimonies() {
             </p>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Be encouraged as you watch these testimonies, and if God did it for them, He will rise
-              up in your life as well, for He is no respector of persons. Let these testimonies
-              light a fire to your faith
+              up in your life as well, for He is no respecter of persons. Let these testimonies
+              light a fire to your faith.
             </p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
               <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -111,11 +166,11 @@ export default function Testimonies() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 ">
+                  <p className="text-gray-600">
                     Cast not your confidence away, you too will overcome.
                   </p>
 
-                  <div className="border-l-4 border-[#B28930] pl-4">
+                  <div className="border-l-4 border-[#B28930] pl-4 mt-4">
                     <p className="text-[#B28930] font-semibold italic">
                       "And they overcame him by the blood of the Lamb, and by the word of their
                       testimony; and they loved not their lives unto the death."
@@ -134,7 +189,7 @@ export default function Testimonies() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600">Miracles Confirm the Truth</p>
-                  <div className="border-l-4 border-[#B28930] pl-4">
+                  <div className="border-l-4 border-[#B28930] pl-4 mt-4">
                     <p className="text-[#B28930] font-semibold italic">
                       "If I do not the works of my Father, believe me not. But if I do, though ye
                       believe not me, believe the works: that ye may know, and believe, that the
@@ -148,129 +203,132 @@ export default function Testimonies() {
           </div>
 
           {/* Video Tiles Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {getCurrentVideos().map((video) => (
-              <Card
-                key={video.id}
-                className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 shadow-lg overflow-hidden bg-white"
-              >
-                {/* Video Thumbnail */}
-                <div
-                  className="relative aspect-video bg-gray-100 overflow-hidden cursor-pointer group/thumbnail"
-                  onClick={() => openVideoModal(video)}
-                >
-                  {/* Video Thumbnail Image */}
-                  <img
-                    className="w-full h-full object-cover"
-                    src={`https://img.youtube.com/vi/${video.embed_id}/maxresdefault.jpg`}
-                    alt={video.title}
-                  />
-
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover/thumbnail:opacity-100 transition-opacity duration-300">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50">
-                      <Play className="h-8 w-8 text-white ml-1" fill="currentColor" />
-                    </div>
-                  </div>
-
-                  {/* Video Duration Overlay */}
-                </div>
-
-                {/* Video Content */}
-                <CardContent className="p-6">
-                  {/* Category and Date */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
-                      {video.category}
-                    </span>
-                    <span className="text-gray-500 text-xs">{video.date}</span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
-                    {video.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{video.description}</p>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2"></div>
-                    <Button
-                      size="sm"
-                      className="bg-[#B28930] hover:bg-[#9A7328] text-white text-xs"
-                      onClick={() => openVideoModal(video)}
-                    >
-                      <Play className="h-3 w-3 mr-1" />
-                      Watch
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center space-x-4">
-              {/* Previous Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={prevPage}
-                disabled={currentPage === 0}
-                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
-              </Button>
-
-              {/* Page Numbers */}
-              <div className="flex items-center space-x-2">
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <Button
-                    key={i}
-                    variant={currentPage === i ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => goToPage(i)}
-                    className={
-                      currentPage === i
-                        ? 'border-purple-600 hover:bg-purple-600 text-white'
-                        : 'border-gray-300 text-purple-600 hover:border-purple-600 hover:text-purple-600 hover:bg-purple-50'
-                    }
+          {videos.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No testimonies available at this time.</p>
+              <p className="text-gray-400 mt-2">Please check back later for more testimonies.</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                {getCurrentVideos().map((video) => (
+                  <Card
+                    key={video.id}
+                    className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 shadow-lg overflow-hidden bg-white cursor-pointer"
+                    onClick={() => openVideoModal(video)}
                   >
-                    {i + 1}
-                  </Button>
+                    {/* Video Thumbnail */}
+                    <div className="relative aspect-video bg-gray-100 overflow-hidden">
+                      <img
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        src={`https://img.youtube.com/vi/${video.embed_id}/maxresdefault.jpg`}
+                        alt={video.title}
+                        onError={(e) => {
+                          // Fallback to hqdefault if maxresdefault fails
+                          (e.target as HTMLImageElement).src =
+                            `https://img.youtube.com/vi/${video.embed_id}/hqdefault.jpg`;
+                        }}
+                      />
+
+                      {/* Play Button Overlay */}
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/50">
+                          <Play className="h-8 w-8 text-white ml-1" fill="currentColor" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Video Content */}
+                    <CardContent className="p-6">
+                      {/* Category and Date */}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                          {video.category}
+                        </span>
+                        <span className="text-gray-500 text-xs">{video.date}</span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
+                        {video.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">{video.description}</p>
+
+                      {/* Watch Button */}
+                      <Button
+                        size="sm"
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openVideoModal(video);
+                        }}
+                      >
+                        <Play className="h-3 w-3 mr-1" />
+                        Watch Testimony
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
 
-              {/* Next Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={nextPage}
-                disabled={currentPage === totalPages - 1}
-                className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          )}
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <>
+                  <div className="flex items-center justify-center space-x-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={prevPage}
+                      disabled={currentPage === 0}
+                      className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
 
-          {/* Page Info */}
-          <div className="text-center mt-4">
-            {videos.length > 0 ? (
-              <p className="text-gray-500 text-sm">
-                Showing {currentPage * videosPerPage + 1} -{' '}
-                {Math.min((currentPage + 1) * videosPerPage, videos.length)} of {videos.length}{' '}
-                videos
-              </p>
-            ) : (
-              <p className="text-gray-500 text-sm">No videos available</p>
-            )}
-          </div>
+                    <div className="flex items-center space-x-2">
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <Button
+                          key={i}
+                          variant={currentPage === i ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => goToPage(i)}
+                          className={
+                            currentPage === i
+                              ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                              : 'border-gray-300 text-purple-600 hover:border-purple-600 hover:text-purple-600 hover:bg-purple-50'
+                          }
+                        >
+                          {i + 1}
+                        </Button>
+                      ))}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={nextPage}
+                      disabled={currentPage === totalPages - 1}
+                      className="border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+
+                  <div className="text-center mt-4">
+                    <p className="text-gray-500 text-sm">
+                      Showing {currentPage * videosPerPage + 1} -{' '}
+                      {Math.min((currentPage + 1) * videosPerPage, videos.length)} of{' '}
+                      {videos.length} testimonies
+                    </p>
+                  </div>
+                </>
+              )}
+            </>
+          )}
         </div>
       </section>
 
@@ -281,7 +339,7 @@ export default function Testimonies() {
         <DialogContent
           className="!fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 
                          !w-[95vw] !h-[80vh] !max-w-none !bg-black !border-0 !p-0 
-                         !grid-rows-none !rounded-none !shadow-none
+                         !rounded-lg !shadow-2xl
                          sm:!w-[90vw] sm:!h-[70vh]
                          lg:!w-[1200px] lg:!h-[675px]
                          xl:!w-[1400px] xl:!h-[788px]"
@@ -298,23 +356,23 @@ export default function Testimonies() {
                 <X className="h-6 w-6" />
               </Button>
 
-              {/* Video Player - 16:9 Aspect Ratio */}
-              <div className="flex-1 lg:w-3/4 bg-black relative">
+              {/* Video Player */}
+              <div className="flex-1 lg:w-3/4 bg-black relative rounded-l-lg overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center p-4">
                   <iframe
                     key={selectedVideo.id}
-                    src={`${selectedVideo.source_url}?autoplay=1&rel=0&modestbranding=1`}
+                    src={`https://www.youtube.com/embed/${selectedVideo.embed_id}?autoplay=1&rel=0&modestbranding=1`}
                     title={selectedVideo.title}
-                    className="w-full h-full max-w-full max-h-full"
+                    className="w-full h-full"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                   />
                 </div>
 
-                {/* Title Overlay (Desktop only) */}
+                {/* Title Overlay - Desktop */}
                 <div className="absolute inset-x-0 top-0 z-40 bg-gradient-to-b from-black/70 to-transparent p-6 hidden lg:block">
-                  <h2 className="text-xl font-bold text-white mb-1 truncate">
+                  <h2 className="text-xl font-bold text-white mb-1 line-clamp-1">
                     {selectedVideo.title}
                   </h2>
                   <div className="flex items-center gap-3 text-gray-300 text-sm">
@@ -327,24 +385,24 @@ export default function Testimonies() {
               </div>
 
               {/* Info Panel - Desktop */}
-              <div className="hidden lg:flex lg:w-1/4 bg-white flex-col">
+              <div className="hidden lg:flex lg:w-1/4 bg-white flex-col rounded-r-lg">
                 <div className="p-6 flex-1 overflow-y-auto">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">About this video</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">About this testimony</h3>
                   <div className="mb-4">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800 font-medium mb-2">
                       {selectedVideo.category}
                     </span>
-                    <p className="text-gray-500 text-sm mb-2">Posted on {selectedVideo.date}</p>
+                    <p className="text-gray-500 text-sm">Posted on {selectedVideo.date}</p>
                   </div>
 
                   <div className="prose prose-sm max-w-none">
-                    <p className="text-gray-700">{selectedVideo.description}</p>
+                    <p className="text-gray-700 leading-relaxed">{selectedVideo.description}</p>
                   </div>
                 </div>
               </div>
 
               {/* Mobile Info Panel */}
-              <div className="lg:hidden bg-white p-4 border-t border-gray-200 max-h-[40vh] overflow-y-auto">
+              <div className="lg:hidden bg-white p-4 rounded-b-lg border-t border-gray-200 max-h-[40vh] overflow-y-auto">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{selectedVideo.title}</h3>
                 <div className="flex items-center gap-3 text-gray-600 text-sm mb-3">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
@@ -352,26 +410,7 @@ export default function Testimonies() {
                   </span>
                   <span>{selectedVideo.date}</span>
                 </div>
-                <p className="text-gray-700 text-sm mb-4">{selectedVideo.description}</p>
-
-                {/* <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
-                  >
-                    <Heart className="h-4 w-4 mr-2" />
-                    Like
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white"
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-                </div> */}
+                <p className="text-gray-700 text-sm leading-relaxed">{selectedVideo.description}</p>
               </div>
             </div>
           )}
