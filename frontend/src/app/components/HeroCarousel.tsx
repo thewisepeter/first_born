@@ -29,7 +29,7 @@ export function HeroCarousel() {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(`${API_URL}/blog/heroslide/`);
+        const res = await fetch(`${API_URL}/api/blog/heroslide/`);
 
         if (!res.ok) throw new Error(`Failed to fetch slides: ${res.status}`);
 
