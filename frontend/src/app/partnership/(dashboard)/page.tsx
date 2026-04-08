@@ -47,12 +47,26 @@ export default function PartnershipDashboard() {
               </h1>
             </div>
             <p className="text-gray-600 text-lg mb-4">
-              Thank you for being a valued partner with Prophet Ernest Namara. Your generosity is
-              making a real difference. Because of your faithfulness, lives are being impacted,
-              communities are being strengthened, and the mission continues to move forward. Here
-              you can track your giving, manage scheduled contributions, and view your statements
-              anytime. Thank you for being a vital part of the vision.
+              We are delighted to see you again. Thank you for your continual partnership with
+              Prophet Namara Ernest.
             </p>
+
+            <p className="text-gray-600 text-lg mb-4">
+              Through your faithful giving, the mandate upon the man of God is reaching and
+              transforming countless lives.
+            </p>
+
+            <p className="text-gray-600 text-lg mb-4">
+              This channel has been designed to help you conveniently track your giving and
+              commitments, ensuring you stay connected to the impact of your generosity.
+            </p>
+
+            <p className="text-gray-600 text-lg mb-4">
+              Once again, thank you. You are greatly valued, deeply treasured, and an essential part
+              of this vision.
+            </p>
+
+            <p className="text-gray-600 text-lg mb-4">With love and appreciation, Finance Team</p>
             <div className="flex items-center gap-4 text-sm text-gray-500">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
@@ -65,12 +79,12 @@ export default function PartnershipDashboard() {
                   })}
                 </span>
               </div>
-              {monthsActive > 0 && (
+              {/* {monthsActive > 0 && (
                 <div className="flex items-center">
                   <Heart className="h-4 w-4 mr-2 text-red-500" />
                   <span>Partner since {memberSince}</span>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>

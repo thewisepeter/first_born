@@ -87,10 +87,9 @@ export default function PartnershipLanding() {
               </div>
               <div className="to-[#F5F0E1] p-6 rounded-xl border border-purple-100">
                 <p className="text-gray-700 italic mb-4">
-                  "The weekly teachings and Spirit World broadcasts have transformed my spiritual
-                  walk. Partnering has been one of the best decisions I've made."
+                  "This anointing has positioned me in places of influence and set me at the top."
                 </p>
-                <p className="text-sm text-gray-600 font-medium">— David M., Partner since 2020</p>
+                <p className="text-sm text-gray-600 font-medium">— Caroline Ernest Nayebare</p>
               </div>
             </div>
           </div>
