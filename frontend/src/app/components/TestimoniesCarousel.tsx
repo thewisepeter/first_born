@@ -25,8 +25,15 @@ export function TestimoniesCarousel() {
       try {
         const res = await fetch('https://prophetnamara.org/api/blog/testimonies/');
         if (!res.ok) throw new Error('Failed to fetch testimonies');
-        const data: Testimony[] = await res.json();
-        setTestimonies(data);
+        const data = await res.json();
+
+        const testimoniesArray = Array.isArray(data)
+          ? data
+          : Array.isArray(data.results)
+            ? data.results
+            : [];
+
+        setTestimonies(testimoniesArray);
       } catch (error) {
         console.error('Error fetching testimonies:', error);
       }
