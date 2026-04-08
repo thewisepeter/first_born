@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ChevronDown, X, Menu, ChevronRight } from 'lucide-react';
-import { Button } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,32 +12,23 @@ import {
 } from './ui/dropdown-menu';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
-interface NavigationProps {
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
-}
-
-export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
+export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileMediaExpanded, setIsMobileMediaExpanded] = useState(false);
+  const pathname = usePathname();
 
   const navItems = [
-    { name: 'Home', page: 'Home' },
-    { name: 'About', page: 'About' },
-    { name: 'Prophecies', page: 'Videos' }, // Display as "Prophecies" but reference as "Videos"
-    { name: 'Testimonies', page: 'Testimonies' },
+    { name: 'Home', href: '/' },
+    { name: 'About', href: '/about' },
+    { name: 'Prophecies', href: '/prophecies' },
+    { name: 'Testimonies', href: '/testimonies' },
+    { name: 'Partnership', href: '/partnership' },
   ];
 
   const mediaItems = [
-    { name: "Prophet's Blog", page: 'Blog' },
-    { name: 'Audio Sermons', page: 'Audio' }, // Display as "Audio Sermons" but reference as "Audio"
+    { name: "Prophet's Blog", href: '/blog' },
+    { name: 'Audio Sermons', href: '/audio' },
   ];
-
-  const handleMobileNavClick = (page: string) => {
-    setCurrentPage(page);
-    setIsMobileMenuOpen(false);
-    setIsMobileMediaExpanded(false);
-  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -47,6 +39,24 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
     setIsMobileMediaExpanded(!isMobileMediaExpanded);
   };
 
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    setIsMobileMediaExpanded(false);
+  };
+
+  // Check if current page is active
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(href);
+  };
+
+  // Check if media dropdown should be active
+  const isMediaActive = () => {
+    return mediaItems.some((item) => isActive(item.href));
+  };
+
   return (
     <>
       <nav className="bg-white shadow-sm border-b border-gray-100 relative z-50">
@@ -54,8 +64,8 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <button
-                onClick={() => handleMobileNavClick('Home')}
+              <Link
+                href="/"
                 className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition-colors"
               >
                 <ImageWithFallback
@@ -63,23 +73,23 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                   alt="Prophet Namara Logo"
                   className="h-20 w-auto"
                 />
-              </button>
+              </Link>
             </div>
 
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center space-x-8">
-              {navItems.map((item) => (
-                <button
-                  key={item.page}
-                  onClick={() => setCurrentPage(item.page)}
+              {navItems.slice(0, 4).map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={`px-3 py-2 rounded-md transition-colors ${
-                    currentPage === item.page
+                    isActive(item.href)
                       ? 'text-purple-600 bg-purple-50'
                       : 'text-gray-600 hover:text-purple-600 hover:bg-gray-50'
                   }`}
                 >
                   {item.name}
-                </button>
+                </Link>
               ))}
 
               {/* Desktop Media Dropdown */}
@@ -87,7 +97,7 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                 <DropdownMenuTrigger asChild>
                   <button
                     className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                      ['Blog', 'Audio'].includes(currentPage)
+                      isMediaActive()
                         ? 'text-purple-600 bg-purple-50'
                         : 'text-gray-600 hover:text-purple-600 hover:bg-gray-50'
                     }`}
@@ -97,14 +107,28 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setCurrentPage('Blog')}>
-                    Prophet's Blog
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setCurrentPage('Audio')}>
-                    Audio Sermons
-                  </DropdownMenuItem>
+                  {mediaItems.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link href={item.href}>{item.name}</Link>
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {/* Partnership (now after Media) */}
+              {navItems.slice(4).map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3 py-2 rounded-md transition-colors ${
+                    isActive(item.href)
+                      ? 'text-purple-600 bg-purple-50'
+                      : 'text-gray-600 hover:text-purple-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
             </div>
 
             {/* Mobile menu button */}
@@ -125,7 +149,7 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+          onClick={closeMobileMenu}
         />
       )}
 
@@ -140,7 +164,7 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
           <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-[#F5F0E1]">
             <h3 className="text-lg font-bold text-gray-900">Menu</h3>
             <button
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
               className="p-2 rounded-md text-gray-600 hover:text-purple-600 hover:bg-white/50 transition-colors"
               aria-label="Close mobile menu"
             >
@@ -151,22 +175,21 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
           {/* Mobile Menu Content */}
           <div className="flex-1 overflow-y-auto py-6">
             <div className="space-y-2 px-6">
-              {/* Regular Navigation Items */}
-              {navItems.map((item) => (
-                <button
-                  key={item.page}
-                  onClick={() => handleMobileNavClick(item.page)}
+              {/* Home, About, Prophecies, Testimonies */}
+              {navItems.slice(0, 4).map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMobileMenu}
                   className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                    currentPage === item.page
+                    isActive(item.href)
                       ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white shadow-md'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
                   }`}
                 >
                   <span className="font-medium">{item.name}</span>
-                  {currentPage === item.page && (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  )}
-                </button>
+                  {isActive(item.href) && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                </Link>
               ))}
 
               {/* Media Section with Expandable Items */}
@@ -174,7 +197,7 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                 <button
                   onClick={toggleMobileMedia}
                   className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                    ['Blog', 'Audio'].includes(currentPage)
+                    isMediaActive()
                       ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white shadow-md'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
                   }`}
@@ -194,20 +217,38 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
                   }`}
                 >
                   {mediaItems.map((item) => (
-                    <button
-                      key={item.page}
-                      onClick={() => handleMobileNavClick(item.page)}
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={closeMobileMenu}
                       className={`w-full text-left px-4 py-2 rounded-md transition-colors text-sm ${
-                        currentPage === item.page
+                        isActive(item.href)
                           ? 'bg-[#B28930] text-white'
                           : 'text-gray-600 hover:bg-gray-100 hover:text-purple-600'
                       }`}
                     >
                       {item.name}
-                    </button>
+                    </Link>
                   ))}
                 </div>
               </div>
+
+              {/* Partnership (now after Media) */}
+              {navItems.slice(4).map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMobileMenu}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between ${
+                    isActive(item.href)
+                      ? 'bg-gradient-to-r from-purple-600 to-[#B28930] text-white shadow-md'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
+                  }`}
+                >
+                  <span className="font-medium">{item.name}</span>
+                  {isActive(item.href) && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -216,12 +257,24 @@ export function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-2">Connect with us</p>
               <div className="flex justify-center space-x-4">
-                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">G</span>
-                </div>
-                <div className="w-8 h-8 bg-[#B28930] rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">C</span>
-                </div>
+                <a
+                  href="https://x.com/ProphetNamara"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center hover:bg-purple-700 transition-colors"
+                  aria-label="Twitter"
+                >
+                  <span className="text-white text-xs font-bold">X</span>
+                </a>
+                <a
+                  href="https://www.youtube.com/channel/UCjF4Z56eCPD-gnWO1TOmFMQ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 bg-[#B28930] rounded-full flex items-center justify-center hover:bg-[#9a7729] transition-colors"
+                  aria-label="YouTube"
+                >
+                  <span className="text-white text-xs font-bold">YT</span>
+                </a>
               </div>
             </div>
           </div>

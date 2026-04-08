@@ -4,11 +4,17 @@ from urllib.parse import urlparse, parse_qs
 
 
 class Audio(models.Model):
+    CATEGORY_CHOICES = (
+        ('Spirit_World', 'Spirit World'),
+        ('Partners', 'Partners'),
+    )
+
     title = models.CharField(max_length=255)
     speaker = models.CharField(max_length=255, editable=False, default='Prophet Namara Ernest')
     date = models.DateTimeField(default=timezone.now, blank=True, null=True)
     active = models.BooleanField(default=False)
     description = models.TextField(blank=True, null=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='Spirit_World')
 
     # User pastes this into the admin
     original_url = models.URLField(null=False, blank=False, default='https://drive.google.com/file/d/1CtcO2nRbULMYMoI4QuWNBt5m8yibF_sC/view?usp=sharing')
@@ -54,8 +60,7 @@ class Video(models.Model):
     CATEGORY_CHOICES = (
         ('Prophecy', 'Prophecy'),
         ('Testimony', 'Testimony'),
-        ('Christmas Message', 'Christmas Message'),
-        ('Sunday Service', 'Sunday Service'),
+        ('Partners', 'Partners'),
     )
 
     title = models.CharField(max_length=255)

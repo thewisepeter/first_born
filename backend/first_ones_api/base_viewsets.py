@@ -1,3 +1,5 @@
+# first_ones_api/base_viewsets.py
+
 from rest_framework import viewsets
 from .permissions import IsAdminOrReadOnly
 
