@@ -1,3 +1,4 @@
+// src/app/components/partnership/PartnerRequest.tsx
 'use client';
 
 import { useState } from 'react';
@@ -73,7 +74,7 @@ export function PartnerRequest({
 
     try {
       // Call Next.js API route instead of Django directly
-      const res = await fetch('/api/partnership/request/', {
+      const res = await fetch('/api/partnership/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

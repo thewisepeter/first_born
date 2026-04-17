@@ -1,11 +1,12 @@
 // src/app/api/partnership/request/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Basic validation - ONLY fields that Django expects
+    // Basic validation
     const requiredFields = ['firstName', 'lastName', 'email', 'phone'];
     for (const field of requiredFields) {
       if (!body[field] || typeof body[field] !== 'string' || !body[field].trim()) {
@@ -25,22 +26,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 🔑 Get cookies from the incoming request
+    const cookies = request.headers.get('cookie') || '';
+
+    // 🔑 Extract CSRF token from cookies
+    const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
+    const csrfToken = csrfMatch ? csrfMatch[1] : '';
+
+    console.log('🔑 CSRF Token present:', !!csrfToken);
+    console.log('🍪 Cookies present:', !!cookies);
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-    // Forward to Django partner-requests endpoint
-    // IMPORTANT: Only send fields that Django serializer expects
     const response = await fetch(`${apiUrl}/api/partners/requests/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'X-CSRFToken': csrfToken, // 🔑 CRITICAL: Send CSRF token
+        Cookie: cookies, // 🔑 Forward all cookies
       },
       body: JSON.stringify({
         first_name: body.firstName.trim(),
         last_name: body.lastName.trim(),
-        email: body.email.trim().toLowerCase(), // Django validates lowercase
+        email: body.email.trim().toLowerCase(),
         phone: body.phone.trim(),
-        // NO commitment/message field - Django doesn't expect it
       }),
     });
 
@@ -54,37 +64,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // If Django returns validation errors
-    if (data.detail || data.error) {
-      return NextResponse.json(
-        { success: false, error: data.detail || data.error || 'Validation failed' },
-        { status: response.status }
-      );
-    }
-
-    // If Django returns serializer errors
-    if (typeof data === 'object') {
-      const errors = Object.values(data).flat();
-      if (errors.length > 0) {
-        return NextResponse.json(
-          { success: false, error: errors[0] || 'Validation error' },
-          { status: response.status }
-        );
-      }
-    }
-
-    // Generic error
     return NextResponse.json(
-      { success: false, error: 'Failed to submit request' },
+      { success: false, error: data.detail || data.error || 'Submission failed' },
       { status: response.status }
     );
   } catch (error: any) {
     console.error('Partner request error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Service unavailable. Please try again later.',
-      },
+      { success: false, error: error.message || 'Service unavailable' },
       { status: 503 }
     );
   }

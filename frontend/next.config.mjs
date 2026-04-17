@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  trailingSlash: true,
   images: {
     domains: ['img.youtube.com', 'images.unsplash.com'],
     remotePatterns: [
