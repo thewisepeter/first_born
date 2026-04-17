@@ -1,5 +1,3 @@
-// src/app/api/partnership/request/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -26,15 +24,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 🔑 Get cookies from the incoming request
+    // Get cookies from the incoming request
     const cookies = request.headers.get('cookie') || '';
 
-    // 🔑 Extract CSRF token from cookies
+    // Extract CSRF token from cookies
     const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
     const csrfToken = csrfMatch ? csrfMatch[1] : '';
 
+    // Get the referer from the incoming request
+    const referer = request.headers.get('referer') || '';
+
     console.log('🔑 CSRF Token present:', !!csrfToken);
-    console.log('🍪 Cookies present:', !!cookies);
+    console.log('🔗 Referer:', referer);
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -43,8 +44,10 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        'X-CSRFToken': csrfToken, // 🔑 CRITICAL: Send CSRF token
-        Cookie: cookies, // 🔑 Forward all cookies
+        'X-CSRFToken': csrfToken,
+        Cookie: cookies,
+        Referer: referer, // 🔑 CRITICAL: Forward the referer header
+        Origin: apiUrl, // 🔑 Also add Origin header
       },
       body: JSON.stringify({
         first_name: body.firstName.trim(),
