@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthStatus('loading');
 
     try {
-      const response = await fetch('/api/auth/me', {
+      const response = await fetch('/api/auth/me/', {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -150,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
+      await fetch('/api/auth/logout/', {
         method: 'POST',
         credentials: 'include',
       });
@@ -217,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const register = async (userData: RegisterData) => {
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('/api/auth/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
