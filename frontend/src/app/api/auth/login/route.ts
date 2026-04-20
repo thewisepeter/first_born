@@ -1,4 +1,5 @@
-// app/api/auth/login/route.ts
+// src/app/api/auth/login/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -6,14 +7,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+    // Get cookies from the incoming request
+    const cookies = request.headers.get('cookie') || '';
+
+    // Extract CSRF token from cookies
+    const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
+    const csrfToken = csrfMatch ? csrfMatch[1] : '';
+
     // Forward to Django auth endpoint with session support
     const response = await fetch(`${apiUrl}/api/auth/login/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        Cookie: cookies, // Forward cookies
+        'X-CSRFToken': csrfToken, // 🔑 CRITICAL: Forward CSRF token
+        Referer: apiUrl, // Add referer header
       },
-      credentials: 'include', // Important for session cookies
+      credentials: 'include',
       body: JSON.stringify(body),
     });
 
@@ -27,11 +38,9 @@ export async function POST(request: NextRequest) {
       });
 
       // Forward any cookies from Django
-      const cookies = response.headers.get('set-cookie');
-      if (cookies) {
-        // Django sets sessionid and csrftoken cookies
-        // We need to forward them to the browser
-        const cookieArray = cookies.split(', ');
+      const responseCookies = response.headers.get('set-cookie');
+      if (responseCookies) {
+        const cookieArray = responseCookies.split(', ');
         cookieArray.forEach((cookie) => {
           const [cookieString] = cookie.split(';');
           const [name, value] = cookieString.split('=');
@@ -44,7 +53,7 @@ export async function POST(request: NextRequest) {
               secure: process.env.NODE_ENV === 'production',
               sameSite: 'lax',
               path: '/',
-              maxAge: name === 'sessionid' ? 60 * 60 * 24 * 14 : undefined, // 2 weeks for session
+              maxAge: name === 'sessionid' ? 60 * 60 * 24 * 14 : undefined,
             });
           }
         });
