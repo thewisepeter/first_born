@@ -128,10 +128,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
+      // ✅ STEP 1: Get CSRF cookie FIRST
+      await fetch('/api/csrf', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      // ✅ STEP 2: Then login
       const response = await fetch('/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        credentials: 'include', // 🔑 CRITICAL
         body: JSON.stringify({ email, password }),
       });
 
