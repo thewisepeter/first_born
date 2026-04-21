@@ -1,6 +1,7 @@
 // src/services/partners.ts
 
-const API_BASE = '/api';
+// Use empty string for relative URLs (nginx will proxy to Django)
+const API_BASE = '';
 
 export interface PartnerProfile {
   id: number;
