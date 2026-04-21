@@ -1,3 +1,4 @@
+import traceback
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.decorators import api_view, permission_classes
@@ -75,7 +76,6 @@ def current_user(request):
     return Response(user_data)
 
 
-
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -84,22 +84,34 @@ def login_view(request):
     """
     Django session-based login endpoint
     """
+    print("=" * 50)
+    print("LOGIN VIEW CALLED")
+    print(f"Request method: {request.method}")
+    print(f"Request body: {request.body}")
+    
     try:
         data = json.loads(request.body)
         email = data.get('email')
         password = data.get('password')
         
+        print(f"Email: {email}")
+        print(f"Password provided: {'Yes' if password else 'No'}")
+        
         if not email or not password:
+            print("Missing email or password")
             return Response(
                 {"detail": "Please provide both email and password"},
                 status=400
             )
         
         # Django's authenticate expects username, but we use email as username
+        print(f"Attempting to authenticate user: {email}")
         user = authenticate(request, username=email, password=password)
         
         if user is not None:
+            print(f"Authentication successful for user: {user.email}")
             auth_login(request, user)
+            print(f"User logged in, session created: {request.session.session_key}")
             
             # Base user response
             user_response = {
@@ -130,28 +142,33 @@ def login_view(request):
                             "months_active": partner.months_active,
                         }
                     })
-            except Exception:
-                pass
+                    print(f"Partner data added for user: {user.email}")
+            except Exception as e:
+                print(f"Error adding partner data: {e}")
             
             return Response({
                 "user": user_response
             })
         else:
+            print(f"Authentication failed for email: {email}")
             return Response(
                 {"detail": "Invalid email or password"},
                 status=401
             )
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
         return Response(
             {"detail": "Invalid JSON"},
             status=400
         )
     except Exception as e:
-        print(f"Login error: {str(e)}")  # Add logging
+        print(f"Unexpected error in login_view: {str(e)}")
+        print(traceback.format_exc())
         return Response(
-            {"detail": "Login failed"},
+            {"detail": f"Login failed: {str(e)}"},
             status=500
         )
+    
 
 @csrf_exempt
 def session_logout(request):
