@@ -128,25 +128,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      // Fetch CSRF token first
-      await fetch('/api/csrf/', { credentials: 'include' });
+      // ✅ STEP 1: Get CSRF cookie FIRST
+      const API = process.env.NEXT_PUBLIC_API_URL!;
 
+      // STEP 1: Get CSRF cookie directly from Django
+      await fetch(`${API}/api/csrf/`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      // ✅ STEP 2: Then login
       const response = await fetch('/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        credentials: 'include', // 🔑 CRITICAL
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return { success: false, error: data.detail || 'Login failed' };
+        return { success: false, error: data.error || 'Login failed' };
       }
 
-      // ✅ Important: Re-check auth to update user state
       await checkAuth();
-
       return { success: true };
     } catch {
       return { success: false, error: 'Network error' };
