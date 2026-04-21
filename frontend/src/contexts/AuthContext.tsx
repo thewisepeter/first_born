@@ -128,27 +128,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      // ✅ STEP 1: Get CSRF cookie FIRST
-      await fetch('/api/csrf', {
-        method: 'GET',
-        credentials: 'include',
-      });
+      // Fetch CSRF token first
+      await fetch('/api/csrf/', { credentials: 'include' });
 
-      // ✅ STEP 2: Then login
       const response = await fetch('/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 🔑 CRITICAL
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return { success: false, error: data.error || 'Login failed' };
+        return { success: false, error: data.detail || 'Login failed' };
       }
 
+      // ✅ Important: Re-check auth to update user state
       await checkAuth();
+
       return { success: true };
     } catch {
       return { success: false, error: 'Network error' };

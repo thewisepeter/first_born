@@ -1,5 +1,3 @@
-// src/app/api/auth/login/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -14,15 +12,14 @@ export async function POST(request: NextRequest) {
     const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
     const csrfToken = csrfMatch ? csrfMatch[1] : '';
 
-    // Forward to Django auth endpoint with session support
     const response = await fetch(`${apiUrl}/api/auth/login/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Cookie: cookies, // Forward cookies
-        'X-CSRFToken': csrfToken, // 🔑 CRITICAL: Forward CSRF token
-        Referer: apiUrl, // Add referer header
+        Cookie: cookies,
+        'X-CSRFToken': csrfToken,
+        Referer: apiUrl,
       },
       credentials: 'include',
       body: JSON.stringify(body),
@@ -30,39 +27,17 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    if (response.ok) {
-      // Create response
-      const nextResponse = NextResponse.json({
-        success: true,
-        user: data.user,
-      });
+    // Create the response
+    const nextResponse = NextResponse.json(data, { status: response.status });
 
-      // Forward any cookies from Django
-      const responseCookies = response.headers.get('set-cookie');
-      if (responseCookies) {
-        const cookieArray = responseCookies.split(', ');
-        cookieArray.forEach((cookie) => {
-          const [cookieString] = cookie.split(';');
-          const [name, value] = cookieString.split('=');
-
-          if (name && value) {
-            nextResponse.cookies.set({
-              name,
-              value,
-              httpOnly: true,
-              secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax',
-              path: '/',
-              maxAge: name === 'sessionid' ? 60 * 60 * 24 * 14 : undefined,
-            });
-          }
-        });
-      }
-
-      return nextResponse;
+    // 🔑 CRITICAL: Forward the Set-Cookie header from Django
+    const setCookieHeader = response.headers.get('set-cookie');
+    if (setCookieHeader) {
+      // Add the cookie to the response
+      nextResponse.headers.append('Set-Cookie', setCookieHeader);
     }
 
-    return NextResponse.json({ error: data.detail || 'Login failed' }, { status: response.status });
+    return nextResponse;
   } catch (error) {
     console.error('Login API error:', error);
     return NextResponse.json({ error: 'Authentication service unavailable' }, { status: 503 });
