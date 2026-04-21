@@ -14,6 +14,9 @@ export async function POST(request: NextRequest) {
     const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
     const csrfToken = csrfMatch ? csrfMatch[1] : '';
 
+    console.log('Cookies:', cookies);
+    console.log('CSRF Token:', csrfToken);
+
     // Forward to Django auth endpoint with session support
     const response = await fetch(`${apiUrl}/api/auth/login/`, {
       method: 'POST',
