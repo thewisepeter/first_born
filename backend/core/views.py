@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.middleware.csrf import get_token
+from django.utils.decorators import method_decorator
 
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
@@ -73,8 +74,9 @@ def current_user(request):
     
     return Response(user_data)
 
-# core/views.py - Update the login_view
 
+
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @ensure_csrf_cookie
@@ -145,6 +147,7 @@ def login_view(request):
             status=400
         )
     except Exception as e:
+        print(f"Login error: {str(e)}")  # Add logging
         return Response(
             {"detail": "Login failed"},
             status=500
