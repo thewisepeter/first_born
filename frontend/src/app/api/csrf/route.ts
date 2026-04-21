@@ -1,23 +1,47 @@
-// src/app/api/csrf/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 
-import { NextResponse } from 'next/server';
+export async function GET(request: NextRequest) {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export async function GET() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL!;
+    const response = await fetch(`${apiUrl}/api/csrf/`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  const response = await fetch(`${apiUrl}/api/csrf/`, {
-    method: 'GET',
-    credentials: 'include',
-  });
+    const data = await response.json();
+    const nextResponse = NextResponse.json(data);
 
-  const nextResponse = NextResponse.json({ success: true });
+    // Forward the CSRF cookie - FIXED
+    const setCookieHeader = response.headers.get('set-cookie');
+    if (setCookieHeader) {
+      // Handle multiple cookies properly
+      const cookies = setCookieHeader.split(',').map((c) => c.trim());
+      cookies.forEach((cookie) => {
+        // Extract the cookie name and value
+        const match = cookie.match(/^([^=]+)=([^;]+)/);
+        if (match) {
+          const name = match[1];
+          const value = match[2];
 
-  // 🔑 CRITICAL: forward cookie EXACTLY as-is
-  const setCookie = response.headers.get('set-cookie');
+          nextResponse.cookies.set({
+            name,
+            value,
+            httpOnly: false, // CSRF token needs to be readable by JavaScript
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+          });
+        }
+      });
+    }
 
-  if (setCookie) {
-    nextResponse.headers.append('set-cookie', setCookie);
+    return nextResponse;
+  } catch (error) {
+    console.error('CSRF fetch error:', error);
+    return NextResponse.json({ error: 'Failed to fetch CSRF token' }, { status: 503 });
   }
-
-  return nextResponse;
 }
