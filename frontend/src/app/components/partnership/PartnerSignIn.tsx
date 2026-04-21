@@ -1,3 +1,5 @@
+// src/app/components/partnership/PartnerSignIn.tsx
+
 'use client';
 
 import { useState } from 'react';

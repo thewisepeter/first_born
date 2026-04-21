@@ -1,5 +1,5 @@
-// src/services/drives.ts
-const API_BASE = '/api';
+// Use empty string for relative URLs (nginx will proxy to Django)
+const API_BASE = '';
 
 export interface Drive {
   id: number;
@@ -39,9 +39,9 @@ export async function getDrives(
   activeOnly: boolean = true
 ): Promise<PaginatedResponse<Drive>> {
   // Build URL with query params
-  let url = `${API_BASE}/drives/?page=${page}&page_size=${pageSize}`;
+  let url = `${API_BASE}/api/drives/drives/?page=${page}&page_size=${pageSize}`;
   if (activeOnly) {
-    url += '&is_published=true'; // or however you filter active drives
+    url += '&is_published=true';
   }
 
   const response = await fetch(url, {
@@ -53,6 +53,7 @@ export async function getDrives(
   }
 
   const data = await response.json();
+  console.log('📡 Drives API response:', data);
 
   // Convert string amounts to numbers and ensure numeric fields
   if (data.results) {
@@ -90,7 +91,7 @@ export async function getAllDrives(activeOnly: boolean = true): Promise<Drive[]>
 
 // Get single drive by ID
 export async function getDrive(id: number): Promise<Drive> {
-  const response = await fetch(`${API_BASE}/drives/${id}/`, {
+  const response = await fetch(`${API_BASE}/api/drives/drives/${id}/`, {
     credentials: 'include',
   });
 
@@ -120,7 +121,6 @@ export function calculateDriveStats(drives: Drive[]): DriveStats {
     0
   );
 
-  // Note: current_amount isn't in your API yet, so we'll use goal_amount * progress_percentage
   const totalRaised = activeDrives.reduce((sum, drive) => {
     const goal =
       typeof drive.goal_amount === 'string' ? parseFloat(drive.goal_amount) : drive.goal_amount;
@@ -130,7 +130,7 @@ export function calculateDriveStats(drives: Drive[]): DriveStats {
   return {
     total_drives: drives.length,
     active_drives: activeDrives.length,
-    total_goal: totalGoal, // ✅ This should be here
+    total_goal: totalGoal,
     total_raised: totalRaised,
   };
 }
