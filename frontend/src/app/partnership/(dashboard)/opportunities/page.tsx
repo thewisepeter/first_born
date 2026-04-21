@@ -128,7 +128,7 @@ export default function OpportunityPage() {
       {/* Main Content */}
       <section className="space-y-6">
         {/* Opportunities Grid */}
-        {opportunities.length > 0 ? (
+        {opportunities && opportunities.length > 0 ? (
           <>
             <div className="grid grid-cols-1 gap-6">
               {opportunities.map((opportunity) => (

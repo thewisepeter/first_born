@@ -1,10 +1,12 @@
+// src/hooks/useOpportunities.ts
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import * as opportunitiesService from '../services/opportunities';
 
-export function useOpportunities(initialPageSize: number = 5) {
+export function useOpportunities(initialPageSize: number = 10) {
   const { user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,10 +27,12 @@ export function useOpportunities(initialPageSize: number = 5) {
     setError(null);
 
     try {
+      console.log('📡 Fetching opportunities page:', page);
       const data = await opportunitiesService.getOpportunities(page, pageSize, true);
+      console.log('✅ Opportunities loaded:', data);
 
       setPaginatedData(data);
-      setOpportunities(data.results);
+      setOpportunities(data.results || []); // Always ensure it's an array
 
       // Calculate stats from all opportunities
       const allOpportunities = await opportunitiesService.getAllOpportunities(true);
