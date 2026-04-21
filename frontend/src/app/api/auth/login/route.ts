@@ -40,26 +40,10 @@ export async function POST(request: NextRequest) {
         user: data.user,
       });
 
-      // Forward any cookies from Django
-      const responseCookies = response.headers.get('set-cookie');
-      if (responseCookies) {
-        const cookieArray = responseCookies.split(', ');
-        cookieArray.forEach((cookie) => {
-          const [cookieString] = cookie.split(';');
-          const [name, value] = cookieString.split('=');
+      const setCookie = response.headers.get('set-cookie');
 
-          if (name && value) {
-            nextResponse.cookies.set({
-              name,
-              value,
-              httpOnly: true,
-              secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax',
-              path: '/',
-              maxAge: name === 'sessionid' ? 60 * 60 * 24 * 14 : undefined,
-            });
-          }
-        });
+      if (setCookie) {
+        nextResponse.headers.append('set-cookie', setCookie);
       }
 
       return nextResponse;
