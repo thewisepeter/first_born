@@ -128,20 +128,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      // ✅ STEP 1: Get CSRF cookie FIRST
       const API = process.env.NEXT_PUBLIC_API_URL!;
 
-      // STEP 1: Get CSRF cookie directly from Django
+      // 🔥 STEP 1: Get CSRF cookie directly from Django
       await fetch(`${API}/api/csrf/`, {
         method: 'GET',
         credentials: 'include',
       });
 
-      // ✅ STEP 2: Then login
+      // 🔥 STEP 2: Extract CSRF token from browser cookies
+      const getCSRFToken = () => {
+        const match = document.cookie.match(/csrftoken=([^;]+)/);
+        return match ? match[1] : '';
+      };
+
+      const csrfToken = getCSRFToken();
+
+      // 🔥 STEP 3: Send login request WITH CSRF header
       const response = await fetch('/api/auth/login/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 🔑 CRITICAL
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken, // ✅ THIS FIXES YOUR ISSUE
+        },
         body: JSON.stringify({ email, password }),
       });
 
