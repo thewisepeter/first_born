@@ -79,13 +79,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthStatus('loading');
 
     try {
-      const response = await fetch('/api/auth/me/', {
+      const API = process.env.NEXT_PUBLIC_API_URL!;
+
+      const response = await fetch(`${API}/api/auth/me/`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
         },
         credentials: 'include',
       });
+
+      if (response.status === 401) {
+        setUser(null);
+        setAuthStatus('unauthenticated');
+        return;
+      }
 
       if (!response.ok) {
         setUser(null);
@@ -95,25 +103,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
 
-      if (data.authenticated && data.user) {
-        const userData = data.user;
-
+      // The response from Django directly (not wrapped in { authenticated, user })
+      if (data && data.id) {
         setUser({
-          id: String(userData.id),
-          email: userData.email,
-          firstName: userData.first_name || '',
-          lastName: userData.last_name || '',
-          isPartner: userData.is_partner === true,
-          phone: userData.partner_profile?.phone, // Get phone from partner_profile
-          partnerType: userData.partner_profile?.partner_type,
-          community: userData.partner_profile?.community,
+          id: String(data.id),
+          email: data.email,
+          firstName: data.first_name || '',
+          lastName: data.last_name || '',
+          isPartner: data.is_partner === true,
+          phone: data.partner_profile?.phone,
+          partnerType: data.partner_profile?.partner_type,
+          community: data.partner_profile?.community,
           communityType:
-            userData.partner_profile?.community === 'business' ? 'business-class' : 'working-class',
-
-          // ✅ STORE THE ENTIRE PARTNER PROFILE
-          partner_profile: userData.partner_profile,
+            data.partner_profile?.community === 'business' ? 'business-class' : 'working-class',
+          partner_profile: data.partner_profile,
         });
-
         setAuthStatus('authenticated');
       } else {
         setUser(null);
