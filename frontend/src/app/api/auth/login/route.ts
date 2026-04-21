@@ -40,11 +40,11 @@ export async function POST(request: NextRequest) {
         user: data.user,
       });
 
-      const setCookie = response.headers.get('set-cookie');
+      const setCookies = response.headers.getSetCookie();
 
-      if (setCookie) {
-        nextResponse.headers.append('set-cookie', setCookie);
-      }
+      setCookies.forEach((cookie) => {
+        nextResponse.headers.append('set-cookie', cookie);
+      });
 
       return nextResponse;
     }
