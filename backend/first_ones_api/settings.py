@@ -146,13 +146,13 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Update CSRF settings to work with Nginx
 #CSRF_COOKIE_DOMAIN = '.prophetnamara.org'  # Only if using subdomains
 CSRF_COOKIE_PATH = '/'
-CSRF_COOKIE_SAMESITE = 'None'  # or 'None' if you need cross-site
+CSRF_COOKIE_SAMESITE = 'Lax'  # or 'None' if you need cross-site
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_HTTPONLY = False  # Set to True if not using JS to read CSRF token
 
 # Session cookie settings for cross-domain if needed
 #SESSION_COOKIE_DOMAIN = '.prophetnamara.org'  # Only if using subdomains
-SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = True
 
 # Additional security for production
