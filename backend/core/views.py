@@ -87,12 +87,12 @@ def login_view(request):
     print("=" * 50)
     print("LOGIN VIEW CALLED")
     print(f"Request method: {request.method}")
-    print(f"Request body: {request.body}")
     
     try:
-        data = json.loads(request.body)
-        email = data.get('email')
-        password = data.get('password')
+        # Use request.data instead of accessing request.body directly
+        # DRF already parses the body for you
+        email = request.data.get('email')
+        password = request.data.get('password')
         
         print(f"Email: {email}")
         print(f"Password provided: {'Yes' if password else 'No'}")
@@ -155,20 +155,13 @@ def login_view(request):
                 {"detail": "Invalid email or password"},
                 status=401
             )
-    except json.JSONDecodeError as e:
-        print(f"JSON decode error: {e}")
-        return Response(
-            {"detail": "Invalid JSON"},
-            status=400
-        )
     except Exception as e:
         print(f"Unexpected error in login_view: {str(e)}")
         print(traceback.format_exc())
         return Response(
-            {"detail": f"Login failed: {str(e)}"},
+            {"detail": "Login failed"},
             status=500
         )
-    
 
 @csrf_exempt
 def session_logout(request):
