@@ -79,7 +79,6 @@ def current_user(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@ensure_csrf_cookie
 def login_view(request):
     """
     Django session-based login endpoint
@@ -89,8 +88,7 @@ def login_view(request):
     print(f"Request method: {request.method}")
     
     try:
-        # Use request.data instead of accessing request.body directly
-        # DRF already parses the body for you
+        # Get credentials from request.data (DRF parsed data)
         email = request.data.get('email')
         password = request.data.get('password')
         
@@ -98,65 +96,38 @@ def login_view(request):
         print(f"Password provided: {'Yes' if password else 'No'}")
         
         if not email or not password:
-            print("Missing email or password")
             return Response(
                 {"detail": "Please provide both email and password"},
                 status=400
             )
         
-        # Django's authenticate expects username, but we use email as username
-        print(f"Attempting to authenticate user: {email}")
+        # Authenticate
         user = authenticate(request, username=email, password=password)
         
         if user is not None:
-            print(f"Authentication successful for user: {user.email}")
             auth_login(request, user)
-            print(f"User logged in, session created: {request.session.session_key}")
+            print(f"Login successful for: {email}")
             
-            # Base user response
-            user_response = {
-                "id": user.id,
-                "email": user.email,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "is_staff": user.is_staff,
-                "is_superuser": user.is_superuser,
-                "is_partner": False,
-            }
-            
-            # Add partner data if it exists
-            try:
-                if hasattr(user, 'partner_profile') and user.partner_profile:
-                    partner = user.partner_profile
-                    user_response.update({
-                        "is_partner": True,
-                        "phone": partner.phone,
-                        "partner_profile": {
-                            "id": partner.id,
-                            "partner_type": partner.partner_type,
-                            "community": partner.community,
-                            "bio": partner.bio,
-                            "location": partner.location,
-                            "organization": partner.organization,
-                            "total_given": str(partner.total_given),
-                            "months_active": partner.months_active,
-                        }
-                    })
-                    print(f"Partner data added for user: {user.email}")
-            except Exception as e:
-                print(f"Error adding partner data: {e}")
-            
+            # Return user data
             return Response({
-                "user": user_response
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "is_staff": user.is_staff,
+                    "is_superuser": user.is_superuser,
+                }
             })
         else:
-            print(f"Authentication failed for email: {email}")
+            print(f"Authentication failed for: {email}")
             return Response(
                 {"detail": "Invalid email or password"},
                 status=401
             )
+            
     except Exception as e:
-        print(f"Unexpected error in login_view: {str(e)}")
+        print(f"Login error: {str(e)}")
         print(traceback.format_exc())
         return Response(
             {"detail": "Login failed"},
