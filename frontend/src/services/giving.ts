@@ -382,10 +382,17 @@ export async function createDirectGiving(data: {
   payment_method: string;
   drive?: number | null;
 }): Promise<Giving> {
+  // Get CSRF token from cookies
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
     },
     credentials: 'include',
     body: JSON.stringify(data),
