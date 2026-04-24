@@ -53,7 +53,7 @@ export async function getOpportunities(
   activeOnly: boolean = true
 ): Promise<PaginatedResponse<Opportunity>> {
   // Build URL with query params
-  let url = `${API_BASE}/opportunities/?page=${page}&page_size=${pageSize}`;
+  let url = `${API_BASE}/opportunities/opportunities/?page=${page}&page_size=${pageSize}`;
   if (activeOnly) {
     url += '&is_active=true'; // Note: using is_active, not is_published
   }
@@ -106,7 +106,7 @@ export async function getAllOpportunities(activeOnly: boolean = true): Promise<O
 
 // Get single opportunity by ID
 export async function getOpportunity(id: number): Promise<Opportunity> {
-  const response = await fetch(`${API_BASE}/opportunities/${id}/`, {
+  const response = await fetch(`${API_BASE}/api/opportunities/opportunities/${id}/`, {
     credentials: 'include',
   });
 
