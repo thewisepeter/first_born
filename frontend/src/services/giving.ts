@@ -388,7 +388,8 @@ export async function createDirectGiving(data: {
     return match ? match[1] : '';
   };
 
-  const response = await fetch(`${API_BASE}/api/giving/`, {
+  // ✅ CORRECT: Use /api/giving/givings/ (plural)
+  const response = await fetch(`${API_BASE}/api/giving/givings/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
