@@ -72,7 +72,7 @@ export async function getVideos(
   page: number = 1,
   pageSize: number = 20
 ): Promise<PaginatedResponse<VideoResource>> {
-  const url = `${API_BASE}/mediafiles/video/?category=${encodeURIComponent(category)}&page=${page}&page_size=${pageSize}`;
+  const url = `${API_BASE}/api/mediafiles/video/?category=${encodeURIComponent(category)}&page=${page}&page_size=${pageSize}`;
 
   const response = await fetch(url, {
     credentials: 'include',
@@ -104,7 +104,7 @@ export async function getAudios(
   page: number = 1,
   pageSize: number = 20
 ): Promise<PaginatedResponse<AudioResource>> {
-  const url = `${API_BASE}/mediafiles/audio/?category=${encodeURIComponent(category)}&page=${page}&page_size=${pageSize}`;
+  const url = `${API_BASE}/api/mediafiles/audio/?category=${encodeURIComponent(category)}&page=${page}&page_size=${pageSize}`;
 
   const response = await fetch(url, {
     credentials: 'include',
@@ -136,7 +136,7 @@ export async function getArticles(
   page: number = 1,
   pageSize: number = 20
 ): Promise<PaginatedResponse<ArticleResource>> {
-  const url = `${API_BASE}/blog/blogposts/?category=${encodeURIComponent(category)}&page=${page}&page_size=${pageSize}`;
+  const url = `${API_BASE}/api/blog/blogposts/?category=${encodeURIComponent(category)}&page=${page}&page_size=${pageSize}`;
 
   const response = await fetch(url, {
     credentials: 'include',

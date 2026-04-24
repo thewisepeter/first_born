@@ -85,7 +85,7 @@ export async function getListings(
     mine?: boolean;
   }
 ): Promise<PaginatedResponse<MarketplaceListing>> {
-  let url = `${API_BASE}/marketplace/listings/?page=${page}&page_size=${pageSize}`;
+  let url = `${API_BASE}/api/marketplace/listings/?page=${page}&page_size=${pageSize}`;
 
   if (filters) {
     if (filters.type) url += `&type=${filters.type}`;
@@ -127,7 +127,7 @@ export async function getListings(
 
 // Get single listing by ID
 export async function getListing(id: number): Promise<MarketplaceListing> {
-  const response = await fetch(`${API_BASE}/marketplace/listings/${id}/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/`, {
     credentials: 'include',
   });
 
@@ -149,7 +149,7 @@ export async function getListing(id: number): Promise<MarketplaceListing> {
 
 // Get marketplace categories
 export async function getCategories(): Promise<MarketplaceCategory[]> {
-  const response = await fetch(`${API_BASE}/marketplace/categories/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/categories/`, {
     credentials: 'include',
   });
 
@@ -162,7 +162,7 @@ export async function getCategories(): Promise<MarketplaceCategory[]> {
 
 // Get marketplace stats
 export async function getMarketplaceStats(): Promise<MarketplaceStats> {
-  const response = await fetch(`${API_BASE}/marketplace/listings/stats/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/listings/stats/`, {
     credentials: 'include',
   });
 
@@ -192,7 +192,7 @@ export async function getMarketplaceStats(): Promise<MarketplaceStats> {
 
 // Create a new listing
 export async function createListing(data: any): Promise<MarketplaceListing> {
-  const response = await fetch(`${API_BASE}/marketplace/listings/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/listings/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -215,7 +215,7 @@ export async function createListing(data: any): Promise<MarketplaceListing> {
 
 // Update a listing
 export async function updateListing(id: number, data: any): Promise<MarketplaceListing> {
-  const response = await fetch(`${API_BASE}/marketplace/listings/${id}/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -238,7 +238,7 @@ export async function updateListing(id: number, data: any): Promise<MarketplaceL
 
 // Delete a listing
 export async function deleteListing(id: number): Promise<void> {
-  const response = await fetch(`${API_BASE}/marketplace/listings/${id}/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/`, {
     method: 'DELETE',
     credentials: 'include',
   });
@@ -251,7 +251,7 @@ export async function deleteListing(id: number): Promise<void> {
 
 // Like/unlike a listing
 export async function toggleLike(id: number): Promise<{ likes_count: number; is_liked: boolean }> {
-  const response = await fetch(`${API_BASE}/marketplace/listings/${id}/like/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/like/`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -265,7 +265,7 @@ export async function toggleLike(id: number): Promise<{ likes_count: number; is_
 
 // Save/unsave a listing
 export async function toggleSave(id: number): Promise<{ saves_count: number; is_saved: boolean }> {
-  const response = await fetch(`${API_BASE}/marketplace/listings/${id}/save/`, {
+  const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/save/`, {
     method: 'POST',
     credentials: 'include',
   });

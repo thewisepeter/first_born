@@ -19,7 +19,7 @@ export interface Activity {
 // Get recent public updates (for the bell icon)
 // ✅ Now fetches from /api/activities/recent_updates/
 export async function getNotifications(limit: number = 20): Promise<Activity[]> {
-  const response = await fetch(`${API_BASE}/activities/recent_updates/?limit=${limit}`, {
+  const response = await fetch(`${API_BASE}/api/activities/recent_updates/?limit=${limit}`, {
     credentials: 'include',
   });
 
@@ -35,7 +35,7 @@ export async function markNotificationAsRead(id: number): Promise<void> {
   // Note: The recent_updates endpoint might not support marking as read
   // since these are public updates. You might want to remove this functionality
   // or implement it differently.
-  const response = await fetch(`${API_BASE}/activities/${id}/mark_read/`, {
+  const response = await fetch(`${API_BASE}/api/activities/${id}/mark_read/`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -47,7 +47,7 @@ export async function markNotificationAsRead(id: number): Promise<void> {
 
 // Mark all notifications as read
 export async function markAllNotificationsAsRead(): Promise<void> {
-  const response = await fetch(`${API_BASE}/activities/mark_all_read/`, {
+  const response = await fetch(`${API_BASE}/api/activities/mark_all_read/`, {
     method: 'POST',
     credentials: 'include',
   });

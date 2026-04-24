@@ -38,7 +38,7 @@ export interface UpdateProfileData {
 export async function getCurrentPartnerProfile(): Promise<PartnerProfile> {
   // You need to get the current user's ID or filter by email
   // For now, let's get all and filter by the logged-in user's email
-  const response = await fetch(`${API_BASE}/partners/partners/?page=1&page_size=100`, {
+  const response = await fetch(`${API_BASE}/api/partners/partners/?page=1&page_size=100`, {
     credentials: 'include',
   });
 
@@ -59,7 +59,7 @@ export async function updatePartnerProfile(
   id: number,
   data: UpdateProfileData
 ): Promise<PartnerProfile> {
-  const response = await fetch(`${API_BASE}/partners/profile/`, {
+  const response = await fetch(`${API_BASE}/api/partners/profile/`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

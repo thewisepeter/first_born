@@ -53,7 +53,7 @@ export async function getOpportunities(
   activeOnly: boolean = true
 ): Promise<PaginatedResponse<Opportunity>> {
   // Build URL with query params
-  let url = `${API_BASE}/opportunities/opportunities/?page=${page}&page_size=${pageSize}`;
+  let url = `${API_BASE}/api/opportunities/opportunities/?page=${page}&page_size=${pageSize}`;
   if (activeOnly) {
     url += '&is_active=true'; // Note: using is_active, not is_published
   }

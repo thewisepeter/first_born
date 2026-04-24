@@ -76,7 +76,7 @@ export interface GivingStats {
 
 // Get giving statistics for dashboard
 export async function getGivingStats(): Promise<GivingStats> {
-  const response = await fetch(`${API_BASE}/giving/stats/`, {
+  const response = await fetch(`${API_BASE}/api/giving/stats/`, {
     credentials: 'include',
   });
 
@@ -98,7 +98,7 @@ export async function getGivingHistory(
   next: string | null;
   previous: string | null;
 }> {
-  const response = await fetch(`${API_BASE}/giving/?page=${page}&page_size=${pageSize}`, {
+  const response = await fetch(`${API_BASE}/api/giving/?page=${page}&page_size=${pageSize}`, {
     credentials: 'include',
   });
 
@@ -144,8 +144,8 @@ export async function getMonthlySummary(year?: number): Promise<
   }>
 > {
   const url = year
-    ? `${API_BASE}/giving/monthly_summary/?year=${year}`
-    : `${API_BASE}/giving/monthly_summary/`;
+    ? `${API_BASE}/api/giving/monthly_summary/?year=${year}`
+    : `${API_BASE}/api/giving/monthly_summary/`;
 
   const response = await fetch(url, {
     credentials: 'include',
@@ -160,7 +160,7 @@ export async function getMonthlySummary(year?: number): Promise<
 
 // Get scheduled givings
 export async function getScheduledGivings(): Promise<ScheduledGiving[]> {
-  const response = await fetch(`${API_BASE}/giving/scheduled/`, {
+  const response = await fetch(`${API_BASE}/api/giving/scheduled/`, {
     credentials: 'include',
   });
 
@@ -181,7 +181,7 @@ export async function createScheduledGiving(data: {
   end_date?: string | null;
   drive?: number | null;
 }): Promise<ScheduledGiving> {
-  const response = await fetch(`${API_BASE}/giving/scheduled/`, {
+  const response = await fetch(`${API_BASE}/api/giving/scheduled/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ export async function updateScheduledGiving(
     status: string;
   }>
 ): Promise<ScheduledGiving> {
-  const response = await fetch(`${API_BASE}/giving/scheduled/${id}/`, {
+  const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -234,7 +234,7 @@ export async function updateScheduledGiving(
 export async function pauseScheduledGiving(
   id: number
 ): Promise<{ message: string; status: string }> {
-  const response = await fetch(`${API_BASE}/giving/scheduled/${id}/pause/`, {
+  const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/pause/`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -250,7 +250,7 @@ export async function pauseScheduledGiving(
 export async function resumeScheduledGiving(
   id: number
 ): Promise<{ message: string; status: string }> {
-  const response = await fetch(`${API_BASE}/giving/scheduled/${id}/resume/`, {
+  const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/resume/`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -266,7 +266,7 @@ export async function resumeScheduledGiving(
 export async function cancelScheduledGiving(
   id: number
 ): Promise<{ message: string; status: string }> {
-  const response = await fetch(`${API_BASE}/giving/scheduled/${id}/cancel/`, {
+  const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/cancel/`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -280,7 +280,7 @@ export async function cancelScheduledGiving(
 
 // Get giving statements
 export async function getGivingStatements(): Promise<GivingStatement[]> {
-  const response = await fetch(`${API_BASE}/giving/statements/`, {
+  const response = await fetch(`${API_BASE}/api/giving/statements/`, {
     credentials: 'include',
   });
 
@@ -302,7 +302,7 @@ export async function getGivingStatements(): Promise<GivingStatement[]> {
 
 // Download statement (record download)
 export async function downloadStatement(id: number): Promise<void> {
-  const response = await fetch(`${API_BASE}/giving/statements/${id}/download/`, {
+  const response = await fetch(`${API_BASE}/api/giving/statements/${id}/download/`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -328,7 +328,7 @@ export async function generateCustomStatement(
   startDate: string,
   endDate: string
 ): Promise<{ file_url: string; message: string }> {
-  const response = await fetch(`${API_BASE}/giving/statements/generate/`, {
+  const response = await fetch(`${API_BASE}/api/giving/statements/generate/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -351,7 +351,7 @@ export async function generateCustomStatement(
 
 // Get upcoming payments
 export async function getUpcomingPayments(): Promise<ScheduledGiving[]> {
-  const response = await fetch(`${API_BASE}/giving/upcoming-payments/`, {
+  const response = await fetch(`${API_BASE}/api/giving/upcoming-payments/`, {
     credentials: 'include',
   });
 
@@ -364,7 +364,7 @@ export async function getUpcomingPayments(): Promise<ScheduledGiving[]> {
 
 // Get recent giving (for dashboard)
 export async function getRecentGiving(limit = 5): Promise<Giving[]> {
-  const response = await fetch(`${API_BASE}/giving/recent/?limit=${limit}`, {
+  const response = await fetch(`${API_BASE}/api/giving/recent/?limit=${limit}`, {
     credentials: 'include',
   });
 
@@ -382,7 +382,7 @@ export async function createDirectGiving(data: {
   payment_method: string;
   drive?: number | null;
 }): Promise<Giving> {
-  const response = await fetch(`${API_BASE}/giving/`, {
+  const response = await fetch(`${API_BASE}/api/giving/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
