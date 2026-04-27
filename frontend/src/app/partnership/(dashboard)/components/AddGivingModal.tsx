@@ -281,7 +281,7 @@ export function AddGivingModal({
                   label: 'Bank Transfer',
                   icon: <Building className="h-4 w-4" />,
                 },
-                { value: 'credit-card', label: 'Card', icon: <CreditCard className="h-4 w-4" /> },
+                { value: 'debit-card', label: 'Card', icon: <CreditCard className="h-4 w-4" /> },
                 { value: 'cash', label: 'Cash', icon: <DollarSign className="h-4 w-4" /> },
                 { value: 'cheque', label: 'Cheque', icon: <DollarSign className="h-4 w-4" /> },
               ].map((method) => (

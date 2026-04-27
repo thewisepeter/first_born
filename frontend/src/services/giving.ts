@@ -181,10 +181,17 @@ export async function createScheduledGiving(data: {
   end_date?: string | null;
   drive?: number | null;
 }): Promise<ScheduledGiving> {
+  // Get CSRF token from cookies
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/scheduled/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
     },
     credentials: 'include',
     body: JSON.stringify(data),
@@ -213,10 +220,16 @@ export async function updateScheduledGiving(
     status: string;
   }>
 ): Promise<ScheduledGiving> {
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
     },
     credentials: 'include',
     body: JSON.stringify(data),
@@ -234,8 +247,16 @@ export async function updateScheduledGiving(
 export async function pauseScheduledGiving(
   id: number
 ): Promise<{ message: string; status: string }> {
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/pause/`, {
     method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+    },
     credentials: 'include',
   });
 
@@ -246,12 +267,22 @@ export async function pauseScheduledGiving(
   return response.json();
 }
 
+// Apply the same to resumeScheduledGiving and cancelScheduledGiving
+
 // Resume scheduled giving
 export async function resumeScheduledGiving(
   id: number
 ): Promise<{ message: string; status: string }> {
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/resume/`, {
     method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+    },
     credentials: 'include',
   });
 
@@ -266,8 +297,16 @@ export async function resumeScheduledGiving(
 export async function cancelScheduledGiving(
   id: number
 ): Promise<{ message: string; status: string }> {
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/scheduled/${id}/cancel/`, {
     method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+    },
     credentials: 'include',
   });
 
