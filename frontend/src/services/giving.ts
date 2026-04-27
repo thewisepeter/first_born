@@ -98,9 +98,13 @@ export async function getGivingHistory(
   next: string | null;
   previous: string | null;
 }> {
-  const response = await fetch(`${API_BASE}/api/giving/?page=${page}&page_size=${pageSize}`, {
-    credentials: 'include',
-  });
+  // ✅ CORRECT: Use /api/giving/givings/ (plural)
+  const response = await fetch(
+    `${API_BASE}/api/giving/givings/?page=${page}&page_size=${pageSize}`,
+    {
+      credentials: 'include',
+    }
+  );
 
   if (!response.ok) {
     throw new Error('Failed to fetch giving history');
@@ -108,9 +112,8 @@ export async function getGivingHistory(
 
   const data = await response.json();
 
-  // 🔴 FIX: Handle both array response and paginated response
+  // Handle both array response and paginated response
   if (Array.isArray(data)) {
-    // If API returns array directly, wrap it in pagination format
     return {
       results: data.map((item: any) => ({
         ...item,
@@ -121,8 +124,6 @@ export async function getGivingHistory(
       previous: null,
     };
   } else {
-    // If API returns paginated response
-
     // Convert amount strings to numbers
     if (data.results) {
       data.results = data.results.map((item: any) => ({
@@ -130,7 +131,6 @@ export async function getGivingHistory(
         amount: parseFloat(item.amount),
       }));
     }
-
     return data;
   }
 }
@@ -168,7 +168,14 @@ export async function getScheduledGivings(): Promise<ScheduledGiving[]> {
     throw new Error('Failed to fetch scheduled givings');
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('📡 Scheduled givings response:', data);
+
+  // Handle both array and paginated responses
+  if (Array.isArray(data)) {
+    return data;
+  }
+  return data.results || [];
 }
 
 // Create scheduled giving
