@@ -387,6 +387,7 @@ export async function generateCustomStatement(
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken(),
+      Referer: window.location.origin,
     },
     credentials: 'include',
     body: JSON.stringify({
