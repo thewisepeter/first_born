@@ -342,9 +342,18 @@ export async function getGivingStatements(): Promise<GivingStatement[]> {
 }
 
 // Download statement - ✅ CORRECT
+// Download statement (record download)
 export async function downloadStatement(id: number): Promise<void> {
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/statements/${id}/download/`, {
     method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+    },
     credentials: 'include',
   });
 
@@ -362,15 +371,22 @@ export async function downloadStatement(id: number): Promise<void> {
   }
 }
 
-// Generate a custom statement - ✅ CORRECT
+// Generate a custom statement
 export async function generateCustomStatement(
   startDate: string,
   endDate: string
 ): Promise<{ file_url: string; message: string }> {
+  // Get CSRF token from cookies
+  const getCSRFToken = () => {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  };
+
   const response = await fetch(`${API_BASE}/api/giving/statements/generate/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
     },
     credentials: 'include',
     body: JSON.stringify({
