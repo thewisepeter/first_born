@@ -514,7 +514,7 @@ export default function GivingPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                              className=" border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={() => handleEditClick(item)}
                             >
                               Edit
@@ -522,7 +522,7 @@ export default function GivingPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                              className=" border-red-600 text-red-600 hover:bg-red-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={() => handleCancelSchedule(item.id)}
                             >
                               Delete
@@ -530,7 +530,7 @@ export default function GivingPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                              className=" border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={() => handlePayNow(item.id)}
                             >
                               Pay Now
