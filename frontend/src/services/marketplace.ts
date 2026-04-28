@@ -69,6 +69,12 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
+// Helper function to get CSRF token
+const getCSRFToken = (): string => {
+  const match = document.cookie.match(/csrftoken=([^;]+)/);
+  return match ? match[1] : '';
+};
+
 // Get all listings with pagination and filters
 export async function getListings(
   page: number = 1,
@@ -196,6 +202,8 @@ export async function createListing(data: any): Promise<MarketplaceListing> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
+      Referer: window.location.origin,
     },
     credentials: 'include',
     body: JSON.stringify(data),
@@ -219,6 +227,8 @@ export async function updateListing(id: number, data: any): Promise<MarketplaceL
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
+      Referer: window.location.origin,
     },
     credentials: 'include',
     body: JSON.stringify(data),
@@ -240,6 +250,10 @@ export async function updateListing(id: number, data: any): Promise<MarketplaceL
 export async function deleteListing(id: number): Promise<void> {
   const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/`, {
     method: 'DELETE',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+      Referer: window.location.origin,
+    },
     credentials: 'include',
   });
 
@@ -253,6 +267,10 @@ export async function deleteListing(id: number): Promise<void> {
 export async function toggleLike(id: number): Promise<{ likes_count: number; is_liked: boolean }> {
   const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/like/`, {
     method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+      Referer: window.location.origin,
+    },
     credentials: 'include',
   });
 
@@ -267,6 +285,10 @@ export async function toggleLike(id: number): Promise<{ likes_count: number; is_
 export async function toggleSave(id: number): Promise<{ saves_count: number; is_saved: boolean }> {
   const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/save/`, {
     method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken(),
+      Referer: window.location.origin,
+    },
     credentials: 'include',
   });
 
