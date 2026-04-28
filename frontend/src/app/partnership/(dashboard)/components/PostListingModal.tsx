@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../../components/ui/select';
-import { Store, X, Image as ImageIcon, Tag, MapPin, DollarSign } from 'lucide-react';
+import { Store, X, Image as ImageIcon, Tag, MapPin, DollarSign, Phone } from 'lucide-react';
 import { MarketplaceCategory } from '../../../../services/marketplace';
 
 export type ListingFormData = {
@@ -32,6 +32,7 @@ export type ListingFormData = {
   category: string;
   location: string;
   contactMethod: 'whatsapp' | 'phone' | 'email' | 'in_app';
+  contactInfo?: string; // This can be optional since it depends on the contact method
   tags: string;
   imageUrl?: string;
 };
@@ -64,6 +65,7 @@ export function PostListingModal({
     contactMethod: 'whatsapp',
     tags: '',
     imageUrl: '',
+    contactInfo: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -90,6 +92,7 @@ export function PostListingModal({
         contactMethod: 'whatsapp',
         tags: '',
         imageUrl: '',
+        contactInfo: '',
       });
     }
   }, [initialData, isOpen]);
@@ -123,6 +126,7 @@ export function PostListingModal({
           contactMethod: 'whatsapp',
           tags: '',
           imageUrl: '',
+          contactInfo: '',
         });
       }
     } catch (error) {
@@ -352,6 +356,30 @@ export function PostListingModal({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Contact Info - New required field */}
+          <div className="space-y-2">
+            <Label htmlFor="contactInfo" className="flex items-center">
+              <Phone className="h-4 w-4 mr-2" />
+              Contact Info
+            </Label>
+            <Input
+              id="contactInfo"
+              name="contactInfo"
+              value={formData.contactInfo || ''}
+              onChange={handleChange}
+              placeholder="e.g., 0777123456 or email@example.com"
+              required
+            />
+            <p className="text-xs text-gray-500">
+              {formData.contactMethod === 'whatsapp' &&
+                'Enter your WhatsApp number with country code'}
+              {formData.contactMethod === 'phone' && 'Enter your phone number with country code'}
+              {formData.contactMethod === 'email' && 'Enter your email address'}
+              {formData.contactMethod === 'in_app' &&
+                'Contact info is optional for in-app messages'}
+            </p>
           </div>
 
           {/* Image URL (Optional) */}

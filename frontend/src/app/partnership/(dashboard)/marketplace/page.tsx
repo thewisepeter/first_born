@@ -182,36 +182,29 @@ export default function MarketplacePage() {
 
   const handlePostListing = async (formData: ListingFormData) => {
     try {
+      // Prepare the data with all required fields, including contact_info
+      const listingData = {
+        title: formData.title,
+        description: formData.description,
+        listing_type: formData.type,
+        category: parseInt(formData.category),
+        price: parseFloat(formData.price),
+        currency: formData.currency,
+        location: formData.location,
+        contact_method: formData.contactMethod,
+        contact_info: formData.contactInfo || '', // 🔑 Add this - required by serializer
+        tags: formData.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter((t) => t),
+      };
+
+      console.log('📤 Sending marketplace data:', listingData);
+
       if (isEditing && editingListing?.id) {
-        await marketplaceService.updateListing(parseInt(editingListing.id as string), {
-          title: formData.title,
-          description: formData.description,
-          listing_type: formData.type,
-          category: parseInt(formData.category),
-          price: parseFloat(formData.price),
-          currency: formData.currency,
-          location: formData.location,
-          contact_method: formData.contactMethod,
-          tags: formData.tags
-            .split(',')
-            .map((t) => t.trim())
-            .filter((t) => t),
-        });
+        await marketplaceService.updateListing(parseInt(editingListing.id as string), listingData);
       } else {
-        await marketplaceService.createListing({
-          title: formData.title,
-          description: formData.description,
-          listing_type: formData.type,
-          category: parseInt(formData.category),
-          price: parseFloat(formData.price),
-          currency: formData.currency,
-          location: formData.location,
-          contact_method: formData.contactMethod,
-          tags: formData.tags
-            .split(',')
-            .map((t) => t.trim())
-            .filter((t) => t),
-        });
+        await marketplaceService.createListing(listingData);
       }
 
       refresh();
