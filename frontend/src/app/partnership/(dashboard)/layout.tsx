@@ -201,7 +201,10 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
                   </div>
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false); // Also close menu on logout
+                  }}
                   className="w-full flex items-center justify-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
@@ -214,40 +217,53 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
                 Dashboard Menu
               </h2>
               <nav className="space-y-1">
-                <MobileMenuLink href="/partnership" icon={<Home className="h-4 w-4" />}>
+                <MobileMenuLink
+                  href="/partnership"
+                  icon={<Home className="h-4 w-4" />}
+                  onClose={() => setMobileMenuOpen(false)}
+                >
                   Dashboard
                 </MobileMenuLink>
                 <MobileMenuLink
                   href="/partnership/giving"
                   icon={<CreditCard className="h-4 w-4" />}
+                  onClose={() => setMobileMenuOpen(false)}
                 >
                   Giving
                 </MobileMenuLink>
                 <MobileMenuLink
                   href="/partnership/drives"
                   icon={<CalendarDays className="h-4 w-4" />}
+                  onClose={() => setMobileMenuOpen(false)}
                 >
                   Drives
                 </MobileMenuLink>
                 <MobileMenuLink
                   href="/partnership/opportunities"
                   icon={<Target className="h-4 w-4" />}
+                  onClose={() => setMobileMenuOpen(false)}
                 >
                   Opportunities
                 </MobileMenuLink>
                 <MobileMenuLink
                   href="/partnership/marketplace"
                   icon={<Store className="h-4 w-4" />}
+                  onClose={() => setMobileMenuOpen(false)}
                 >
                   Market Place
                 </MobileMenuLink>
                 <MobileMenuLink
                   href="/partnership/resources"
                   icon={<BookOpen className="h-4 w-4" />}
+                  onClose={() => setMobileMenuOpen(false)}
                 >
                   Resources
                 </MobileMenuLink>
-                <MobileMenuLink href="/partnership/profile" icon={<User className="h-4 w-4" />}>
+                <MobileMenuLink
+                  href="/partnership/profile"
+                  icon={<User className="h-4 w-4" />}
+                  onClose={() => setMobileMenuOpen(false)}
+                >
                   Profile
                 </MobileMenuLink>
               </nav>
@@ -356,14 +372,17 @@ function MobileMenuLink({
   href,
   icon,
   children,
+  onClose,
 }: {
   href: string;
   icon?: ReactNode;
   children: ReactNode;
+  onClose: () => void;
 }) {
   return (
     <Link
       href={href}
+      onClick={onClose}
       className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition active:bg-purple-100"
     >
       {icon && <span className="mr-3 text-gray-500">{icon}</span>}
