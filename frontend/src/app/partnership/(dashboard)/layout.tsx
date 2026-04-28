@@ -1,7 +1,7 @@
 // src/app/partnership/(dashboard)/layout.tsx
 'use client';
 
-import { ReactNode, useEffect, useMemo } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -21,6 +21,8 @@ import {
   Building2,
   Briefcase,
   Store,
+  Menu,
+  X,
 } from 'lucide-react';
 import { WeeklyBudgetCard } from './components/WeeklyBudgetCard';
 import { RecentUpdatesCard } from './components/RecentUpdatesCard';
@@ -78,6 +80,12 @@ const COMMUNITY_CONFIG: Record<CommunityType, CommunityInfo> = {
 export default function PartnerLayout({ children }: { children: ReactNode }) {
   const { user, isLoading, logout, isAuthenticated } = useAuth();
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [router]);
 
   // Memoized community info to prevent recalculation on every render
   const communityInfo = useMemo(() => {
@@ -114,13 +122,22 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
       <nav className="sticky top-0 z-50 bg-white border-b shadow-sm h-16">
         <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            {/* Mobile menu button - only visible on mobile */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+
             <Link href="/partnership" className="text-xl font-bold text-purple-600">
               Partner Dashboard
             </Link>
 
             {/* Show community badge in header using consolidated community info */}
             <span
-              className={`px-2 py-1 text-xs rounded-full ${communityInfo.bgColor} ${communityInfo.textColor}`}
+              className={`hidden sm:inline-block px-2 py-1 text-xs rounded-full ${communityInfo.bgColor} ${communityInfo.textColor}`}
             >
               {communityInfo.description}
             </span>
@@ -155,18 +172,97 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
         </div>
       </nav>
 
+      {/* Mobile Sidebar - Dashboard Navigation Menu */}
+      {mobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Sidebar panel */}
+          <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-72 bg-white shadow-xl z-40 md:hidden overflow-y-auto">
+            <div className="p-6">
+              {/* Mobile user info */}
+              <div className="mb-6 pb-6 border-b">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div
+                    className={`h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${communityInfo.avatarGradient}`}
+                  >
+                    {user.firstName.charAt(0)}
+                    {user.lastName.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {user.firstName} {user.lastName}
+                    </p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={logout}
+                  className="w-full flex items-center justify-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Log Out
+                </button>
+              </div>
+
+              {/* Dashboard Navigation Menu - Same as left column */}
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
+                Dashboard Menu
+              </h2>
+              <nav className="space-y-1">
+                <MobileMenuLink href="/partnership" icon={<Home className="h-4 w-4" />}>
+                  Dashboard
+                </MobileMenuLink>
+                <MobileMenuLink
+                  href="/partnership/giving"
+                  icon={<CreditCard className="h-4 w-4" />}
+                >
+                  Giving
+                </MobileMenuLink>
+                <MobileMenuLink
+                  href="/partnership/drives"
+                  icon={<CalendarDays className="h-4 w-4" />}
+                >
+                  Drives
+                </MobileMenuLink>
+                <MobileMenuLink
+                  href="/partnership/opportunities"
+                  icon={<Target className="h-4 w-4" />}
+                >
+                  Opportunities
+                </MobileMenuLink>
+                <MobileMenuLink
+                  href="/partnership/marketplace"
+                  icon={<Store className="h-4 w-4" />}
+                >
+                  Market Place
+                </MobileMenuLink>
+                <MobileMenuLink
+                  href="/partnership/resources"
+                  icon={<BookOpen className="h-4 w-4" />}
+                >
+                  Resources
+                </MobileMenuLink>
+                <MobileMenuLink href="/partnership/profile" icon={<User className="h-4 w-4" />}>
+                  Profile
+                </MobileMenuLink>
+              </nav>
+            </div>
+          </aside>
+        </>
+      )}
+
       {/* =========================
           MAIN PAGE CONTENT
       ========================= */}
       <div className="flex-1">
         <div className="max-w-7xl mx-auto px-4">
-          {/* 'items-start' is critical. It prevents the sidebars from stretching 
-            to the full height of the center column, which allows 'sticky' to work.
-          */}
           <div className="grid grid-cols-12 gap-6 items-start pt-6 pb-12">
-            {/* LEFT SIDEBAR 
-                sticky top is Nav(64px) + Gap(24px) = 88px
-            */}
+            {/* LEFT SIDEBAR - Hidden on mobile, visible on tablet+ */}
             <aside className="hidden md:block md:col-span-3 sticky top-[88px]">
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Partner Menu</h2>
@@ -189,14 +285,6 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
                   <MenuLink href="/partnership/resources" icon={<BookOpen className="h-4 w-4" />}>
                     Resources
                   </MenuLink>
-                  {/* <MenuLink href="/partnership/group" icon={<Users className="h-4 w-4" />}>
-                    Group
-                  </MenuLink>
-                  <MenuLink href={communityInfo.href} icon={communityInfo.icon}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>{communityInfo.label}</span>
-                    </div>
-                  </MenuLink> */}
                   <MenuLink href="/partnership/profile" icon={<User className="h-4 w-4" />}>
                     Profile
                   </MenuLink>
@@ -204,24 +292,22 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
               </div>
             </aside>
 
-            {/* CENTRE COLUMN (The scrolling part) */}
+            {/* CENTRE COLUMN - Full width on mobile */}
             <main className="col-span-12 md:col-span-9 lg:col-span-6">
-              <div className="bg-white rounded-xl shadow-sm p-6 min-h-[120vh]">
-                {/* Added min-h-[120vh] just to ensure there is enough content 
-                  to see the sticky effect in action.
-                */}
-                {children}
+              {/* Mobile Budget Card - Only visible on mobile, placed above the main content */}
+              <div className="mb-4 md:hidden">
+                <WeeklyBudgetCard onSupportClick={() => {}} />
               </div>
+
+              {/* Main content */}
+              <div className="bg-white rounded-xl shadow-sm p-6">{children}</div>
             </main>
 
-            {/* RIGHT SIDEBAR */}
+            {/* RIGHT SIDEBAR - Hidden on mobile/tablet, visible on desktop+ */}
             <aside className="hidden lg:block lg:col-span-3 sticky top-[88px]">
               <div className="space-y-6">
                 <WeeklyBudgetCard onSupportClick={() => {}} />
-
-                {/* <RecentUpdatesCard
-                  maxItems={2} // Show only 2 updates in sidebar
-                /> */}
+                {/* <RecentUpdatesCard maxItems={2} /> */}
               </div>
             </aside>
           </div>
@@ -230,7 +316,6 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
 
       {/* =========================
           FOOTER
-          When this enters view, it will "push" the sidebars up.
       ========================= */}
       <footer className="bg-white border-t py-12">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-500">
@@ -266,39 +351,23 @@ function MenuLink({
   );
 }
 
-function BudgetRow({
-  label,
-  value,
-  highlight,
+// Mobile-specific menu link with larger touch target
+function MobileMenuLink({
+  href,
+  icon,
+  children,
 }: {
-  label: string;
-  value: string;
-  highlight?: boolean;
+  href: string;
+  icon?: ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <div className="flex justify-between text-sm py-1">
-      <span className="text-gray-600">{label}</span>
-      <span className={highlight ? 'font-semibold text-green-600' : 'font-medium'}>{value}</span>
-    </div>
-  );
-}
-
-function Announcement({
-  title,
-  time,
-  description,
-}: {
-  title: string;
-  time: string;
-  description: string;
-}) {
-  return (
-    <div className="border-l-2 border-purple-500 pl-3 mb-4">
-      <div className="flex justify-between text-sm">
-        <span className="font-medium text-gray-900">{title}</span>
-        <span className="text-xs text-gray-500">{time}</span>
-      </div>
-      <p className="text-xs text-gray-600 mt-1">{description}</p>
-    </div>
+    <Link
+      href={href}
+      className="flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition active:bg-purple-100"
+    >
+      {icon && <span className="mr-3 text-gray-500">{icon}</span>}
+      <span className="flex-1 font-medium">{children}</span>
+    </Link>
   );
 }
