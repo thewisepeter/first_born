@@ -34,6 +34,11 @@ export interface UpdateProfileData {
   partner_type?: 'individual' | 'company';
 }
 
+const getCSRFToken = (): string => {
+  const match = document.cookie.match(/csrftoken=([^;]+)/);
+  return match ? match[1] : '';
+};
+
 // Get partner profile - get current user's profile
 export async function getCurrentPartnerProfile(): Promise<PartnerProfile> {
   // You need to get the current user's ID or filter by email
@@ -63,6 +68,8 @@ export async function updatePartnerProfile(
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken(),
+      Referer: window.location.origin,
     },
     credentials: 'include',
     body: JSON.stringify(data),

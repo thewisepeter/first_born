@@ -185,21 +185,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // In AuthContext.tsx
   const updateProfile = async (
     data: UpdateProfileData
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Get the current user's partner ID
-      const partnerId = user?.partner_profile?.id;
+      const getCSRFToken = () => {
+        const match = document.cookie.match(/csrftoken=([^;]+)/);
+        return match ? match[1] : '';
+      };
 
-      if (!partnerId) {
-        return { success: false, error: 'Partner profile not found' };
-      }
-
-      const response = await fetch(`/api/partners/profile/`, {
+      const response = await fetch('/api/partners/profile/', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+          Referer: window.location.origin,
         },
         credentials: 'include',
         body: JSON.stringify(data),
@@ -210,10 +211,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: error.error || 'Failed to update profile' };
       }
 
-      const updatedProfile = await response.json();
+      const result = await response.json();
+      const updatedProfile = result.profile || result;
 
-      // Update the user state with new data
-      if (user && user.partner_profile) {
+      // Update the user state
+      if (user && updatedProfile) {
         setUser({
           ...user,
           firstName: updatedProfile.first_name || user.firstName,
@@ -221,10 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           phone: updatedProfile.phone || user.phone,
           partnerType: updatedProfile.partner_type || user.partnerType,
           community: updatedProfile.community || user.community,
-          partner_profile: {
-            ...user.partner_profile,
-            ...updatedProfile,
-          },
+          partner_profile: updatedProfile,
         });
       }
 
