@@ -25,7 +25,7 @@ def create_giving_activity(sender, instance, created, **kwargs):
                 content_type=ContentType.objects.get_for_model(instance),
                 object_id=instance.id,
                 action_type='giving_received',
-                title=f"Generous Support Received!",
+                title=f"Thank you! Your giving has been received!",
                 description=f"UGX {instance.amount:,.2f} contributed for {instance.get_giving_type_display()}",
                 is_public=True,
             )
