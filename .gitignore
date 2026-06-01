@@ -209,3 +209,5 @@ __marimo__/
 .vscode/
 .env
 sqlite_data.json
+.DS_Store
+**/.DS_Store
