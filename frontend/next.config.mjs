@@ -3,7 +3,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['img.youtube.com', 'images.unsplash.com'],
+    domains: ['img.youtube.com', 'images.unsplash.com', 'localhost', '127.0.0.1'],
     remotePatterns: [
       {
         protocol: 'https',

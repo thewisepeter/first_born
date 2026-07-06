@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -138,18 +139,17 @@ export function HeroCarousel() {
           }`}
         >
           <div className="relative h-full">
-            <ImageWithFallback
-              src={slide.image}
-              srcSet={`
-    ${slide.image}?w=768 768w,
-    ${slide.image}?w=1200 1200w,
-    ${slide.image}?w=1920 1920w,
-    ${slide.image}?w=2560 2560w
-  `}
-              sizes="100vw"
-              alt={slide.title}
-              className="w-full h-full object-cover"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={slide.image}
+                alt={slide.title}
+                fill
+                priority={index === 0}
+                quality={85}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </div>
             <div className="absolute inset-0 bg-black/40" />
             <div className="absolute inset-0 flex items-end justify-center pb-16">
               <div className="text-center text-white max-w-4xl px-4">
