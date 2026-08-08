@@ -67,7 +67,7 @@ export function HeroCarousel() {
     fetchSlides();
   }, [API_URL]);
 
-  // auto-slide every 5s
+  // auto-slide every 10s
   useEffect(() => {
     if (heroSlides.length === 0) return;
     const timer = setInterval(() => {
@@ -150,7 +150,7 @@ export function HeroCarousel() {
                 className="object-cover"
               />
             </div>
-            <div className="absolute inset-0 bg-black/40" />
+            {/* Darkening overlay REMOVED */}
             <div className="absolute inset-0 flex items-end justify-center pb-16">
               <div className="text-center text-white max-w-4xl px-4">
                 {/* <h1 className="text-5xl md:text-6xl font-bold mb-4">{slide.title}</h1> */}
@@ -167,13 +167,13 @@ export function HeroCarousel() {
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors"
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors z-10"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors z-10"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
@@ -182,7 +182,7 @@ export function HeroCarousel() {
 
       {/* Dots Indicator - only show if there's more than 1 slide */}
       {heroSlides.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
           {heroSlides.map((_, index) => (
             <button
               key={index}
