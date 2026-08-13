@@ -27,7 +27,7 @@ export default function About() {
             <div className="relative">
               <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                 <ImageWithFallback
-                  src="/pn_abt.jpg"
+                  src="/pr_abt.jpg"
                   alt="Prophet Namara Ernest"
                   className="w-full h-[500px] object-cover object-top"
                 />
@@ -58,10 +58,10 @@ export default function About() {
 
                 <p>
                   His commission into ministry began in 2012 when the Lord spoke clearly to him
-                  about his calling. However, the specific details of his assignment remained
-                  unclear until June 24th, 2014, when his spiritual father, Prophet Elvis Mbonye,
-                  confirmed the exact nature of his mission. Later, on February 2nd, 2016, the Lord
-                  equipped him with divine weapons of power for the work ahead.
+                  about his calling. Years later on February 17, 2015, upon the instruction of the
+                  Lord, FirstBorn Fellowship was established in Kampala, Uganda. The ministry has
+                  since grown and continues to impact lives through various platforms, including
+                  radio and online media.
                 </p>
               </div>
 

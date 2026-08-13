@@ -196,7 +196,7 @@ export function FloatingContact() {
                         rel="noopener noreferrer"
                       >
                         <img
-                          src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/prophet_namara_whatsapp_qr_purple.png`}
+                          src={`${process.env.NEXT_PUBLIC_BASE_URL || ''}/prophet_namara_contact.png`}
                           alt="WhatsApp QR Code"
                           className="w-36 h-36 object-contain rounded-lg border-2 border-purple-100 mb-2"
                         />
