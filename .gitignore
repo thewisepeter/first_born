@@ -212,3 +212,13 @@ __marimo__/
 sqlite_data.json
 .DS_Store
 **/.DS_Store
+
+# Media files
+/media/
+/backend/media/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.mp3
