@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MessageCircle, X, Phone, Mail, MapPin, Send, ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
+import { MessageCircle, X, Phone, Send, ArrowLeft } from 'lucide-react';
+import { ensureCsrfToken } from '../lib/csrf';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -14,27 +15,10 @@ interface FormData {
   message: string;
 }
 
-// CSRF token helper function - READ FROM COOKIE
-const getCsrfToken = (): string => {
-  if (typeof document === 'undefined') return ''; // Server-side check
-
-  const cookieString = document.cookie;
-  const cookies = cookieString.split('; ');
-
-  for (const cookie of cookies) {
-    if (cookie.startsWith('csrftoken=')) {
-      return cookie.substring('csrftoken='.length);
-    }
-  }
-
-  return '';
-};
-
 export function FloatingContact() {
   const [isOpen, setIsOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [csrfToken, setCsrfToken] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -42,14 +26,6 @@ export function FloatingContact() {
     message: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
-
-  // Get CSRF token when component mounts or form opens
-  useEffect(() => {
-    if (isOpen) {
-      const token = getCsrfToken();
-      setCsrfToken(token);
-    }
-  }, [isOpen]);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -98,12 +74,8 @@ export function FloatingContact() {
     setIsSubmitting(true);
 
     try {
-      // Get CSRF token - try from state first, then from cookies directly
-      let token = csrfToken || getCsrfToken();
-
-      if (!token) {
-        throw new Error('CSRF token not found. Please refresh the page and try again.');
-      }
+      // Wait for initialization, or retry it if the page's initial request failed.
+      const token = await ensureCsrfToken();
 
       // Use relative URL instead of absolute
       const response = await fetch('/api/contactmessages/contact/', {
@@ -127,10 +99,6 @@ export function FloatingContact() {
 
         // Handle CSRF token errors specifically
         if (response.status === 403 && data?.detail?.includes('CSRF')) {
-          // CSRF token might be expired
-          // Try to get a fresh one from cookie
-          const freshToken = getCsrfToken();
-
           throw new Error('Session expired. Please refresh the page and try again.');
         }
 
@@ -325,7 +293,7 @@ export function FloatingContact() {
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !csrfToken}
+                  disabled={isSubmitting}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg"
                 >
                   {isSubmitting ? (
@@ -333,8 +301,6 @@ export function FloatingContact() {
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                       Sending...
                     </>
-                  ) : !csrfToken ? (
-                    'CSRF Token Missing - Refresh Page'
                   ) : (
                     <>
                       <Send className="h-4 w-4 mr-2" />
@@ -344,7 +310,7 @@ export function FloatingContact() {
                 </Button>
 
                 <p className="text-xs text-gray-500 text-center">
-                  We'll get back to you within 24 hours
+                  We&apos;ll get back to you within 24 hours
                 </p>
               </form>
             </div>
