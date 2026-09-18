@@ -25,6 +25,7 @@ import {
   X,
 } from 'lucide-react';
 import { WeeklyBudgetCard } from './components/WeeklyBudgetCard';
+import { ProphetEmailCard } from './components/ProphetEmailCard';
 import { RecentUpdatesCard } from './components/RecentUpdatesCard';
 import { NotificationsDropdown } from './components/NotificationDropdown';
 
@@ -311,8 +312,9 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
             {/* CENTRE COLUMN - Full width on mobile */}
             <main className="col-span-12 md:col-span-9 lg:col-span-6">
               {/* Mobile Budget Card - Only visible on mobile, placed above the main content */}
-              <div className="mb-4 md:hidden">
+              <div className="mb-4 space-y-6 lg:hidden">
                 <WeeklyBudgetCard onSupportClick={() => {}} />
+                <ProphetEmailCard />
               </div>
 
               {/* Main content */}
@@ -323,6 +325,7 @@ export default function PartnerLayout({ children }: { children: ReactNode }) {
             <aside className="hidden lg:block lg:col-span-3 sticky top-[88px]">
               <div className="space-y-6">
                 <WeeklyBudgetCard onSupportClick={() => {}} />
+                <ProphetEmailCard />
                 {/* <RecentUpdatesCard maxItems={2} /> */}
               </div>
             </aside>

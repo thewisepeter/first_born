@@ -22,6 +22,7 @@ export function PartnerSignIn({
   className = '',
 }: PartnerSignInProps) {
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ email: '', password: '' });
@@ -30,6 +31,7 @@ export function PartnerSignIn({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     // Validation
     const newErrors = { email: '', password: '' };
@@ -39,7 +41,9 @@ export function PartnerSignIn({
     setErrors(newErrors);
     if (newErrors.email || newErrors.password) return;
 
-    const result = await login(email, password);
+    setIsSubmitting(true);
+    const result = await login(email.trim(), password);
+    setIsSubmitting(false);
 
     if (result.success) {
       setShowForm(false);
@@ -87,7 +91,7 @@ export function PartnerSignIn({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="partner@example.com"
                 className={errors.email ? 'border-red-300' : ''}
-                disabled={authLoading}
+                disabled={authLoading || isSubmitting}
               />
               {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
             </div>
@@ -100,7 +104,7 @@ export function PartnerSignIn({
                   type="button"
                   onClick={handleForgotPassword}
                   className="text-xs text-purple-600 hover:underline"
-                  disabled={authLoading}
+                  disabled={authLoading || isSubmitting}
                 >
                   Forgot password?
                 </button>
@@ -111,7 +115,7 @@ export function PartnerSignIn({
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className={errors.password ? 'border-red-300' : ''}
-                disabled={authLoading}
+                disabled={authLoading || isSubmitting}
               />
               {errors.password && <p className="text-xs text-red-600 mt-1">{errors.password}</p>}
             </div>
@@ -119,10 +123,10 @@ export function PartnerSignIn({
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={authLoading}
+              disabled={authLoading || isSubmitting}
               className="w-full bg-gradient-to-r from-purple-600 to-[#B28930] text-white"
             >
-              {authLoading ? 'Signing in...' : 'Sign In'}
+              {authLoading || isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
 
             {/* Help text */}

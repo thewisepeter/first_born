@@ -153,7 +153,6 @@ CSRF_COOKIE_HTTPONLY = False  # Set to True if not using JS to read CSRF token
 # Session cookie settings for cross-domain if needed
 #SESSION_COOKIE_DOMAIN = '.prophetnamara.org'  # Only if using subdomains
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = True
 
 # Additional security for production
 if not DEBUG:
