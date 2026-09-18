@@ -1,23 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    if (!apiUrl) {
-      return NextResponse.json({ error: 'Authentication service not configured' }, { status: 500 });
-    }
-
-    // 🔥 Correct way to get cookies in Next.js
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore
-      .getAll()
-      .map((c) => `${c.name}=${c.value}`)
-      .join('; ');
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const cookieHeader = request.headers.get('cookie') || '';
 
     const response = await fetch(`${apiUrl}/api/auth/me/`, {
       method: 'GET',
+      cache: 'no-store',
       headers: {
         Cookie: cookieHeader, // ✅ now properly forwarded
         Accept: 'application/json',
@@ -55,10 +45,13 @@ export async function GET(request: NextRequest) {
       months_active: djangoUser.partner_profile?.months_active,
     };
 
-    return NextResponse.json({
-      authenticated: true,
-      user: transformedUser,
-    });
+    return NextResponse.json(
+      {
+        authenticated: true,
+        user: transformedUser,
+      },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   } catch (error) {
     console.error('Get user error:', error);
     return NextResponse.json({ error: 'Authentication service unavailable' }, { status: 503 });

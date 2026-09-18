@@ -3,6 +3,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { ensureCsrfToken } from '../app/lib/csrf';
 
 interface User {
   id: string;
@@ -51,7 +52,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   register: (userData: RegisterData) => Promise<{ success: boolean; error?: string }>;
-  checkAuth: () => Promise<void>;
+  checkAuth: () => Promise<boolean>;
   updateProfile: (data: UpdateProfileData) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -79,9 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthStatus('loading');
 
     try {
-      const API = process.env.NEXT_PUBLIC_API_URL!;
-
-      const response = await fetch(`${API}/api/auth/me/`, {
+      const response = await fetch('/api/auth/me/', {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -92,18 +91,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.status === 401) {
         setUser(null);
         setAuthStatus('unauthenticated');
-        return;
+        return false;
       }
 
       if (!response.ok) {
         setUser(null);
         setAuthStatus('unauthenticated');
-        return;
+        return false;
       }
 
-      const data = await response.json();
-
-      // The response from Django directly (not wrapped in { authenticated, user })
+      const result = await response.json();
+      const data = result.user;
       if (data && data.id) {
         setUser({
           id: String(data.id),
@@ -119,36 +117,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           partner_profile: data.partner_profile,
         });
         setAuthStatus('authenticated');
+        return true;
       } else {
         setUser(null);
         setAuthStatus('unauthenticated');
+        return false;
       }
     } catch (error) {
       console.error('Auth check failed:', error);
       setUser(null);
       setAuthStatus('unauthenticated');
+      return false;
     }
   };
 
   const login = async (email: string, password: string) => {
     try {
-      const API = process.env.NEXT_PUBLIC_API_URL!;
+      const csrfToken = await ensureCsrfToken();
 
-      // 🔥 STEP 1: Get CSRF cookie directly from Django
-      await fetch(`${API}/api/csrf/`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      // 🔥 STEP 2: Extract CSRF token from browser cookies
-      const getCSRFToken = () => {
-        const match = document.cookie.match(/csrftoken=([^;]+)/);
-        return match ? match[1] : '';
-      };
-
-      const csrfToken = getCSRFToken();
-
-      // 🔥 STEP 3: Send login request WITH CSRF header
       const response = await fetch('/api/auth/login/', {
         method: 'POST',
         credentials: 'include',
@@ -165,7 +151,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: data.error || 'Login failed' };
       }
 
-      await checkAuth();
+      if (!(await checkAuth())) {
+        return {
+          success: false,
+          error: 'Sign-in could not establish a session. Please allow cookies and try again.',
+        };
+      }
       return { success: true };
     } catch {
       return { success: false, error: 'Network error' };

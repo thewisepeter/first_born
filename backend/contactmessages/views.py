@@ -1,11 +1,34 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from smtplib import SMTPException
 
 from .models import ContactMessage, TestimonyMessage
-from .serializer import ContactMessageSerializer, TestimonyMessageSerializer
-from .utils import send_contact_email, send_testimony_email, send_thank_you_email
+from .serializer import ContactMessageSerializer, TestimonyMessageSerializer, ProphetMessageSerializer
+from .utils import send_contact_email, send_testimony_email, send_thank_you_email, send_prophet_email
+
+
+class ProphetMessageCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        partner = getattr(request.user, "partner_profile", None)
+        if not partner or not partner.is_active:
+            return Response({"detail": "Partner access required."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = ProphetMessageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            sent = send_prophet_email(**serializer.validated_data)
+        except (SMTPException, OSError):
+            sent = 0
+        if not sent:
+            return Response(
+                {"detail": "Your message could not be sent. Please try again."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        return Response({"message": "Your message has been sent to the Prophet."}, status=status.HTTP_200_OK)
 
 
 class ContactMessageCreateView(APIView):

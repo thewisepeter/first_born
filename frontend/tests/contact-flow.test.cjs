@@ -165,3 +165,91 @@ test('contact proxy handles a stopped backend and non-JSON failures', async () =
   assert.equal(response.status, 500);
   assert.match((await response.json()).detail, /could not process/);
 });
+
+test('Prophet proxy forwards session, CSRF, origin and message to its dedicated endpoint', async () => {
+  const route = loadModule('src/app/api/contactmessages/prophet/route.ts', {
+    async fetch(url, options) {
+      assert.equal(url, 'http://localhost:8000/api/contactmessages/prophet/');
+      assert.equal(options.headers.Cookie, 'sessionid=test-session; csrftoken=test-token');
+      assert.equal(options.headers['X-CSRFToken'], 'test-token');
+      assert.equal(options.headers.Origin, 'http://localhost:3000');
+      assert.deepEqual(JSON.parse(options.body), payload);
+      return Response.json({ message: 'Sent' });
+    },
+  });
+  const req = new Request('http://localhost:3000/api/contactmessages/prophet/', {
+    method: 'POST',
+    headers: {
+      Cookie: 'sessionid=test-session; csrftoken=test-token',
+      'X-CSRFToken': 'test-token',
+      Origin: 'http://localhost:3000',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  assert.equal((await route.POST(req)).status, 200);
+});
+
+test('Prophet proxy preserves permission, validation and mail failure statuses', async () => {
+  for (const status of [400, 403, 503]) {
+    const route = loadModule('src/app/api/contactmessages/prophet/route.ts', {
+      fetch: async () => Response.json({ detail: 'Unable to send' }, { status }),
+    });
+    const response = await route.POST(request());
+    assert.equal(response.status, status);
+    assert.equal((await response.json()).detail, 'Unable to send');
+  }
+});
+
+test('session check forwards browser cookies through the same-origin proxy without caching', async () => {
+  const route = loadModule('src/app/api/auth/me/route.ts', {
+    async fetch(url, options) {
+      assert.equal(url, 'http://localhost:8000/api/auth/me/');
+      assert.equal(options.headers.Cookie, 'sessionid=local-session');
+      assert.equal(options.cache, 'no-store');
+      return Response.json({
+        id: 7,
+        email: 'partner@example.com',
+        first_name: 'Test',
+        last_name: 'Partner',
+        is_partner: true,
+      });
+    },
+  });
+  const response = await route.GET(
+    new Request('http://127.0.0.1:3000/api/auth/me/', {
+      headers: { Cookie: 'sessionid=local-session' },
+    })
+  );
+  const data = await response.json();
+  assert.equal(data.authenticated, true);
+  assert.equal(data.user.is_partner, true);
+  assert.equal(data.user.first_name, 'Test');
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+});
+
+test('session check preserves expired-session response', async () => {
+  const route = loadModule('src/app/api/auth/me/route.ts', {
+    fetch: async () => Response.json({ detail: 'Not authenticated' }, { status: 403 }),
+  });
+  assert.equal((await route.GET(request())).status, 403);
+});
+
+test('login forwards the session and rotated CSRF cookies to the browser', async () => {
+  const route = loadModule('src/app/api/auth/login/route.ts', {
+    async fetch() {
+      const response = Response.json({ user: { id: 7 } });
+      response.headers.append(
+        'Set-Cookie',
+        'sessionid=local-session; HttpOnly; Path=/; SameSite=Lax'
+      );
+      response.headers.append('Set-Cookie', 'csrftoken=rotated-token; Path=/; SameSite=Lax');
+      return response;
+    },
+  });
+  const response = await route.POST(request());
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.getSetCookie().length, 2);
+  assert.match(response.headers.getSetCookie()[0], /sessionid=local-session/);
+  assert.match(response.headers.getSetCookie()[1], /csrftoken=rotated-token/);
+});
