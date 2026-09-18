@@ -1,7 +1,8 @@
 from django.core.mail import send_mail
 from django.conf import settings
 
-ADMIN_EMAIL = "rempeterwisdom@gmail.com"  # replace with your email
+ADMIN_EMAIL = "info@prophetnamara.org"  # replace with your email
+CONTACT_EMAIL = "info@prophetnamara.org"
 FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
 
 
@@ -20,7 +21,7 @@ def send_contact_email(fullName, email, phone, message):
     Message:
     {message}
     """
-    send_mail(subject, body, FROM_EMAIL, [ADMIN_EMAIL], fail_silently=False)
+    send_mail(subject, body, FROM_EMAIL, [CONTACT_EMAIL], fail_silently=False)
 
 
 def send_testimony_email(firstName, lastName, email, phone, message):

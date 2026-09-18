@@ -7,15 +7,20 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${apiUrl}/api/csrf/`, {
       method: 'GET',
       credentials: 'include',
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
+        Cookie: request.headers.get('cookie') || '',
       },
     });
 
     const data = await response.json();
 
     // Create response
-    const nextResponse = NextResponse.json(data);
+    const nextResponse = NextResponse.json(data, {
+      status: response.status,
+      headers: { 'Cache-Control': 'no-store' },
+    });
 
     // 🔑 CRITICAL: Forward the Set-Cookie header exactly as received
     const setCookieHeader = response.headers.get('set-cookie');
