@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         setUser(null);
         setAuthStatus('unauthenticated');
         return false;
@@ -101,7 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const result = await response.json();
-      const data = result.user;
+      // Django serves /api/auth/me/ directly in production; the Next.js
+      // proxy wraps the same user in { user } in other environments.
+      const data = result.user ?? result;
       if (data && data.id) {
         setUser({
           id: String(data.id),
@@ -148,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        return { success: false, error: data.error || 'Login failed' };
+        return { success: false, error: data.error || data.detail || 'Login failed' };
       }
 
       if (!(await checkAuth())) {
