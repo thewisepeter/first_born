@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Audio, Video
+from .models import Audio, Video, Livestream
 
 
 class AudioAdmin(admin.ModelAdmin):
@@ -23,3 +23,12 @@ class VideoAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Video, VideoAdmin)
+
+
+@admin.register(Livestream)
+class LivestreamAdmin(admin.ModelAdmin):
+    fields = ('title', 'video_url', 'is_live', 'next_broadcast_at', 'offline_message')
+    list_display = ('title', 'is_live', 'next_broadcast_at')
+
+    def has_add_permission(self, request):
+        return super().has_add_permission(request) and not Livestream.objects.exists()

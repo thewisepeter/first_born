@@ -8,6 +8,7 @@ import { CsrfInitializer } from './components/CsrfInitializer';
 import { AuthProvider } from '../contexts/AuthContext';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://prophetnamara.org'),
   title: 'Prophet Namara Ernest',
   description: 'Prophet of God sent to preserve and protect the people of God',
   keywords: 'Prophesy, Fellowship, church, faith, community, worship, sermons, testimonies, Grace',

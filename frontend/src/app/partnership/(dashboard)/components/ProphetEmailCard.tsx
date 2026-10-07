@@ -91,7 +91,6 @@ export function ProphetEmailCard() {
       <p className="text-sm text-gray-600 mb-2">
         Send a personal message to Prophet Namara Ernest.
       </p>
-      <p className="text-xs text-purple-600 break-all mb-4">prophet@prophetnamara.com</p>
       {success && (
         <p role="status" className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">
           {success}

@@ -1,13 +1,6 @@
-'use client';
+import type { Metadata } from 'next';
+import HomePage from './HomePage';
 
-import { HeroCarousel } from './components/HeroCarousel';
-import { TestimoniesCarousel } from './components/TestimoniesCarousel';
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
-export default function HomePage() {
-  return (
-    <div className="min-h-screen bg-white">
-      <HeroCarousel />
-      <TestimoniesCarousel />
-    </div>
-  );
-}
+export default HomePage;

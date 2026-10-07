@@ -184,7 +184,7 @@ export default function About() {
                   "Spirit World" broadcasts every <strong>Monday</strong> evening at{' '}
                   <strong>10:00 PM</strong> on <strong>Spirit FM 96.6</strong>, in Kampala Uganda.
                 </p> */}
-                <Link href="/audios">
+                <Link href="/audio">
                   <Button
                     variant="outline"
                     className="w-full border-[#B28930] text-[#B28930] hover:bg-[#B28930] hover:text-white transition-all duration-200"

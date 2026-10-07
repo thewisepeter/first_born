@@ -3,6 +3,7 @@ from django.conf import settings
 
 ADMIN_EMAIL = "info@prophetnamara.org"  # replace with your email
 CONTACT_EMAIL = "info@prophetnamara.org"
+PROPHET_EMAIL = "prophet@prophetnamara.org"
 FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
 
 
@@ -11,7 +12,7 @@ def send_prophet_email(fullName, email, phone, message):
         subject=f"Message to the Prophet from {fullName}",
         body=f"From: {fullName}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=["prophet@prophetnamara.com"],
+        to=[PROPHET_EMAIL],
         reply_to=[email],
     ).send(fail_silently=False)
 

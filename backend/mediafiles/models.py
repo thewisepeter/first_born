@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from urllib.parse import urlparse, parse_qs
 
 
@@ -104,3 +105,56 @@ def extract_youtube_id(url: str) -> str:
             return query['v'][0]
 
     raise ValueError("Invalid or unsupported YouTube URL")
+
+
+def livestream_embed_url(url: str) -> str:
+    """Accept only canonical YouTube video URLs and return a safe embed URL."""
+    import re
+
+    parsed = urlparse(url)
+    host = (parsed.hostname or '').lower()
+    try:
+        valid_authority = not (parsed.username or parsed.password or parsed.port)
+    except ValueError:
+        valid_authority = False
+    if parsed.scheme not in ('http', 'https') or not valid_authority:
+        raise ValidationError('Enter a valid YouTube video URL.')
+
+    parts = parsed.path.strip('/').split('/')
+    video_id = None
+    if host in ('youtube.com', 'www.youtube.com', 'm.youtube.com'):
+        if parts == ['watch']:
+            video_id = parse_qs(parsed.query).get('v', [None])[0]
+        elif len(parts) == 2 and parts[0] in ('live', 'embed', 'shorts'):
+            video_id = parts[1]
+    elif host == 'youtu.be' and len(parts) == 1:
+        video_id = parts[0]
+
+    if not video_id or not re.fullmatch(r'[A-Za-z0-9_-]{11}', video_id):
+        raise ValidationError('Enter a supported YouTube watch, live, short, or embed URL.')
+    return f'https://www.youtube-nocookie.com/embed/{video_id}'
+
+
+class Livestream(models.Model):
+    title = models.CharField(max_length=255)
+    video_url = models.URLField(blank=True)
+    is_live = models.BooleanField(default=False)
+    next_broadcast_at = models.DateTimeField(blank=True, null=True)
+    offline_message = models.TextField(blank=True)
+
+    def clean(self):
+        super().clean()
+        if self.is_live and not self.video_url:
+            raise ValidationError({'video_url': 'A video URL is required while live.'})
+        if self.video_url:
+            try:
+                livestream_embed_url(self.video_url)
+            except ValidationError as error:
+                raise ValidationError({'video_url': error.messages})
+
+    @property
+    def embed_url(self):
+        return livestream_embed_url(self.video_url) if self.video_url else None
+
+    def __str__(self):
+        return self.title

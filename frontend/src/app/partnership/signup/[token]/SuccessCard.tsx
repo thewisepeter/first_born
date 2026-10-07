@@ -28,7 +28,7 @@ export function SuccessCard() {
 
       <div className="pt-4 space-y-3">
         <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-          <Link href="/partnership/login">
+          <Link href="/partnership/landing">
             <LogIn className="h-4 w-4 mr-2" />
             Sign in to Partner Dashboard
           </Link>
