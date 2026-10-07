@@ -39,7 +39,7 @@ export function Footer() {
     { label: 'Testimonies', href: '/testimonies' },
     { label: "Prophet's Blog", href: '/blog' },
     { label: 'Spirit World', href: '/audio' },
-    { label: 'Partnership', href: '/partnership' },
+    { label: 'Partnership', href: '/partnership/landing' },
   ];
 
   return (

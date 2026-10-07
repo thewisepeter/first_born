@@ -1,7 +1,7 @@
 # mediafiles/serializer.py
 
 from rest_framework import serializers
-from .models import Audio, Video
+from .models import Audio, Video, Livestream
 
 class AudioSerializer(serializers.ModelSerializer):
     driveUrl = serializers.CharField(source='drive_url')
@@ -31,3 +31,10 @@ class VideoSerializer(serializers.ModelSerializer):
     def get_date(self, obj):
         return obj.formatted_date()
 
+
+class LivestreamSerializer(serializers.ModelSerializer):
+    embed_url = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Livestream
+        fields = ('title', 'is_live', 'embed_url', 'next_broadcast_at', 'offline_message')

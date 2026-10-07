@@ -38,7 +38,7 @@ class ProphetMessageTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
-        self.assertEqual(message.to, ['prophet@prophetnamara.com'])
+        self.assertEqual(message.to, ['prophet@prophetnamara.org'])
         self.assertEqual(message.from_email, 'info@prophetnamara.org')
         self.assertEqual(message.reply_to, ['partner@example.com'])
         self.assertIn(self.payload['message'], message.body)
@@ -73,4 +73,4 @@ class ProphetMessageTests(SimpleTestCase):
 
     def test_client_cannot_override_recipient(self):
         self.submit(self.partner, {**self.payload, 'to': 'other@example.com'})
-        self.assertEqual(mail.outbox[0].to, ['prophet@prophetnamara.com'])
+        self.assertEqual(mail.outbox[0].to, ['prophet@prophetnamara.org'])

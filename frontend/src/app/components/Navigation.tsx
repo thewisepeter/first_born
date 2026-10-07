@@ -22,7 +22,7 @@ export function Navigation() {
     { name: 'About', href: '/about' },
     { name: 'Prophecies', href: '/prophecies' },
     { name: 'Testimonies', href: '/testimonies' },
-    { name: 'Partnership', href: '/partnership' },
+    { name: 'Partnership', href: '/partnership/landing' },
   ];
 
   const mediaItems = [
@@ -77,7 +77,7 @@ export function Navigation() {
             </div>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center gap-1 xl:gap-3">
               {navItems.slice(0, 4).map((item) => (
                 <Link
                   key={item.href}
@@ -132,7 +132,7 @@ export function Navigation() {
             </div>
 
             {/* Mobile menu button */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <button
                 onClick={toggleMobileMenu}
                 className="p-2 rounded-md text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-colors"
@@ -148,7 +148,7 @@ export function Navigation() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={closeMobileMenu}
         />
       )}
@@ -157,7 +157,7 @@ export function Navigation() {
       <div
         className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        } lg:hidden`}
       >
         <div className="flex flex-col h-full">
           {/* Mobile Menu Header */}

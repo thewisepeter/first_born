@@ -2,6 +2,19 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      { source: '/home', destination: 'https://prophetnamara.org/', permanent: true },
+      { source: '/audios', destination: 'https://prophetnamara.org/audio', permanent: true },
+      { source: '/partnership/login', destination: 'https://prophetnamara.org/partnership/landing', permanent: true },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.prophetnamara.org' }],
+        destination: 'https://prophetnamara.org/:path*',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       // YouTube
