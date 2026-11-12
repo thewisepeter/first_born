@@ -28,6 +28,7 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Input } from '../../../components/ui/input';
+import { ListingCover } from '../components/ListingPhotos';
 import { PostListingModal, type ListingFormData } from '../components/PostListingModal';
 import { useMarketplace } from '../../../../hooks/useMarketplace';
 import { useAuth } from '../../../../contexts/AuthContext';
@@ -96,8 +97,8 @@ const safeCurrency = (currency: string): 'UGX' | 'USD' | 'KES' | 'TZS' => {
   return validCurrencies.includes(currency) ? (currency as any) : 'UGX';
 };
 
-const safeContactMethod = (method: string): 'whatsapp' | 'phone' | 'email' | 'in_app' => {
-  const validMethods = ['whatsapp', 'phone', 'email', 'in_app'];
+const safeContactMethod = (method: string): 'whatsapp' | 'phone' | 'email' | 'message' => {
+  const validMethods = ['whatsapp', 'phone', 'email', 'message'];
   return validMethods.includes(method) ? (method as any) : 'whatsapp';
 };
 
@@ -181,45 +182,16 @@ export default function MarketplacePage() {
   };
 
   const handlePostListing = async (formData: ListingFormData) => {
-    try {
-      // Prepare the data with all required fields, including contact_info
-      const listingData = {
-        title: formData.title,
-        description: formData.description,
-        listing_type: formData.type,
-        category: parseInt(formData.category),
-        price: parseFloat(formData.price),
-        currency: formData.currency,
-        location: formData.location,
-        contact_method: formData.contactMethod,
-        contact_info: formData.contactInfo || '', // 🔑 Add this - required by serializer
-        tags: formData.tags
-          .split(',')
-          .map((t) => t.trim())
-          .filter((t) => t),
-      };
-
-      console.log('📤 Sending marketplace data:', listingData);
-
-      if (isEditing && editingListing?.id) {
-        await marketplaceService.updateListing(parseInt(editingListing.id as string), listingData);
-      } else {
-        await marketplaceService.createListing(listingData);
-      }
-
-      refresh();
-      setShowPostModal(false);
-      setEditingListing(null);
-      setIsEditing(false);
-    } catch (err) {
-      console.error('Error posting listing:', err);
-      alert(err instanceof Error ? err.message : 'Failed to post listing');
+    const data = marketplaceService.listingFormData(formData);
+    if (isEditing && editingListing?.id) {
+      await marketplaceService.updateListing(Number(editingListing.id), data);
+    } else {
+      await marketplaceService.createListing(data);
     }
+    refresh();
   };
 
   const handleEditClick = (item: marketplaceService.MarketplaceListing) => {
-    const category = categories.find((c) => c.name === item.category_name);
-
     const formData: ListingFormData = {
       id: item.id.toString(),
       type: item.listing_type,
@@ -227,11 +199,13 @@ export default function MarketplacePage() {
       description: item.description,
       price: item.price.toString(),
       currency: safeCurrency(item.currency),
-      category: category?.id.toString() || '',
+      category: item.category?.toString() || '',
       location: item.location,
       contactMethod: safeContactMethod(item.contact_method),
       tags: item.tags.join(', '),
-      imageUrl: item.image_url,
+      contactInfo: item.contact_info,
+      existingImages: item.images,
+      legacyImage: item.image || item.image_url,
     };
 
     setEditingListing(formData);
@@ -435,17 +409,7 @@ export default function MarketplacePage() {
                   <Card key={item.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                     {/* Image - Compact height from File 1 */}
                     <div className="relative h-28 overflow-hidden bg-gray-100">
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                          <Store className="h-10 w-10 text-gray-300" />
-                        </div>
-                      )}
+                      <ListingCover listing={item} />
                     </div>
 
                     {/* Content - Compact spacing from File 1 */}

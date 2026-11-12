@@ -1,3 +1,4 @@
+import { forwardListingWrite } from '../forwardWrite';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -46,4 +47,8 @@ export async function GET(request: NextRequest) {
     console.error('🔴 Marketplace fetch error:', error);
     return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
   }
+}
+
+export function POST(request: Request) {
+  return forwardListingWrite(request);
 }

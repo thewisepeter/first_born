@@ -360,3 +360,16 @@ class MarketplaceReport(models.Model):
     
     def __str__(self):
         return f"Report on {self.listing.title}"
+
+class MarketplaceListingImage(models.Model):
+    listing = models.ForeignKey(MarketplaceListing, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='marketplace/gallery/')
+    position = models.PositiveSmallIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['position', 'id']
+        constraints = [
+            models.UniqueConstraint(fields=['listing', 'position'], name='marketplace_gallery_slot'),
+            models.CheckConstraint(condition=models.Q(position__lt=3), name='marketplace_gallery_limit'),
+        ]
