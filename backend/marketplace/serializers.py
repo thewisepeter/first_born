@@ -1,11 +1,12 @@
 # marketplace/serializers.py
 from rest_framework import serializers
 from .models import (
-    MarketplaceCategory, MarketplaceListing, 
+    MarketplaceCategory, MarketplaceListing, MarketplaceListingImage,
     MarketplaceLike, MarketplaceSave, 
     MarketplaceInquiry, MarketplaceReport
 )
 from partners.serializer import PartnerSerializer
+from .gallery import normalize_photo, save_with_gallery, MAX_IMAGES
 
 
 class MarketplaceCategorySerializer(serializers.ModelSerializer):
@@ -22,8 +23,17 @@ class MarketplaceCategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['listings_count', 'created_at']
 
 
+class GalleryImageSerializer(serializers.ModelSerializer):
+    url = serializers.ImageField(source='image', read_only=True)
+
+    class Meta:
+        model = MarketplaceListingImage
+        fields = ['id', 'url', 'position']
+
+
 class MarketplaceListingSerializer(serializers.ModelSerializer):
     """Serializer for marketplace listings (list view)"""
+    images = GalleryImageSerializer(many=True, read_only=True)
     partner_name = serializers.CharField(source='partner.user.get_full_name', read_only=True)
     partner_community = serializers.CharField(source='partner.partner_type', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
@@ -37,7 +47,7 @@ class MarketplaceListingSerializer(serializers.ModelSerializer):
             'id', 'slug', 'title', 'description', 'listing_type',
             'category', 'category_name', 'status', 'price', 'currency',
             'is_price_negotiable', 'is_free', 'location',
-            'is_location_flexible', 'image', 'image_url',
+            'is_location_flexible', 'image', 'image_url', 'images',
             'contact_method', 'contact_info', 'contact_visible',
             'partner_name', 'partner_community', 'tags',
             'views_count', 'likes_count', 'saves_count', 'inquiries_count',
@@ -84,6 +94,17 @@ class MarketplaceListingDetailSerializer(MarketplaceListingSerializer):
 
 class MarketplaceListingCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating listings"""
+    images = serializers.ListField(child=serializers.FileField(), max_length=MAX_IMAGES, required=False, write_only=True)
+    remove_image_ids = serializers.ListField(child=serializers.IntegerField(min_value=1), max_length=MAX_IMAGES, required=False, write_only=True)
+
+    def validate_images(self, files):
+        return [normalize_photo(file) for file in files]
+
+    def to_representation(self, instance):
+        result = super().to_representation(instance)
+        result['images'] = GalleryImageSerializer(instance.images.all(), many=True, context=self.context).data
+        return result
+
     class Meta:
         model = MarketplaceListing
         fields = [
@@ -91,19 +112,19 @@ class MarketplaceListingCreateUpdateSerializer(serializers.ModelSerializer):
             'price', 'currency', 'is_price_negotiable', 'is_free',
             'location', 'is_location_flexible', 'image', 'image_url',
             'contact_method', 'contact_info', 'contact_visible',
-            'tags', 'status', 'expiry_date'
+            'tags', 'status', 'expiry_date', 'images', 'remove_image_ids'
         ]
     
     def validate(self, data):
         # Validate price
-        if not data.get('is_free') and not data.get('price'):
+        if not data.get('is_free', getattr(self.instance, 'is_free', False)) and not data.get('price', getattr(self.instance, 'price', None)):
             raise serializers.ValidationError({
                 'price': 'Price is required for non-free listings.'
             })
         
         # Validate contact info based on method
-        contact_method = data.get('contact_method')
-        contact_info = data.get('contact_info', '')
+        contact_method = data.get('contact_method', getattr(self.instance, 'contact_method', None))
+        contact_info = data.get('contact_info', getattr(self.instance, 'contact_info', ''))
         
         if contact_method == 'phone' and not contact_info:
             raise serializers.ValidationError({
@@ -121,10 +142,14 @@ class MarketplaceListingCreateUpdateSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        """Auto-set partner from request"""
-        request = self.context.get('request')
-        validated_data['partner'] = request.user.partner_profile
-        return super().create(validated_data)
+        create = super().create
+        return save_with_gallery(lambda _: create(validated_data), None,
+                                 validated_data.pop('images', []), validated_data.pop('remove_image_ids', []))
+
+    def update(self, instance, validated_data):
+        update = super().update
+        return save_with_gallery(lambda locked: update(locked, validated_data), instance,
+                                 validated_data.pop('images', []), validated_data.pop('remove_image_ids', []))
 
 
 class MarketplaceLikeSerializer(serializers.ModelSerializer):

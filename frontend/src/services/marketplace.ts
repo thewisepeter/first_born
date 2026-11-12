@@ -1,7 +1,14 @@
 // Use empty string for relative URLs (nginx will proxy to Django)
 const API_BASE = '';
 
+export interface ListingImage {
+  id: number;
+  url: string;
+  position: number;
+}
+
 export interface MarketplaceListing {
+  images: ListingImage[];
   id: number;
   slug: string;
   title: string;
@@ -18,7 +25,7 @@ export interface MarketplaceListing {
   is_location_flexible: boolean;
   image: string | null;
   image_url: string;
-  contact_method: 'phone' | 'email' | 'whatsapp' | 'in_app';
+  contact_method: 'phone' | 'email' | 'whatsapp' | 'message';
   contact_info: string;
   contact_visible: boolean;
   partner_name: string;
@@ -46,7 +53,7 @@ export interface MarketplaceCategory {
   slug: string;
   description: string;
   icon: string;
-  listing_type: 'product' | 'service' | 'need' | 'all';
+  category_type: 'product' | 'service' | 'need';
   is_active: boolean;
   order: number;
 }
@@ -196,55 +203,81 @@ export async function getMarketplaceStats(): Promise<MarketplaceStats> {
   return data;
 }
 
-// Create a new listing
-export async function createListing(data: any): Promise<MarketplaceListing> {
-  const response = await fetch(`${API_BASE}/api/marketplace/listings/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken(),
-      Referer: window.location.origin,
-    },
-    credentials: 'include',
-    body: JSON.stringify(data),
-  });
+export type ListingFormData = {
+  id?: string;
+  type: 'product' | 'service' | 'need';
+  title: string;
+  description: string;
+  price: string;
+  currency: 'UGX' | 'USD' | 'KES' | 'TZS';
+  category: string;
+  location: string;
+  contactMethod: 'whatsapp' | 'phone' | 'email' | 'message';
+  contactInfo?: string; // This can be optional since it depends on the contact method
+  tags: string;
+  existingImages?: ListingImage[];
+  legacyImage?: string;
+  newImages?: File[];
+  removeImageIds?: number[];
+};
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to create listing');
-  }
-
-  const result = await response.json();
-  return {
-    ...result,
-    price: parseFloat(result.price),
+export function listingFormData(formData: ListingFormData) {
+  const data = new FormData();
+  const fields = {
+    title: formData.title,
+    description: formData.description,
+    listing_type: formData.type,
+    category: formData.category,
+    price: formData.price,
+    currency: formData.currency,
+    location: formData.location,
+    contact_method: formData.contactMethod,
+    contact_info: formData.contactInfo || '',
+    tags: JSON.stringify(
+      formData.tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    ),
   };
+  for (const [key, value] of Object.entries(fields)) data.append(key, value);
+  formData.newImages?.forEach((file) => data.append('images', file));
+  formData.removeImageIds?.forEach((id) => data.append('remove_image_ids', String(id)));
+  return data;
 }
 
-// Update a listing
-export async function updateListing(id: number, data: any): Promise<MarketplaceListing> {
-  const response = await fetch(`${API_BASE}/api/marketplace/listings/${id}/`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken(),
-      Referer: window.location.origin,
-    },
-    credentials: 'include',
-    body: JSON.stringify(data),
-  });
-
+async function writeListing(data: FormData, id?: number) {
+  const response = await fetch(
+    `${API_BASE}/api/marketplace/listings/${id === undefined ? '' : id + '/'}`,
+    {
+      method: id === undefined ? 'POST' : 'PATCH',
+      headers: { 'X-CSRFToken': getCSRFToken() },
+      credentials: 'include',
+      body: data,
+    }
+  );
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update listing');
+    const errors = await response.json().catch(() => null);
+    const messages = (value: unknown, label = ''): string[] => {
+      if (Array.isArray(value)) return value.flatMap((item) => messages(item, label));
+      if (value && typeof value === 'object')
+        return Object.entries(value).flatMap(([key, item]) =>
+          messages(item, [label, key.replace(/_/g, ' ')].filter(Boolean).join(' · '))
+        );
+      return typeof value === 'string' ? [label ? `${label}: ${value}` : value] : [];
+    };
+    const detail = messages(errors).join('\n');
+    throw new Error(
+      detail ||
+        (response.status === 413
+          ? 'Upload exceeds the server size limit.'
+          : 'Failed to save listing.')
+    );
   }
-
-  const result = await response.json();
-  return {
-    ...result,
-    price: parseFloat(result.price),
-  };
 }
+
+export const createListing = (data: FormData) => writeListing(data);
+export const updateListing = (id: number, data: FormData) => writeListing(data, id);
 
 // Delete a listing
 export async function deleteListing(id: number): Promise<void> {

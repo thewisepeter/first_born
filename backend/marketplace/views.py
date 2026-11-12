@@ -82,7 +82,7 @@ class MarketplaceListingViewSet(viewsets.ModelViewSet):
         """Get filtered listings"""
         queryset = MarketplaceListing.objects.filter(
             status__in=['available', 'pending']
-        ).select_related('partner__user', 'category')
+        ).select_related('partner__user', 'category').prefetch_related('images')
         
         # Apply filters from query parameters
         listing_type = self.request.query_params.get('type', None)

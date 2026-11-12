@@ -19,23 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../../components/ui/select';
-import { Store, X, Image as ImageIcon, Tag, MapPin, DollarSign, Phone } from 'lucide-react';
-import { MarketplaceCategory } from '../../../../services/marketplace';
+import { Store, X, Tag, MapPin, DollarSign, Phone } from 'lucide-react';
+import { ListingPhotos, type Photo } from './ListingPhotos';
+import { MarketplaceCategory, type ListingFormData } from '../../../../services/marketplace';
 
-export type ListingFormData = {
-  id?: string;
-  type: 'product' | 'service' | 'need';
-  title: string;
-  description: string;
-  price: string;
-  currency: 'UGX' | 'USD' | 'KES' | 'TZS';
-  category: string;
-  location: string;
-  contactMethod: 'whatsapp' | 'phone' | 'email' | 'in_app';
-  contactInfo?: string; // This can be optional since it depends on the contact method
-  tags: string;
-  imageUrl?: string;
-};
+export type { ListingFormData } from '../../../../services/marketplace';
 
 type PostListingModalProps = {
   isOpen: boolean;
@@ -64,20 +52,25 @@ export function PostListingModal({
     location: '',
     contactMethod: 'whatsapp',
     tags: '',
-    imageUrl: '',
+
     contactInfo: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [error, setError] = useState('');
 
   // Contact methods - keep these as they are
   const contactMethods = [
     { value: 'whatsapp', label: 'WhatsApp' },
     { value: 'phone', label: 'Phone Call' },
     { value: 'email', label: 'Email' },
-    { value: 'in_app', label: 'In-App Message' },
+    { value: 'message', label: 'In-App Message' },
   ];
 
   useEffect(() => {
+    setPhotos((initialData?.existingImages || []).map((saved) => ({ saved })));
+    setError('');
     if (initialData) {
       setFormData(initialData);
     } else {
@@ -87,11 +80,11 @@ export function PostListingModal({
         description: '',
         price: '',
         currency: 'UGX',
-        category: 'placeholder',
+        category: '',
         location: '',
         contactMethod: 'whatsapp',
         tags: '',
-        imageUrl: '',
+
         contactInfo: '',
       });
     }
@@ -103,7 +96,11 @@ export function PostListingModal({
   };
 
   const handleSelectChange = (name: keyof ListingFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === 'type' && prev.type !== value ? { category: '' } : {}),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,52 +108,33 @@ export function PostListingModal({
     setIsSubmitting(true);
 
     try {
-      await onSubmit(formData);
+      setError('');
+      await onSubmit({
+        ...formData,
+        newImages: photos.flatMap((p) => ('file' in p ? [p.file] : [])),
+        removeImageIds: (initialData?.existingImages || [])
+          .filter((image) => !photos.some((p) => 'saved' in p && p.saved.id === image.id))
+          .map((image) => image.id),
+      });
       onClose();
-      // Reset form
-      if (!isEditing) {
-        setFormData({
-          type: 'product',
-          title: '',
-          description: '',
-          price: '',
-          currency: 'UGX',
-          category: '',
-          location: '',
-          contactMethod: 'whatsapp',
-          tags: '',
-          imageUrl: '',
-          contactInfo: '',
-        });
-      }
-    } catch (error) {
-      console.error('Error submitting listing:', error);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to post listing. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'product':
-        return 'Product for Sale';
-      case 'service':
-        return 'Service Offered';
-      case 'need':
-        return 'Product/Service Needed';
-      default:
-        return 'Listing';
-    }
-  };
-
   // Filter categories by listing type
-  const filteredCategories = categories.filter(
-    (cat) => cat.listing_type === 'all' || cat.listing_type === formData.type
-  );
+  const filteredCategories = categories.filter((cat) => cat.category_type === formData.type);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) onClose();
+      }}
+    >
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <Store className="h-5 w-5 mr-2 text-purple-600" />
@@ -370,48 +348,40 @@ export function PostListingModal({
               value={formData.contactInfo || ''}
               onChange={handleChange}
               placeholder="e.g., 0777123456 or email@example.com"
-              required
+              required={formData.contactMethod !== 'message'}
             />
             <p className="text-xs text-gray-500">
               {formData.contactMethod === 'whatsapp' &&
                 'Enter your WhatsApp number with country code'}
               {formData.contactMethod === 'phone' && 'Enter your phone number with country code'}
               {formData.contactMethod === 'email' && 'Enter your email address'}
-              {formData.contactMethod === 'in_app' &&
+              {formData.contactMethod === 'message' &&
                 'Contact info is optional for in-app messages'}
             </p>
           </div>
 
-          {/* Image URL (Optional) */}
-          <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="flex items-center">
-              <ImageIcon className="h-4 w-4 mr-2" />
-              Image URL (Optional)
-            </Label>
-            <Input
-              id="imageUrl"
-              name="imageUrl"
-              value={formData.imageUrl || ''}
-              onChange={handleChange}
-              placeholder="https://example.com/image.jpg"
-            />
-            <p className="text-xs text-gray-500">Add a direct image link for better visibility</p>
-          </div>
-
-          {/* Preview (optional) */}
-          {formData.imageUrl && (
-            <div className="space-y-2">
-              <Label>Image Preview</Label>
-              <div className="h-40 rounded-lg overflow-hidden border">
-                <img
-                  src={formData.imageUrl}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
+          <ListingPhotos photos={photos} onChange={setPhotos} disabled={isSubmitting} />
+          {!photos.length && initialData?.legacyImage && (
+            <div className="text-xs text-gray-600">
+              <img
+                src={initialData.legacyImage}
+                alt="Existing legacy cover"
+                className="h-20 rounded"
+              />
+              Existing cover · used when the gallery is empty
+            </div>
+          )}
+          {error && (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+            >
+              <p className="font-semibold">Couldn’t save your listing</p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 break-words">
+                {error.split('\n').map((message, i) => (
+                  <li key={i}>{message}</li>
+                ))}
+              </ul>
             </div>
           )}
 
